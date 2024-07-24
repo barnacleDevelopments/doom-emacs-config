@@ -12,6 +12,16 @@
  'org-babel-load-languages
  '((restclient . t)))
 
+;;WEB MODE
+(setq web-mode-content-types-alist
+  '(("json" . "/some/path/.*\\.api\\'")
+    ("xml"  . "/other/path/.*\\.api\\'")
+    ("jsx"  . "/some/react/path/.*\\.js[x]?\\'")
+    ("ejs"  . "\\.ejs\\'")
+    ))
+
+(add-to-list 'auto-mode-alist '("\\.ejs\\'" . web-mode))
+
 ;;PRETTIER CONFIG
 (use-package! prettier
   :hook ((js-mode . prettier-mode)
@@ -31,6 +41,9 @@
     (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
 
 (add-hook 'org-after-todo-statistics-hook #'org-summary-todo)
+(setq org-agenda-todo-ignore-scheduled 'future)
+(setq org-agenda-start-day "-1d")
+(setq org-agenda-span 5)
 
 (setq org-agenda-files '(
         "~/org/inbox.org"

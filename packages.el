@@ -10,6 +10,7 @@
 (package! counsel-jq)
 (package! ob-restclient)
 (package! prettier)
+(package! web-mode)
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
