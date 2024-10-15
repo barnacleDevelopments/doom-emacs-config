@@ -13,14 +13,13 @@
  '((restclient . t)))
 
 ;;WEB MODE
-(setq web-mode-content-types-alist
-  '(("json" . "/some/path/.*\\.api\\'")
-    ("xml"  . "/other/path/.*\\.api\\'")
-    ("jsx"  . "/some/react/path/.*\\.js[x]?\\'")
-    ("ejs"  . "\\.ejs\\'")
-    ))
-
-(add-to-list 'auto-mode-alist '("\\.ejs\\'" . web-mode))
+(use-package! web-mode
+  :mode ("\\.ejs\\'" . web-mode)
+  :config
+  (setq web-mode-content-types-alist
+        '(("html" . "\\.ejs\\'")))
+  (setq web-mode-engines-alist
+        '(("ejs" . "\\.ejs\\'"))))
 
 ;;PRETTIER CONFIG
 (use-package! prettier
@@ -74,7 +73,31 @@
   (set (make-local-variable 'truncate-partial-width-windows) nil))
 (add-hook! 'compilation-mode-hook 'my-compilation-mode-hook)
 
-;; Some functionality uses this to identify you, e.g. GPG configuration, email
+;; LSP Config
+(setq lsp-idle-delay 0.500)  ; Increase delay to half a second (default is 0.1)
+(setq lsp-enable-on-type-formatting nil)  ; Disable auto-formatting on typing
+(setq lsp-file-watch-ignored-directories
+      '("[/\\\\]\\.git$"
+        "[/\\\\]node_modules$"
+        "[/\\\\]build$"
+        "[/\\\\]dist$"))
+(setq lsp-file-watch-threshold 1000)  ;; Increase threshold to 1000 files
+(after! lsp-mode
+  (setq lsp-enable-symbol-highlighting nil) ;; Disable symbol highlighting
+  (setq lsp-enable-on-type-formatting nil)  ;; Disable on-type formatting
+  (setq lsp-signature-auto-activate nil)    ;; Disable signature help
+  (setq lsp-modeline-code-actions-enable nil) ;; Disable code actions in modeline
+  (setq lsp-modeline-diagnostics-enable nil) ;; Disable diagnostics in modeline
+  (setq lsp-lens-enable nil)) ;; Disable CodeLens
+(after! lsp-mode
+  (setq lsp-typescript-auto-import-completions nil)) ;; Disable auto-imports
+
+;; Chat GPT
+(setq gpt-api-key (getenv "CHAT_GPT_API_KEY"))
+(use-package! gptel
+ :config
+ (setq! gptel-api-key gpt-api-key))
+;; Some functionality uses this to identify your e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 ;; (setq user-full-name "John Doe"
 ;;       user-mail-address "john@doe.com")

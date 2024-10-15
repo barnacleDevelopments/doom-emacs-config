@@ -11,6 +11,7 @@
 (package! ob-restclient)
 (package! prettier)
 (package! web-mode)
+(package! gptel)
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
