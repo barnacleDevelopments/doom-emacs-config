@@ -12,7 +12,8 @@
 (package! prettier)
 (package! web-mode)
 (package! gptel)
-
+(package! elfeed-score)
+(package! json-mode)
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 

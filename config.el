@@ -21,11 +21,21 @@
   (setq web-mode-engines-alist
         '(("ejs" . "\\.ejs\\'"))))
 
+;;BICEP MODE
+;; (use-package! "bicep-mode"
+  ;;:load-path "path/to/bicep-mode")
+
+;;Shortcuts
+(map! "C-c r"   #'eshell-isearch-backward)
+(map! :leader
+      :prefix ("o" . "open")
+      "c" #'gptel)
+
 ;;PRETTIER CONFIG
 (use-package! prettier
-  :hook ((js-mode . prettier-mode)
+  :hook (
+         (js-mode . prettier-mode)
          (typescript-mode . prettier-mode)
-         (json-mode . prettier-mode)
          (css-mode . prettier-mode)
          (html-mode . prettier-mode)
          (markdown-mode . prettier-mode)))
@@ -92,11 +102,20 @@
 (after! lsp-mode
   (setq lsp-typescript-auto-import-completions nil)) ;; Disable auto-imports
 
-;; Chat GPT
+;; Chat GPT 
 (setq gpt-api-key (getenv "CHAT_GPT_API_KEY"))
 (use-package! gptel
  :config
  (setq! gptel-api-key gpt-api-key))
+
+;; Elfeed
+(use-package! elfeed-score
+  :ensure t
+  :config
+  (progn
+    (elfeed-score-enable)
+    (define-key elfeed-search-mode-map "=" elfeed-score-map)))
+
 ;; Some functionality uses this to identify your e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 ;; (setq user-full-name "John Doe"
