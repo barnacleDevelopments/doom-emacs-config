@@ -14,6 +14,7 @@
 (package! gptel)
 (package! elfeed-score)
 (package! json-mode)
+(package! sly)
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 

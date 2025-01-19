@@ -1,3 +1,10 @@
+#+title: Doom Config
+
+Reference: https://leanpub.com/lit-config/read
+
+* General Settings
+This is the general settings.
+#+begin_src elisp :tangle ~/.doom.d/config.el
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
 ;; PROJECTILE CONFIG
@@ -34,14 +41,25 @@
 (setq display-line-numbers-type 'relative)
 (setq doom-theme 'doom-city-lights)
 (setq display-line-numbers-type t)
-
+#+end_src
+* Package-specific configurations
+** Org
+*** Tasks
+**** TODO Learn about optimizing tasks and notes
+*** Configurations
+**** Configuring org-directory
+#+begin_src elisp :tangle ~/.doom.d/config.el
 (setq org-directory "~/org/")
-
+#+END_SRC
+**** Auto Tangle Org Babel Code Blocks
+#+begin_src elisp :tangle ~/.doom.d/config.el
 (defun my-org-babel-tangle-on-save ()
   "Automatically tangle Org Babel code blocks after saving."
   (add-hook 'after-save-hook #'org-babel-tangle :append :local))
 (add-hook 'org-mode-hook #'my-org-babel-tangle-on-save)
-
+#+end_src
+**** Agenda
+#+begin_src elisp :tangle ~/.doom.d/config.el
 (setq org-agenda-todo-ignore-scheduled 'future)
 (setq org-agenda-start-day "-1d")
 (setq org-agenda-span 5)
@@ -51,7 +69,9 @@
         "~/org/personal.org"
 ))
 (setq org-agenda-start-with-follow-mode t)
-
+#+end_src
+**** Other
+#+begin_src elisp :tangle ~/.doom.d/config.el
 (defun org-summary-todo (n-done n-not-done)
   "Switch entry to DONE when all subentries are done, to TODO otherwise."
   (let (org-log-done org-todo-log-states)   ; turn off logging
@@ -72,6 +92,9 @@
 (setq org-refile-targets '(("~/org/personal.org" :level . 1)
                             ("~/org/warriertech.org" :maxlevel . 2)))
 
+#+END_SRC
+** Prettier
+#+begin_src elisp :tangle ~/.doom.d/config.el
 (use-package! prettier
   :hook (
          (js-mode . prettier-mode)
@@ -80,7 +103,9 @@
          (html-mode . prettier-mode)
          (markdown-mode . prettier-mode)
          (terraform-mode . prettier-mode)))
-
+#+END_SRC
+** LSP
+#+begin_src elisp :tangle ~/.doom.d/config.el
 (setq lsp-idle-delay 0.500)  ; Increase delay to half a second (default is 0.1)
 (setq lsp-enable-on-type-formatting nil)  ; Disable auto-formatting on typing
 (setq lsp-file-watch-ignored-directories
@@ -98,17 +123,24 @@
   (setq lsp-lens-enable nil)) ;; Disable CodeLens
 (after! lsp-mode
   (setq lsp-typescript-auto-import-completions nil)) ;; Disable auto-imports
-
+#+END_SRC
+** Compiler
+#+begin_src elisp :tangle ~/.doom.d/config.el
 (defun my-compilation-mode-hook ()
   (setq truncate-lines nil) ;; automatically becomes buffer local
   (set (make-local-variable 'truncate-partial-width-windows) nil))
 (add-hook! 'compilation-mode-hook 'my-compilation-mode-hook)
-
+#+END_SRC
+** GPTEL
+[[https://github.com/karthink/gptel?tab=readme-ov-file#chatgpt][GPTEL Docs]]
+#+begin_src elisp :tangle ~/.doom.d/config.el
 (setq gpt-api-key (getenv "CHAT_GPT_API_KEY"))
 (use-package! gptel
  :config
  (setq! gptel-api-key gpt-api-key))
-
+#+end_src
+** Elfeed
+#+begin_src elisp :tangle ~/.doom.d/config.el
 (use-package! elfeed-score
   :ensure t
   :config
@@ -117,3 +149,4 @@
     (define-key elfeed-search-mode-map "=" elfeed-score-map)))
 (setq elfeed-score-serde-score-file "~/.doom.d/score.el")
 (setq elfeed-search-print-entry-function #'elfeed-score-print-entry)
+#+end_src
