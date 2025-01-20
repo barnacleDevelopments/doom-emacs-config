@@ -115,5 +115,14 @@
   (progn
     (elfeed-score-enable)
     (define-key elfeed-search-mode-map "=" elfeed-score-map)))
-(setq elfeed-score-serde-score-file "~/.doom.d/score.el")
 (setq elfeed-search-print-entry-function #'elfeed-score-print-entry)
+(setq elfeed-score-serde-score-file "/home/devindavis/.doom.d/score.el")
+(elfeed-search-set-filter  "@1-week-ago")
+
+;; Docs: https://kubernetes-el.github.io/kubernetes-el/
+(use-package! kubernetes
+  :ensure t
+  :commands (kubernetes-overview)
+  :config
+  (setq kubernetes-poll-frequency 3600
+        kubernetes-redraw-frequency 3600))
