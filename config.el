@@ -20,11 +20,8 @@
 
 ;;Shortcuts
 (map! "C-c r"   #'eshell-isearch-backward)
-(map! :leader
-      :prefix ("o" . "open")
-      "c" #'gptel)
 
-
+(setq avy-all-windows t)
 ;;QC CLIENT CONFIG
 (use-package! counsel-jq)
 
@@ -106,6 +103,10 @@
  :config
  (setq! gptel-api-key gpt-api-key))
 
+(map! :leader
+      :prefix ("o" . "open")
+      "c" #'gptel)
+
 (use-package! elfeed-score
   :ensure t
   :config
@@ -116,9 +117,8 @@
 (setq elfeed-score-serde-score-file "/home/devindavis/.doom.d/score.el")
 
 (map! :leader
-      :prefix ("r" . "RSS")
+      :prefix ("o" . "open")
       "r" #'=rss
-      "u" #'elfeed-update
       )
 
 (elfeed-search-set-filter  "@1-week-ago")
@@ -132,6 +132,6 @@
         kubernetes-redraw-frequency 3600))
 
 (map! :leader
-      :prefix ("k" . "Kubernetes")
+      :prefix ("o" . "Kubernetes")
       "k" #'kubernetes-overview
         )

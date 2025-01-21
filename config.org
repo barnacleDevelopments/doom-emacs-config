@@ -27,11 +27,8 @@ This is the general settings.
 
 ;;Shortcuts
 (map! "C-c r"   #'eshell-isearch-backward)
-(map! :leader
-      :prefix ("o" . "open")
-      "c" #'gptel)
 
-
+(setq avy-all-windows t)
 ;;QC CLIENT CONFIG
 (use-package! counsel-jq)
 
@@ -135,8 +132,15 @@ This is the general settings.
 (use-package! gptel
  :config
  (setq! gptel-api-key gpt-api-key))
+
+(map! :leader
+      :prefix ("o" . "open")
+      "c" #'gptel)
 #+end_src
 ** Elfeed
+:Docs:  https://github.com/skeeto/elfeed?tab=readme-ov-file
+*** TODO Implement Bongo: https://protesilaos.com/codelog/2020-09-11-emacs-elfeed-bongo/
+*** Configurations
 #+begin_src elisp :tangle ~/.doom.d/config.el
 (use-package! elfeed-score
   :ensure t
@@ -148,9 +152,8 @@ This is the general settings.
 (setq elfeed-score-serde-score-file "/home/devindavis/.doom.d/score.el")
 
 (map! :leader
-      :prefix ("r" . "RSS")
+      :prefix ("o" . "open")
       "r" #'=rss
-      "u" #'elfeed-update
       )
 
 (elfeed-search-set-filter  "@1-week-ago")
@@ -166,7 +169,7 @@ This is the general settings.
         kubernetes-redraw-frequency 3600))
 
 (map! :leader
-      :prefix ("k" . "Kubernetes")
+      :prefix ("o" . "Kubernetes")
       "k" #'kubernetes-overview
         )
 #+end_src
