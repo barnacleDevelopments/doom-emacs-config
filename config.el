@@ -24,9 +24,6 @@
       :prefix ("o" . "open")
       "c" #'gptel)
 
-(map! :leader
-      :prefix ("o" . "open")
-      "r" #'=rss)
 
 ;;QC CLIENT CONFIG
 (use-package! counsel-jq)
@@ -117,6 +114,13 @@
     (define-key elfeed-search-mode-map "=" elfeed-score-map)))
 (setq elfeed-search-print-entry-function #'elfeed-score-print-entry)
 (setq elfeed-score-serde-score-file "/home/devindavis/.doom.d/score.el")
+
+(map! :leader
+      :prefix ("r" . "RSS")
+      "r" #'=rss
+      "u" #'elfeed-update
+      )
+
 (elfeed-search-set-filter  "@1-week-ago")
 
 ;; Docs: https://kubernetes-el.github.io/kubernetes-el/
@@ -126,3 +130,8 @@
   :config
   (setq kubernetes-poll-frequency 3600
         kubernetes-redraw-frequency 3600))
+
+(map! :leader
+      :prefix ("k" . "Kubernetes")
+      "k" #'kubernetes-overview
+        )
