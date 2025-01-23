@@ -24,9 +24,8 @@
 (setq avy-all-windows t)
 ;;QC CLIENT CONFIG
 (use-package! counsel-jq)
-
 (setq display-line-numbers-type 'relative)
-(setq doom-theme 'doom-city-lights)
+(setq doom-theme 'doom-palenight)
 (setq display-line-numbers-type t)
 
 (setq org-directory "~/org/")
@@ -115,13 +114,11 @@
     (define-key elfeed-search-mode-map "=" elfeed-score-map)))
 (setq elfeed-search-print-entry-function #'elfeed-score-print-entry)
 (setq elfeed-score-serde-score-file "/home/devindavis/.doom.d/score.el")
-
 (map! :leader
       :prefix ("o" . "open")
-      "r" #'=rss
+      "r" #'elfeed
       )
-
-(elfeed-search-set-filter  "@1-week-ago")
+(elfeed-search-set-filter  "@3-days-ago")
 
 ;; Docs: https://kubernetes-el.github.io/kubernetes-el/
 (use-package! kubernetes
@@ -133,5 +130,8 @@
 
 (map! :leader
       :prefix ("o" . "Kubernetes")
-      "k" #'kubernetes-overview
-        )
+      "k" #'kubernetes-overview)
+
+(map! :map kubernetes-overview-mode-map
+      :prefix ("C-c" . "Kubernetes")
+      "n" #'kubernetes-refresh)
