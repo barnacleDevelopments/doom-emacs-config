@@ -133,5 +133,9 @@
       "k" #'kubernetes-overview)
 
 (map! :map kubernetes-overview-mode-map
-      :prefix ("C-c" . "Kubernetes")
-      "n" #'kubernetes-refresh)
+      :prefix ("C-c" . "Kubernetes Refresh")
+      "r" #'kubernetes-refresh)
+
+(map! :map kubernetes-overview-mode-map
+      :prefix ("C-c" . "Kubernetes Display Pod")
+      "P" #'kubernetes-display-pod)
