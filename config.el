@@ -118,6 +118,11 @@
       :prefix ("o" . "open")
       "r" #'elfeed
       )
+
+(map! :map elfeed-search-mode-map
+      :prefix ("C-c" . "Update Feeds")
+      "u" #'elfeed-update)
+
 (elfeed-search-set-filter  "@3-days-ago")
 
 ;; Docs: https://kubernetes-el.github.io/kubernetes-el/
@@ -139,3 +144,8 @@
 (map! :map kubernetes-overview-mode-map
       :prefix ("C-c" . "Kubernetes Display Pod")
       "P" #'kubernetes-display-pod)
+
+
+(map! :map kubernetes-overview-mode-map
+      :prefix ("C-c" . "Kubernetes Display Service")
+      "s" #'kubernetes-display-service)

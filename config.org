@@ -154,6 +154,11 @@ This is the general settings.
       :prefix ("o" . "open")
       "r" #'elfeed
       )
+
+(map! :map elfeed-search-mode-map
+      :prefix ("C-c" . "Update Feeds")
+      "u" #'elfeed-update)
+
 (elfeed-search-set-filter  "@3-days-ago")
 #+end_src
 ** Kubernetes El
@@ -177,6 +182,11 @@ This is the general settings.
 (map! :map kubernetes-overview-mode-map
       :prefix ("C-c" . "Kubernetes Display Pod")
       "P" #'kubernetes-display-pod)
+
+
+(map! :map kubernetes-overview-mode-map
+      :prefix ("C-c" . "Kubernetes Display Service")
+      "s" #'kubernetes-display-service)
 
 #+end_src
 
