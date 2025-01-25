@@ -12,6 +12,7 @@
   (:text "Ghost Story" :title-value 1000 :content-value 1000 :type s)
   (:text "Fallout" :title-value 500 :content-value 500 :type s)
   (:text "Call of Duty" :title-value 500 :content-value 500 :type s)
+  (:text "Doom" :title-value 500 :content-value 500 :type s)
   (:text "Elder Scrolls" :title-value 500 :content-value 500 :type s)
   (:text "media molecule" :title-value 500 :content-value 500 :type s)
   (:text "Magit Release" :title-value 400 :content-value 400 :type s)
@@ -40,10 +41,9 @@
   (:text "virtue signaling" :title-value -5000 :content-value -5000 :type S)
   (:text "globalist" :title-value -5000 :content-value -5000 :type S)
   (:text "patriarchy" :title-value -5000 :content-value -5000 :type S)
-  (:text "agenda" :title-value -5000 :content-value -5000 :type S)
   (:text "culture wars" :title-value -5000 :content-value -5000 :type S)
   (:text "tokenism" :title-value -5000 :content-value -5000 :type S)
-  (:text "killed" :title-value -5000 :content-value -5000 :type S)
+  (:text "Marvel" :title-value -5000 :content-value -5000 :type S)
 
   ;; Blockchain + AI
   (:text "Interoperability" :title-value 400 :content-value 400 :type S)

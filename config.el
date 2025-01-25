@@ -116,19 +116,22 @@
 (setq elfeed-score-serde-score-file "/home/devindavis/.doom.d/score.el")
 (map! :leader
       :prefix ("o" . "open")
-      "r" #'elfeed
-      )
+      "r" #'elfeed)
 
-(map! :map elfeed-search-mode-map
-      :prefix ("C-c" . "Update Feeds")
-      "u" #'elfeed-update)
+(after! elfeed
+  (map! :localleader
+        :map elfeed-search-mode-map
+        "u" #'elfeed-update
+        "e" #'elfeed-score-explain
+        "s" #'elfeed-search-set-filter
+        "y" #'elfeed-search-yank
+        "f" #'elfeed-search-live-filter))
 
 (elfeed-search-set-filter  "@3-days-ago")
 
 ;; Docs: https://kubernetes-el.github.io/kubernetes-el/
 (use-package! kubernetes
   :ensure t
-  :commands (kubernetes-overview)
   :config
   (setq kubernetes-poll-frequency 3600
         kubernetes-redraw-frequency 3600))
@@ -137,15 +140,38 @@
       :prefix ("o" . "Kubernetes")
       "k" #'kubernetes-overview)
 
-(map! :map kubernetes-overview-mode-map
-      :prefix ("C-c" . "Kubernetes Refresh")
-      "r" #'kubernetes-refresh)
+(after! kubernetes
+  (map! :localleader
+        :map kubernetes-overview-mode-map
+        "s" #'kubernetes-display-service
+        "p" #'kubernetes-display-pod
+        "r" #'kubernetes-refresh
+        "l" #'kubernetes-logs
+        "e" #'kubernetes-edit
+        "d" #'kubernetes-describe
+        "n" #'kubernetes-set-namespace
+        ))
 
-(map! :map kubernetes-overview-mode-map
-      :prefix ("C-c" . "Kubernetes Display Pod")
-      "P" #'kubernetes-display-pod)
+(add-to-list 'evil-emacs-state-modes 'elfeed-search-mode)
+(evil-add-hjkl-bindings elfeed-search-mode 'emacs
+  (kbd "/")       'evil-search-forward
+  (kbd "n")       'evil-search-next
+  (kbd "N")       'evil-search-previous
+  (kbd "C-d")     'evil-scroll-down
+  (kbd "C-u")     'evil-scroll-up
+  (kbd "C-w C-w") 'other-window)
 
-
-(map! :map kubernetes-overview-mode-map
-      :prefix ("C-c" . "Kubernetes Display Service")
-      "s" #'kubernetes-display-service)
+(setq! ledger-schedule-file "~/org/schedual.ledger")
+(with-eval-after-load 'ledger-mode
+  (add-to-list 'ledger-reports
+               '("budget" "ledger bal --budget Expenses -f ~/org/budget.ledger")))
+(defun ledger-analytic-start ()
+  "Start the 'ledger-analytics' server on port 3000."
+  (interactive)
+  (let ((buffer-name "*Ledger Analytics Server*"))
+    (if (get-buffer buffer-name)
+        (message "Ledger Analytics server is already running.")
+      (progn
+        (start-process "ledger-analytics-process" buffer-name
+                       "ledger-analytics" "-f" "~/org/budget.ledger")
+        (message "Ledger Analytics server started on port 3000.")))))
