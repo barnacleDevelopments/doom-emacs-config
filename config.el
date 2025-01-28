@@ -125,7 +125,8 @@
         "e" #'elfeed-score-explain
         "s" #'elfeed-search-set-filter
         "y" #'elfeed-search-yank
-        "f" #'elfeed-search-live-filter))
+        "f" #'elfeed-search-live-filter
+        "b" #'elfeed-search-browse-url))
 
 (elfeed-search-set-filter  "@3-days-ago")
 
@@ -137,7 +138,7 @@
         kubernetes-redraw-frequency 3600))
 
 (map! :leader
-      :prefix ("o" . "Kubernetes")
+      :prefix "o"
       "k" #'kubernetes-overview)
 
 (after! kubernetes
@@ -151,15 +152,6 @@
         "d" #'kubernetes-describe
         "n" #'kubernetes-set-namespace
         ))
-
-(add-to-list 'evil-emacs-state-modes 'elfeed-search-mode)
-(evil-add-hjkl-bindings elfeed-search-mode 'emacs
-  (kbd "/")       'evil-search-forward
-  (kbd "n")       'evil-search-next
-  (kbd "N")       'evil-search-previous
-  (kbd "C-d")     'evil-scroll-down
-  (kbd "C-u")     'evil-scroll-up
-  (kbd "C-w C-w") 'other-window)
 
 (setq! ledger-schedule-file "~/org/schedual.ledger")
 (with-eval-after-load 'ledger-mode
@@ -175,3 +167,11 @@
         (start-process "ledger-analytics-process" buffer-name
                        "ledger-analytics" "-f" "~/org/budget.ledger")
         (message "Ledger Analytics server started on port 3000.")))))
+
+(map! :leader
+      :prefix "c"
+      "R" #'query-replace)
+
+(map! :localleader
+      :map terraform-mode-map
+      "d" #'terraform-open-doc)

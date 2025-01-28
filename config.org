@@ -138,8 +138,8 @@ This is the general settings.
       "c" #'gptel)
 #+end_src
 ** Elfeed
-:Docs:  https://github.com/skeeto/elfeed?tab=readme-ov-file
-*** TODO Implement Bongo: https://protesilaos.com/codelog/2020-09-11-emacs-elfeed-bongo/
+:Elfeed-Docs:  https://github.com/skeeto/elfeed?tab=readme-ov-file
+:Elfeed-Score-Docs: https://www.unwoundstack.com/doc/elfeed-score/curr
 *** Configurations
 #+begin_src elisp :tangle ~/.doom.d/config.el
 (use-package! elfeed-score
@@ -161,10 +161,13 @@ This is the general settings.
         "e" #'elfeed-score-explain
         "s" #'elfeed-search-set-filter
         "y" #'elfeed-search-yank
-        "f" #'elfeed-search-live-filter))
+        "f" #'elfeed-search-live-filter
+        "b" #'elfeed-search-browse-url))
 
 (elfeed-search-set-filter  "@3-days-ago")
 #+end_src
+*** Todos
+**** TODO Implement Bongo: https://protesilaos.com/codelog/2020-09-11-emacs-elfeed-bongo/
 ** Kubernetes El
 #+begin_src elisp :tangle ~/.doom.d/config.el
 ;; Docs: https://kubernetes-el.github.io/kubernetes-el/
@@ -175,7 +178,7 @@ This is the general settings.
         kubernetes-redraw-frequency 3600))
 
 (map! :leader
-      :prefix ("o" . "Kubernetes")
+      :prefix "o"
       "k" #'kubernetes-overview)
 
 (after! kubernetes
@@ -189,19 +192,6 @@ This is the general settings.
         "d" #'kubernetes-describe
         "n" #'kubernetes-set-namespace
         ))
-#+end_src
-
-#+RESULTS:
-** Evil
-#+begin_src elisp :tangle ~/.doom.d/config.el
-(add-to-list 'evil-emacs-state-modes 'elfeed-search-mode)
-(evil-add-hjkl-bindings elfeed-search-mode 'emacs
-  (kbd "/")       'evil-search-forward
-  (kbd "n")       'evil-search-next
-  (kbd "N")       'evil-search-previous
-  (kbd "C-d")     'evil-scroll-down
-  (kbd "C-u")     'evil-scroll-up
-  (kbd "C-w C-w") 'other-window)
 #+end_src
 ** Ledger
 #+begin_src elisp :tangle ~/.doom.d/config.el
@@ -220,4 +210,16 @@ This is the general settings.
                        "ledger-analytics" "-f" "~/org/budget.ledger")
         (message "Ledger Analytics server started on port 3000.")))))
 
+#+end_src
+** Anzu
+#+begin_src elisp :tangle ~/.doom.d/config.el
+(map! :leader
+      :prefix "c"
+      "R" #'query-replace)
+#+end_src
+** Terraform
+#+begin_src elisp :tangle ~/.doom.d/config.el
+(map! :localleader
+      :map terraform-mode-map
+      "d" #'terraform-open-doc)
 #+end_src
