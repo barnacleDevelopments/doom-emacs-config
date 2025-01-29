@@ -106,6 +106,18 @@
       :prefix ("o" . "open")
       "c" #'gptel)
 
+(gptel-make-ollama "ollama"             ;any name of your choosing
+  :host "127.0.0.1:9000"               ;where it's running
+  :stream t                             ;stream responses
+  :models '(llama3.2))          ;list of models
+
+(setq gptel-model   'deepseek-r1:8b
+      gptel-backend
+      (gptel-make-ollama "deepseek"             ;any name of your choosing
+  :host "127.0.0.1:9000"               ;where it's running
+  :stream t                             ;stream responses
+  :models '(deepseek-r1:8b)))
+
 (use-package! elfeed-score
   :ensure t
   :config
@@ -175,3 +187,9 @@
 (map! :localleader
       :map terraform-mode-map
       "d" #'terraform-open-doc)
+
+(setq logview-additional-submodes
+      '(("Pino JSON Logs"
+         (format . "JSON")
+         (levels . "level")
+         (timestamp . "time"))))
