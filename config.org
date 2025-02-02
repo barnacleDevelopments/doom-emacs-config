@@ -38,7 +38,7 @@ This is the general settings.
 #+end_src
 * Package-specific configurations
 ** Org
-*** Tasks
+*** Todos
 **** TODO Learn about optimizing tasks and notes
 **** TODO When Clocking in add billable option/tag automaticaly
 *** Configurations
@@ -89,6 +89,7 @@ This is the general settings.
 
 #+END_SRC
 ** Prettier
+*** Configuration
 #+begin_src elisp :tangle ~/.doom.d/config.el
 (use-package! prettier
   :hook (
@@ -100,6 +101,7 @@ This is the general settings.
          (terraform-mode . prettier-mode)))
 #+END_SRC
 ** LSP
+*** Configuration
 #+begin_src elisp :tangle ~/.doom.d/config.el
 (setq lsp-idle-delay 0.500)  ; Increase delay to half a second (default is 0.1)
 (setq lsp-enable-on-type-formatting nil)  ; Disable auto-formatting on typing
@@ -120,6 +122,7 @@ This is the general settings.
   (setq lsp-typescript-auto-import-completions nil)) ;; Disable auto-imports
 #+END_SRC
 ** Compiler
+*** Configuration
 #+begin_src elisp :tangle ~/.doom.d/config.el
 (defun my-compilation-mode-hook ()
   (setq truncate-lines nil) ;; automatically becomes buffer local
@@ -128,6 +131,7 @@ This is the general settings.
 #+END_SRC
 ** GPTEL
 [[https://github.com/karthink/gptel?tab=readme-ov-file#chatgpt][GPTEL Docs]]
+*** Configuration
 #+begin_src elisp :tangle ~/.doom.d/config.el
 (setq gpt-api-key (getenv "CHAT_GPT_API_KEY"))
 (use-package! gptel
@@ -153,6 +157,8 @@ This is the general settings.
 ** Elfeed
 :Elfeed-Docs:  https://github.com/skeeto/elfeed?tab=readme-ov-file
 :Elfeed-Score-Docs: https://www.unwoundstack.com/doc/elfeed-score/curr
+*** Todos
+**** TODO Implement Bongo: https://protesilaos.com/codelog/2020-09-11-emacs-elfeed-bongo/
 *** Configurations
 #+begin_src elisp :tangle ~/.doom.d/config.el
 (use-package! elfeed-score
@@ -179,9 +185,8 @@ This is the general settings.
 
 (elfeed-search-set-filter  "@3-days-ago")
 #+end_src
-*** Todos
-**** TODO Implement Bongo: https://protesilaos.com/codelog/2020-09-11-emacs-elfeed-bongo/
 ** Kubernetes El
+*** Configuration
 #+begin_src elisp :tangle ~/.doom.d/config.el
 ;; Docs: https://kubernetes-el.github.io/kubernetes-el/
 (use-package! kubernetes
@@ -203,10 +208,10 @@ This is the general settings.
         "l" #'kubernetes-logs
         "e" #'kubernetes-edit
         "d" #'kubernetes-describe
-        "n" #'kubernetes-set-namespace
-        ))
+        "n" #'kubernetes-set-namespace))
 #+end_src
 ** Ledger
+*** Configuration
 #+begin_src elisp :tangle ~/.doom.d/config.el
 (setq! ledger-schedule-file "~/org/schedual.ledger")
 (with-eval-after-load 'ledger-mode
@@ -225,18 +230,21 @@ This is the general settings.
 
 #+end_src
 ** Anzu
+*** Configuration
 #+begin_src elisp :tangle ~/.doom.d/config.el
 (map! :leader
       :prefix "c"
       "R" #'query-replace)
 #+end_src
 ** Terraform
+*** Configuration
 #+begin_src elisp :tangle ~/.doom.d/config.el
 (map! :localleader
       :map terraform-mode-map
       "d" #'terraform-open-doc)
 #+end_src
 ** Logview
+*** Configuration
 #+begin_src elisp :tangle ~/.doom.d/config.el
 (setq logview-additional-submodes
       '(("Pino JSON Logs"

@@ -162,8 +162,7 @@
         "l" #'kubernetes-logs
         "e" #'kubernetes-edit
         "d" #'kubernetes-describe
-        "n" #'kubernetes-set-namespace
-        ))
+        "n" #'kubernetes-set-namespace))
 
 (setq! ledger-schedule-file "~/org/schedual.ledger")
 (with-eval-after-load 'ledger-mode
