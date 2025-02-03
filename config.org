@@ -3,18 +3,11 @@
 Reference: https://leanpub.com/lit-config/read
 
 * General Settings
-This is the general settings.
 #+begin_src elisp :tangle ~/.doom.d/config.el
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
 ;; PROJECTILE CONFIG
 (setq projectile-project-search-path '("~/WebDev/"))
-
-;;REST CLIENT CONFIG
-(use-package! restclient)
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((restclient . t)))
 
 ;;WEB MODE
 (use-package! web-mode
@@ -26,11 +19,9 @@ This is the general settings.
         '(("ejs" . "\\.ejs\\'"))))
 
 ;;Shortcuts
-(map! "C-c r"   #'eshell-isearch-backward)
-
 (setq avy-all-windows t)
+
 ;;QC CLIENT CONFIG
-(use-package! counsel-jq)
 (setq display-line-numbers-type 'relative)
 (setq doom-theme 'doom-palenight)
 (setq display-line-numbers-type t)
@@ -188,9 +179,10 @@ This is the general settings.
 ** Kubernetes El
 *** Configuration
 #+begin_src elisp :tangle ~/.doom.d/config.el
-;; Docs: https://kubernetes-el.github.io/kubernetes-el/
+;;Docs: https://kubernetes-el.github.io/kubernetes-el/
 (use-package! kubernetes
   :ensure t
+  :commands (kubernetes-overview)
   :config
   (setq kubernetes-poll-frequency 3600
         kubernetes-redraw-frequency 3600))

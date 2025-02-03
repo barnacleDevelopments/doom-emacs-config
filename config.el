@@ -3,12 +3,6 @@
 ;; PROJECTILE CONFIG
 (setq projectile-project-search-path '("~/WebDev/"))
 
-;;REST CLIENT CONFIG
-(use-package! restclient)
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((restclient . t)))
-
 ;;WEB MODE
 (use-package! web-mode
   :mode ("\\.ejs\\'" . web-mode)
@@ -19,11 +13,9 @@
         '(("ejs" . "\\.ejs\\'"))))
 
 ;;Shortcuts
-(map! "C-c r"   #'eshell-isearch-backward)
-
 (setq avy-all-windows t)
+
 ;;QC CLIENT CONFIG
-(use-package! counsel-jq)
 (setq display-line-numbers-type 'relative)
 (setq doom-theme 'doom-palenight)
 (setq display-line-numbers-type t)
@@ -142,9 +134,10 @@
 
 (elfeed-search-set-filter  "@3-days-ago")
 
-;; Docs: https://kubernetes-el.github.io/kubernetes-el/
+;;Docs: https://kubernetes-el.github.io/kubernetes-el/
 (use-package! kubernetes
   :ensure t
+  :commands (kubernetes-overview)
   :config
   (setq kubernetes-poll-frequency 3600
         kubernetes-redraw-frequency 3600))
