@@ -13,7 +13,7 @@
   (:text "ghost story" :title-value 1000 :content-value 1000 :type W)
   (:text "fallout" :title-value 500 :content-value 500 :type W)
   (:text "call of duty" :title-value 500 :content-value 500 :type W)
-  (:text "Doom" :title-value 500 :content-value 500 :type W)
+  (:text "doom" :title-value 500 :content-value 500 :type W)
   (:text "elder scrolls" :title-value 500 :content-value 500 :type W)
   (:text "media molecule" :title-value 500 :content-value 500 :type W)
   (:text "magit release" :title-value 400 :content-value 400 :type W)
@@ -30,6 +30,11 @@
   (:text "emissions targets" :title-value 50 :content-value 50 :type W)
   (:text "child care" :title-value 100 :content-value 100 :type W)
 
+  ;; LOW SCORE
+  (:text "halifax" :title-value 99 :content-value 99 :type s)
+  (:text "nova scotia" :title-value 99 :content-value 99 :type s)
+  (:text "bioshock" :title-value 99 :content-value 99 :type s)
+
   ;; Blockchain + AI
   (:text "interoperability" :title-value 400 :content-value 400 :type W)
   (:text "zero-Knowledge proofs" :title-value 400 :content-value 400  :type W)
@@ -38,11 +43,6 @@
   (:text "decentralized governance" :title-value 400 :content-value 400  :type W)
   (:text "artificial general inteligence" :title-value 400 :content-value 400  :type W)
   (:text "milestones" :title-value 400 :content-value 400  :type W)
-
-  ;; LOW SCORE
-  (:text "halifax" :title-value 99 :content-value 99 :type s)
-  (:text "nova scotia" :title-value 99 :content-value 99 :type s)
-  (:text "bioshock" :title-value 99 :content-value 99 :type s)
 
   ;; Stuff I don't need to hear about
   (:text "woke culture" :title-value -5000 :content-value -5000  :type W)
