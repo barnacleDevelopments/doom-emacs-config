@@ -34,6 +34,8 @@
         "~/org/inbox.org"
         "~/org/warriertech.org"
         "~/org/personal.org"
+        "~/org/professional.org"
+        "~/org/projects.org"
 ))
 (setq org-agenda-start-with-follow-mode t)
 
@@ -94,21 +96,24 @@
  :config
  (setq! gptel-api-key gpt-api-key))
 
+(gptel-make-ollama "Ollama"
+  :host "127.0.0.1:9000"
+  :stream t
+  :models '(mistral:latest))
+
 (map! :leader
       :prefix ("o" . "open")
       "c" #'gptel)
 
-(gptel-make-ollama "ollama"             ;any name of your choosing
-  :host "127.0.0.1:9000"               ;where it's running
-  :stream t                             ;stream responses
-  :models '(llama3.2))          ;list of models
+(map! :leader
+      :prefix ("l" . "GPT")
+      "r" #'gptel-rewrite
+      "a" #'gptel--rewrite-accept)
 
-(setq gptel-model   'deepseek-r1:8b
-      gptel-backend
-      (gptel-make-ollama "deepseek"             ;any name of your choosing
-  :host "127.0.0.1:9000"               ;where it's running
-  :stream t                             ;stream responses
-  :models '(deepseek-r1:8b)))
+(map! :localleader
+      "c" #'gptel--infix-context-add-file
+      "m" #'gptel-menu
+      "r" #'gptel-context-remove-all)
 
 (use-package! elfeed-score
   :ensure t

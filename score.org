@@ -31,19 +31,26 @@
   (:text "emissions targets" :title-value 50 :content-value 50 :type W)
   (:text "child care" :title-value 100 :content-value 100 :type W)
 
-  ;; Blockchain + AI
-  (:text "interoperability" :title-value 400 :content-value 400 :type W)
-  (:text "zero-Knowledge proofs" :title-value 400 :content-value 400  :type W)
-  (:text "decentralized identity" :title-value 400 :content-value 400  :type W)
-  (:text "decentralized identity" :title-value 400 :content-value 400  :type W)
-  (:text "decentralized governance" :title-value 400 :content-value 400  :type W)
-  (:text "artificial general inteligence" :title-value 400 :content-value 400  :type W)
-  (:text "milestones" :title-value 400 :content-value 400  :type W)
-
   ;; LOW SCORE
   (:text "halifax" :title-value 99 :content-value 99 :type s)
   (:text "nova scotia" :title-value 99 :content-value 99 :type s)
   (:text "bioshock" :title-value 99 :content-value 99 :type s)
+
+  ;; Bonus Points
+  (:text "positive" :title-value 50 :content-value 50 :type W)
+  (:text "motivational" :title-value 50 :content-value 50 :type W)
+  (:text "inspiring" :title-value 50 :content-value 50 :type W)
+  (:text "hopeful" :title-value 50 :content-value 50 :type W)
+  (:text "purpose" :title-value 50 :content-value 50 :type W)
+  (:text "resilient" :title-value 50 :content-value 50 :type W)
+  (:text "interoperability" :title-value 50 :content-value 50 :type W)
+  (:text "zero-Knowledge proofs" :title-value 50 :content-value 50  :type W)
+  (:text "decentralized identity" :title-value 50 :content-value 50  :type W)
+  (:text "decentralized identity" :title-value 50 :content-value 50  :type W)
+  (:text "decentralized governance" :title-value 50 :content-value 50  :type W)
+  (:text "artificial general inteligence" :title-value 50 :content-value 50  :type W)
+  (:text "milestones" :title-value 50 :content-value 50  :type W)
+  (:text "AI tool" :title-value 50 :content-value 50  :type W)
 
   ;; Stuff I don't need to hear about
   (:text "woke culture" :title-value -5000 :content-value -5000  :type W)
@@ -52,14 +59,6 @@
   (:text "culture wars" :title-value -5000 :content-value -5000 :type W)
   (:text "tokenism" :title-value -5000 :content-value -5000 :type W)
   (:text "trans" :title-value -5000 :content-value -5000 :type W)
-
-   ;; Bonus Points
-  (:text "positive" :title-value 50 :content-value 50 :type W)
-  (:text "motivational" :title-value 50 :content-value 50 :type W)
-  (:text "inspiring" :title-value 50 :content-value 50 :type W)
-  (:text "hopeful" :title-value 50 :content-value 50 :type W)
-  (:text "purpose" :title-value 50 :content-value 50 :type W)
-  (:text "resilient" :title-value 50 :content-value 50 :type W)
   )
  ("tag")
  ("authors"
