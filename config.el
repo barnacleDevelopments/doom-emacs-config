@@ -97,9 +97,13 @@
  (setq! gptel-api-key gpt-api-key))
 
 (gptel-make-ollama "Ollama"
-  :host "127.0.0.1:9000"
+  :host "127.0.0.1:11434"
   :stream t
   :models '(mistral:latest))
+
+(add-hook 'gptel-post-stream-hook 'gptel-auto-scroll)
+
+(add-hook 'gptel-post-response-functions 'gptel-end-of-response)
 
 (map! :leader
       :prefix ("o" . "open")
@@ -190,3 +194,29 @@
          (format . "JSON")
          (levels . "level")
          (timestamp . "time"))))
+
+(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+(setq! smtpmail-debug-info t
+      smtpmail-debug-verb t)
+(setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
+(setq mu4e-update-interval 60)
+
+(setq! message-send-mail-function 'smtpmail-send-it
+      smtpmail-smtp-server "smtp.mailfence.com"
+      smtpmail-smtp-service 465
+      smtpmail-stream-type 'ssl
+      smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg"))
+
+(set-email-account! "devin@devdeveloper.ca"
+  '((mu4e-sent-folder . "/Sent Items")
+    (mu4e-drafts-folder . "/Drafts")
+    (mu4e-trash-folder . "/Trash")
+    (smtpmail-smtp-user . "devin")
+    (mail-host-address . "devdeveloper.ca")
+    (user-full-name . "Devin")
+    (user-mail-address . "devin@devdeveloper.ca")
+    (smtpmail-smtp-server   . "smtp.mailfence.com")
+    (mu4e-compose-signature . "---\nRegards,\nDev"))
+    ;(send-mail-function . async-smtpmail-send-it)
+    ;(message-send-mail-function . async-smtpmail-send-it)
+  t)
