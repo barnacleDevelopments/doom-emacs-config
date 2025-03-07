@@ -258,8 +258,13 @@ Reference: https://leanpub.com/lit-config/read
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
 (setq! smtpmail-debug-info t
       smtpmail-debug-verb t)
+(setq smtpmail-auth-supported '(plain login))
+
 (setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
-(setq mu4e-update-interval 60)
+
+(after! mu4e
+  (setq mu4e-get-mail-command "offlineimap -o"
+        mu4e-update-interval 60))
 
 (setq! message-send-mail-function 'smtpmail-send-it
       smtpmail-smtp-server "smtp.mailfence.com"
@@ -277,7 +282,5 @@ Reference: https://leanpub.com/lit-config/read
     (user-mail-address . "devin@devdeveloper.ca")
     (smtpmail-smtp-server   . "smtp.mailfence.com")
     (mu4e-compose-signature . "---\nRegards,\nDev"))
-    ;(send-mail-function . async-smtpmail-send-it)
-    ;(message-send-mail-function . async-smtpmail-send-it)
   t)
 #+end_src
