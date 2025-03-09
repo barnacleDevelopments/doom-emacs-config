@@ -99,7 +99,7 @@
 (gptel-make-ollama "Ollama"
   :host "127.0.0.1:11434"
   :stream t
-  :models '(mistral:latest))
+  :models '(mistral:latest deepseek-coder-v2:latest))
 
 (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll)
 
@@ -135,8 +135,7 @@
   (map! :localleader
         :map elfeed-search-mode-map
         "u" #'elfeed-update
-        "e" #'elfeed-score-explain
-        "s" #'elfeed-search-set-filter
+        "e" #'elfeed-score-explain "s" #'elfeed-search-set-filter
         "y" #'elfeed-search-yank
         "f" #'elfeed-search-live-filter
         "b" #'elfeed-search-browse-url))
@@ -196,25 +195,21 @@
          (timestamp . "time"))))
 
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
-(setq! smtpmail-debug-info t
-      smtpmail-debug-verb t)
-(setq smtpmail-auth-supported '(plain login))
 
 (setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
-
-(after! mu4e
-  (setq mu4e-get-mail-command "offlineimap -o"
-        mu4e-update-interval 60))
 
 (setq! message-send-mail-function 'smtpmail-send-it
       smtpmail-smtp-server "smtp.mailfence.com"
       smtpmail-smtp-service 465
       smtpmail-stream-type 'ssl
+      smtpmail-auth-supported '(plain login)
       smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg"))
 
 (set-email-account! "devin@devdeveloper.ca"
   '((mu4e-sent-folder . "/Sent Items")
     (mu4e-drafts-folder . "/Drafts")
+    (mu4e-get-mail-command . "offlineimap -o")
+    (mu4e-update-interval . 60)
     (mu4e-trash-folder . "/Trash")
     (smtpmail-smtp-user . "devin")
     (mail-host-address . "devdeveloper.ca")
@@ -223,3 +218,7 @@
     (smtpmail-smtp-server   . "smtp.mailfence.com")
     (mu4e-compose-signature . "---\nRegards,\nDev"))
   t)
+
+(map! :leader
+      :prefix ("o" . "open")
+      "m" #'mu4e)
