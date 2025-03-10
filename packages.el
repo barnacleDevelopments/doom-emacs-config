@@ -16,7 +16,8 @@
 (package! json-mode)
 (package! sly)
 (package! kubernetes)
-
+(package! all-the-icons)
+(package! exec-path-from-shell)
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 
