@@ -37,13 +37,6 @@ Reference: https://leanpub.com/lit-config/read
 #+begin_src elisp :tangle ~/.doom.d/config.el
 (setq org-directory "~/org/")
 #+END_SRC
-**** Auto Tangle Org Babel Code Blocks
-#+begin_src elisp :tangle ~/.doom.d/config.el
-(defun my-org-babel-tangle-on-save ()
-  "Automatically tangle Org Babel code blocks after saving."
-  (add-hook 'after-save-hook #'org-babel-tangle :append :local))
-(add-hook 'org-mode-hook #'my-org-babel-tangle-on-save)
-#+end_src
 **** Agenda
 #+begin_src elisp :tangle ~/.doom.d/config.el
 (setq org-agenda-todo-ignore-scheduled 'future)

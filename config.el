@@ -22,11 +22,6 @@
 
 (setq org-directory "~/org/")
 
-(defun my-org-babel-tangle-on-save ()
-  "Automatically tangle Org Babel code blocks after saving."
-  (add-hook 'after-save-hook #'org-babel-tangle :append :local))
-(add-hook 'org-mode-hook #'my-org-babel-tangle-on-save)
-
 (setq org-agenda-todo-ignore-scheduled 'future)
 (setq org-agenda-start-day "-1d")
 (setq org-agenda-span 5)
