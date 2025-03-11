@@ -47,16 +47,6 @@ Reference: https://leanpub.com/lit-config/read
 #+begin_src elisp :tangle ./config.el
 (setq org-directory "~/org/")
 #+END_SRC
-<<<<<<< HEAD
-=======
-**** Auto Tangle Org Babel Code Blocks
-#+begin_src elisp :tangle ./config.el
-(defun my-org-babel-tangle-on-save ()
-  "Automatically tangle Org Babel code blocks after saving."
-  (add-hook 'after-save-hook #'org-babel-tangle :append :local))
-(add-hook 'org-mode-hook #'my-org-babel-tangle-on-save)
-#+end_src
->>>>>>> 78a3cb69a13b84a41b6b22bd5d265822a016cd94
 **** Agenda
 #+begin_src elisp :tangle ./config.el
 (setq org-agenda-todo-ignore-scheduled 'future)
