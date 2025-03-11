@@ -11,7 +11,9 @@
         '(("html" . "\\.ejs\\'")))
   (setq web-mode-engines-alist
         '(("ejs" . "\\.ejs\\'"))))
+(setq! doom-themes-treemacs-theme "doom-colors")
 
+(setq doom-font (font-spec :size 20))
 ;;Shortcuts
 (setq avy-all-windows t)
 
@@ -19,6 +21,14 @@
 (setq display-line-numbers-type 'relative)
 (setq doom-theme 'doom-palenight)
 (setq display-line-numbers-type t)
+
+; Mac Config
+(use-package! exec-path-from-shell
+  :if (memq window-system '(mac ns x))
+  :config
+  (exec-path-from-shell-initialize)
+  (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
+(setenv "GIT_SSH_COMMAND" "ssh -v")
 
 (setq org-directory "~/org/")
 

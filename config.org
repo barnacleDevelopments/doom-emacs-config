@@ -3,7 +3,7 @@
 Reference: https://leanpub.com/lit-config/read
 
 * General Settings
-#+begin_src elisp :tangle ~/.doom.d/config.el
+#+begin_src elisp :tangle ./config.el
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
 ;; PROJECTILE CONFIG
@@ -17,7 +17,9 @@ Reference: https://leanpub.com/lit-config/read
         '(("html" . "\\.ejs\\'")))
   (setq web-mode-engines-alist
         '(("ejs" . "\\.ejs\\'"))))
+(setq! doom-themes-treemacs-theme "doom-colors")
 
+(setq doom-font (font-spec :size 20))
 ;;Shortcuts
 (setq avy-all-windows t)
 
@@ -25,6 +27,14 @@ Reference: https://leanpub.com/lit-config/read
 (setq display-line-numbers-type 'relative)
 (setq doom-theme 'doom-palenight)
 (setq display-line-numbers-type t)
+
+; Mac Config
+(use-package! exec-path-from-shell
+  :if (memq window-system '(mac ns x))
+  :config
+  (exec-path-from-shell-initialize)
+  (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
+(setenv "GIT_SSH_COMMAND" "ssh -v")
 
 #+end_src
 * Package-specific configurations
@@ -34,11 +44,21 @@ Reference: https://leanpub.com/lit-config/read
 **** TODO When Clocking in add billable option/tag automaticaly
 *** Configurations
 **** Configuring org-directory
-#+begin_src elisp :tangle ~/.doom.d/config.el
+#+begin_src elisp :tangle ./config.el
 (setq org-directory "~/org/")
 #+END_SRC
+<<<<<<< HEAD
+=======
+**** Auto Tangle Org Babel Code Blocks
+#+begin_src elisp :tangle ./config.el
+(defun my-org-babel-tangle-on-save ()
+  "Automatically tangle Org Babel code blocks after saving."
+  (add-hook 'after-save-hook #'org-babel-tangle :append :local))
+(add-hook 'org-mode-hook #'my-org-babel-tangle-on-save)
+#+end_src
+>>>>>>> 78a3cb69a13b84a41b6b22bd5d265822a016cd94
 **** Agenda
-#+begin_src elisp :tangle ~/.doom.d/config.el
+#+begin_src elisp :tangle ./config.el
 (setq org-agenda-todo-ignore-scheduled 'future)
 (setq org-agenda-start-day "-1d")
 (setq org-agenda-span 5)
@@ -52,7 +72,7 @@ Reference: https://leanpub.com/lit-config/read
 (setq org-agenda-start-with-follow-mode t)
 #+end_src
 **** Other
-#+begin_src elisp :tangle ~/.doom.d/config.el
+#+begin_src elisp :tangle ./config.el
 (defun org-summary-todo (n-done n-not-done)
   "Switch entry to DONE when all subentries are done, to TODO otherwise."
   (let (org-log-done org-todo-log-states)   ; turn off logging
@@ -76,7 +96,7 @@ Reference: https://leanpub.com/lit-config/read
 #+END_SRC
 ** Prettier
 *** Configuration
-#+begin_src elisp :tangle ~/.doom.d/config.el
+#+begin_src elisp :tangle ./config.el
 (use-package! prettier
   :hook (
          (js-mode . prettier-mode)
@@ -88,7 +108,7 @@ Reference: https://leanpub.com/lit-config/read
 #+END_SRC
 ** LSP
 *** Configuration
-#+begin_src elisp :tangle ~/.doom.d/config.el
+#+begin_src elisp :tangle ./config.el
 (setq lsp-idle-delay 0.500)  ; Increase delay to half a second (default is 0.1)
 (setq lsp-enable-on-type-formatting nil)  ; Disable auto-formatting on typing
 (setq lsp-file-watch-ignored-directories
@@ -109,7 +129,7 @@ Reference: https://leanpub.com/lit-config/read
 #+END_SRC
 ** Compiler
 *** Configuration
-#+begin_src elisp :tangle ~/.doom.d/config.el
+#+begin_src elisp :tangle ./config.el
 (defun my-compilation-mode-hook ()
   (setq truncate-lines nil) ;; automatically becomes buffer local
   (set (make-local-variable 'truncate-partial-width-windows) nil))
@@ -118,7 +138,7 @@ Reference: https://leanpub.com/lit-config/read
 ** GPTEL
 [[https://github.com/karthink/gptel?tab=readme-ov-file#chatgpt][GPTEL Docs]]
 *** Configuration
-#+begin_src elisp :tangle ~/.doom.d/config.el
+#+begin_src elisp :tangle ./config.el
 (setq gpt-api-key (getenv "CHAT_GPT_API_KEY"))
 (use-package! gptel
  :config
@@ -153,7 +173,7 @@ Reference: https://leanpub.com/lit-config/read
 *** Todos
 **** TODO Implement Bongo: https://protesilaos.com/codelog/2020-09-11-emacs-elfeed-bongo/
 *** Configurations
-#+begin_src elisp :tangle ~/.doom.d/config.el
+#+begin_src elisp :tangle ./config.el
 (use-package! elfeed-score
   :ensure t
   :config
@@ -179,7 +199,7 @@ Reference: https://leanpub.com/lit-config/read
 #+end_src
 ** Kubernetes El
 *** Configuration
-#+begin_src elisp :tangle ~/.doom.d/config.el
+#+begin_src elisp :tangle ./config.el
 ;;Docs: https://kubernetes-el.github.io/kubernetes-el/
 (use-package! kubernetes
   :ensure t
@@ -205,7 +225,7 @@ Reference: https://leanpub.com/lit-config/read
 #+end_src
 ** Ledger
 *** Configuration
-#+begin_src elisp :tangle ~/.doom.d/config.el
+#+begin_src elisp :tangle ./config.el
 (setq! ledger-schedule-file "~/org/schedual.ledger")
 (with-eval-after-load 'ledger-mode
   (add-to-list 'ledger-reports
@@ -224,21 +244,21 @@ Reference: https://leanpub.com/lit-config/read
 #+end_src
 ** Anzu
 *** Configuration
-#+begin_src elisp :tangle ~/.doom.d/config.el
+#+begin_src elisp :tangle ./config.el
 (map! :leader
       :prefix "c"
       "R" #'query-replace)
 #+end_src
 ** Terraform
 *** Configuration
-#+begin_src elisp :tangle ~/.doom.d/config.el
+#+begin_src elisp :tangle ./config.el
 (map! :localleader
       :map terraform-mode-map
       "d" #'terraform-open-doc)
 #+end_src
 ** Logview
 *** Configuration
-#+begin_src elisp :tangle ~/.doom.d/config.el
+#+begin_src elisp :tangle ./config.el
 (setq logview-additional-submodes
       '(("Pino JSON Logs"
          (format . "JSON")
@@ -246,7 +266,7 @@ Reference: https://leanpub.com/lit-config/read
          (timestamp . "time"))))
 #+end_src
 ** MUE4
-#+begin_src elisp :tangle ~/.doom.d/config.el
+#+begin_src elisp :tangle ./config.el
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
 
 (setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
