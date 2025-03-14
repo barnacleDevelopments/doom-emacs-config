@@ -36,6 +36,8 @@ Reference: https://leanpub.com/lit-config/read
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
 
+(with-eval-after-load 'eglot
+ (add-to-list 'eglot-server-programs '((ruby-mode ruby-ts-mode) "ruby-lsp")))
 #+end_src
 * Package-specific configurations
 ** Org
@@ -59,6 +61,7 @@ Reference: https://leanpub.com/lit-config/read
         "~/org/personal.org"
         "~/org/professional.org"
         "~/org/projects.org"
+        "~/org/main.org"
 ))
 (setq org-agenda-start-with-follow-mode t)
 #+end_src
@@ -286,4 +289,10 @@ Reference: https://leanpub.com/lit-config/read
 (map! :leader
       :prefix ("o" . "open")
       "m" #'mu4e)
+#+end_src
+** Dired
+#+begin_src elisp :tangle ./config.el
+(map! :localleader
+      :map diredfl-mode
+      "R" #'query-replace)
 #+end_src

@@ -30,6 +30,9 @@
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
 
+(with-eval-after-load 'eglot
+ (add-to-list 'eglot-server-programs '((ruby-mode ruby-ts-mode) "ruby-lsp")))
+
 (setq org-directory "~/org/")
 
 (setq org-agenda-todo-ignore-scheduled 'future)
@@ -41,6 +44,7 @@
         "~/org/personal.org"
         "~/org/professional.org"
         "~/org/projects.org"
+        "~/org/main.org"
 ))
 (setq org-agenda-start-with-follow-mode t)
 
@@ -227,3 +231,7 @@
 (map! :leader
       :prefix ("o" . "open")
       "m" #'mu4e)
+
+(map! :localleader
+      :map diredfl-mode
+      "R" #'query-replace)
