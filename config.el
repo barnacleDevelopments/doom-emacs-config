@@ -201,8 +201,6 @@
 
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
 
-(setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
-
 (setq! message-send-mail-function 'smtpmail-send-it
       smtpmail-smtp-server "smtp.mailfence.com"
       smtpmail-smtp-service 465
