@@ -36,12 +36,15 @@ Reference: https://leanpub.com/lit-config/read
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
 
+(with-eval-after-load 'eglot
+ (add-to-list 'eglot-server-programs '((ruby-mode ruby-ts-mode) "ruby-lsp")))
 #+end_src
 * Package-specific configurations
 ** Org
 *** Todos
 **** TODO Learn about optimizing tasks and notes
-**** TODO When Clocking in add billable option/tag automaticaly
+**** TODO When Clocking in add billable option/tag automatically
+**** TODO create capture template for meeting notes
 *** Configurations
 **** Configuring org-directory
 #+begin_src elisp :tangle ./config.el
@@ -58,10 +61,12 @@ Reference: https://leanpub.com/lit-config/read
         "~/org/personal.org"
         "~/org/professional.org"
         "~/org/projects.org"
+        "~/org/main.org"
 ))
 (setq org-agenda-start-with-follow-mode t)
 #+end_src
-**** Other
+**** Templating
+***** Configuration
 #+begin_src elisp :tangle ./config.el
 (defun org-summary-todo (n-done n-not-done)
   "Switch entry to DONE when all subentries are done, to TODO otherwise."
@@ -82,7 +87,6 @@ Reference: https://leanpub.com/lit-config/read
 
 (setq org-refile-targets '(("~/org/personal.org" :level . 1)
                             ("~/org/warriertech.org" :maxlevel . 2)))
-
 #+END_SRC
 ** Prettier
 *** Configuration
@@ -283,4 +287,10 @@ Reference: https://leanpub.com/lit-config/read
 (map! :leader
       :prefix ("o" . "open")
       "m" #'mu4e)
+#+end_src
+** Dired
+#+begin_src elisp :tangle ./config.el
+(map! :localleader
+      :map diredfl-mode
+      "R" #'query-replace)
 #+end_src
