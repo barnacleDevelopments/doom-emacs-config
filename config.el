@@ -30,9 +30,6 @@
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
 
-(with-eval-after-load 'eglot
- (add-to-list 'eglot-server-programs '((ruby-mode ruby-ts-mode) "ruby-lsp")))
-
 (setq org-directory "~/org/")
 
 (setq org-agenda-todo-ignore-scheduled 'future)
@@ -67,6 +64,9 @@
 
 (setq org-refile-targets '(("~/org/personal.org" :level . 1)
                             ("~/org/warriertech.org" :maxlevel . 2)))
+
+(add-hook 'ruby-mode-hook 'robe-mode)
+(add-hook 'ruby-ts-mode-hook 'robe-mode)
 
 (use-package! prettier
   :hook (
@@ -235,3 +235,6 @@
 (map! :localleader
       :map diredfl-mode
       "R" #'query-replace)
+
+(with-eval-after-load 'eglot
+ (add-to-list 'eglot-server-programs '((ruby-mode ruby-mode) "ruby-lsp")))

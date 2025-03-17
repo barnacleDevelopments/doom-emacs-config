@@ -36,8 +36,6 @@ Reference: https://leanpub.com/lit-config/read
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
 
-(with-eval-after-load 'eglot
- (add-to-list 'eglot-server-programs '((ruby-mode ruby-ts-mode) "ruby-lsp")))
 #+end_src
 * Package-specific configurations
 ** Org
@@ -87,6 +85,11 @@ Reference: https://leanpub.com/lit-config/read
 
 (setq org-refile-targets '(("~/org/personal.org" :level . 1)
                             ("~/org/warriertech.org" :maxlevel . 2)))
+#+END_SRC
+** Robe
+#+begin_src elisp :tangle ./config.el
+(add-hook 'ruby-mode-hook 'robe-mode)
+(add-hook 'ruby-ts-mode-hook 'robe-mode)
 #+END_SRC
 ** Prettier
 *** Configuration
@@ -295,4 +298,9 @@ Reference: https://leanpub.com/lit-config/read
 (map! :localleader
       :map diredfl-mode
       "R" #'query-replace)
+#+end_src
+** Eglot
+#+begin_src elisp :tangle ./config.el
+(with-eval-after-load 'eglot
+ (add-to-list 'eglot-server-programs '((ruby-mode ruby-mode) "ruby-lsp")))
 #+end_src
