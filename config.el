@@ -75,7 +75,8 @@
          (css-mode . prettier-mode)
          (html-mode . prettier-mode)
          (markdown-mode . prettier-mode)
-         (terraform-mode . prettier-mode)))
+         (terraform-mode . prettier-mode))
+)
 
 (setq lsp-idle-delay 0.500)  ; Increase delay to half a second (default is 0.1)
 (setq lsp-enable-on-type-formatting nil)  ; Disable auto-formatting on typing
