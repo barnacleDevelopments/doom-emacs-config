@@ -144,7 +144,8 @@
   (map! :localleader
         :map elfeed-search-mode-map
         "u" #'elfeed-update
-        "e" #'elfeed-score-explain "s" #'elfeed-search-set-filter
+        "e" #'elfeed-score-explain
+        "s" #'elfeed-search-set-filter
         "y" #'elfeed-search-yank
         "f" #'elfeed-search-live-filter
         "b" #'elfeed-search-browse-url))
@@ -205,31 +206,32 @@
 
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
 
-(setq! message-send-mail-function 'smtpmail-send-it
-      smtpmail-smtp-server "smtp.mailfence.com"
-      smtpmail-smtp-service 465
-      smtpmail-stream-type 'ssl
-      smtpmail-auth-supported '(plain login)
-      smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg"))
+(setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
 
 (set-email-account! "devin@devdeveloper.ca"
   '((mu4e-sent-folder . "/Sent Items")
     (mu4e-drafts-folder . "/Drafts")
+    (mu4e-trash-folder . "/Trash")
     (mu4e-get-mail-command . "offlineimap -o")
     (mu4e-update-interval . 60)
-    (mu4e-trash-folder . "/Trash")
     (smtpmail-smtp-user . "devin")
+    (smtpmail-smtp-server . "smtp.mailfence.com")
+    (smtpmail-smtp-service . 465)
+    (smtpmail-stream-type . ssl)
+    (auth-source-debug t)
     (mail-host-address . "devdeveloper.ca")
     (user-full-name . "Devin")
     (user-mail-address . "devin@devdeveloper.ca")
-    (smtpmail-smtp-server   . "smtp.mailfence.com")
     (mu4e-compose-signature . "---\nRegards,\nDev"))
   t)
+
+(setq! message-send-mail-function 'smtpmail-send-it)
 
 (map! :leader
       :prefix ("o" . "open")
       "m" #'mu4e)
 
 (map! :localleader
-      :map diredfl-mode
-      "R" #'query-replace)
+      :map dirvish-mode-map
+      "R" #'query-replace
+      "w" #'wdired-change-to-wdired-mode)
