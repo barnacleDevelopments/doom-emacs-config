@@ -35,7 +35,7 @@ Reference: https://leanpub.com/lit-config/read
   (exec-path-from-shell-initialize)
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
-
+(setq lsp-disabled-clients '(rubocop-ls))
 #+end_src
 * Package-specific configurations
 ** Org
@@ -296,9 +296,4 @@ Reference: https://leanpub.com/lit-config/read
 (map! :localleader
       :map diredfl-mode
       "R" #'query-replace)
-#+end_src
-** Eglot
-#+begin_src elisp :tangle ./config.el
-(with-eval-after-load 'eglot
- (add-to-list 'eglot-server-programs '((ruby-mode ruby-mode) "ruby-lsp")))
 #+end_src

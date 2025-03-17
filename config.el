@@ -29,6 +29,7 @@
   (exec-path-from-shell-initialize)
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
+(setq lsp-disabled-clients '(rubocop-ls))
 
 (setq org-directory "~/org/")
 
@@ -233,6 +234,3 @@
 (map! :localleader
       :map diredfl-mode
       "R" #'query-replace)
-
-(with-eval-after-load 'eglot
- (add-to-list 'eglot-server-programs '((ruby-mode ruby-mode) "ruby-lsp")))
