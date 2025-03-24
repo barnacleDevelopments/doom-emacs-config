@@ -1,7 +1,6 @@
 * Elfeed Score
-#+begin_src elisp :tangle ~/.doom.d/score.el
+#+begin_src elisp :tangle ./score.el
 ;;; Elfeed score file                                     -*- lisp -*-
-;;; How much I give a shit points
 ((version 10)
  ("title")
  ("content")
@@ -35,6 +34,7 @@
   (:text "halifax" :title-value 99 :content-value 99 :type s)
   (:text "nova scotia" :title-value 99 :content-value 99 :type s)
   (:text "bioshock" :title-value 99 :content-value 99 :type s)
+  (:text "javascript" :title-value 99 :content-value 99 :type s)
 
   ;; Bonus Points
   (:text "positive" :title-value 50 :content-value 50 :type W)
@@ -64,10 +64,7 @@
  ("authors"
   (:text "Ken Levine" :value 2000 :type s))
  ("feed"
-  (:text "Hyperledger" :value 500 :type S :attr t))
+  (:text "Nova Scotia News" :value 2 :type W)
+  )
  ("adjust-tags"))
 #+end_src
-** High Priority
-
-** Medium Priority
-** Low Priority

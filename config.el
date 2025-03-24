@@ -223,7 +223,7 @@
     (mail-host-address . "devdeveloper.ca")
     (user-full-name . "Devin")
     (user-mail-address . "devin@devdeveloper.ca")
-    (mu4e-compose-signature . "---\nRegards,\nDev"))
+    (mu4e-compose-signature . "\nBest,\nDev\nSoftware Developer | DevDeveloper.ca\nEmail: dev@devdeveloper.ca\nPhone: +1 (234) 567-8901\nLinkedIn: linkedin.com/in/devin-dev-d-63008412b\nGitHub: github.com/barnacleDevelopments"))
   t)
 
 (setq! message-send-mail-function 'smtpmail-send-it)
@@ -231,6 +231,10 @@
 (map! :leader
       :prefix ("o" . "open")
       "m" #'mu4e)
+
+(map! :localleader
+      :map mu4e-headers-mode-map
+      "c" #'mu4e-thread-fold-toggle)
 
 (map! :localleader
       :map dirvish-mode-map
