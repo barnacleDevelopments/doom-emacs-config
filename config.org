@@ -35,11 +35,7 @@ Reference: https://leanpub.com/lit-config/read
   (exec-path-from-shell-initialize)
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
-<<<<<<< HEAD
 (setq lsp-disabled-clients '(rubocop-ls))
-=======
-
->>>>>>> d7138f7f5dfb8fe11c9c49432c2fbcd1e4f8e046
 #+end_src
 * Package-specific configurations
 ** Org
@@ -90,15 +86,12 @@ Reference: https://leanpub.com/lit-config/read
 (setq org-refile-targets '(("~/org/personal.org" :level . 1)
                             ("~/org/warriertech.org" :maxlevel . 2)))
 #+END_SRC
-<<<<<<< HEAD
 ** Robe
 #+begin_src elisp :tangle ./config.el
 (add-hook 'ruby-mode-hook 'robe-mode)
 (add-hook 'ruby-ts-mode-hook 'robe-mode)
-=======
 ** Copilot
 #+begin_src elisp :tangle ./config.el
-;; accept completion from copilot and fallback to company
 (use-package! copilot
   :hook (prog-mode . copilot-mode)
   :bind (:map copilot-completion-map
@@ -106,7 +99,6 @@ Reference: https://leanpub.com/lit-config/read
               ("TAB" . 'copilot-accept-completion)
               ("C-TAB" . 'copilot-accept-completion-by-word)
               ("C-<tab>" . 'copilot-accept-completion-by-word)))
->>>>>>> d7138f7f5dfb8fe11c9c49432c2fbcd1e4f8e046
 #+END_SRC
 ** Prettier
 *** Configuration

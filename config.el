@@ -29,10 +29,7 @@
   (exec-path-from-shell-initialize)
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
-<<<<<<< HEAD
 (setq lsp-disabled-clients '(rubocop-ls))
-=======
->>>>>>> d7138f7f5dfb8fe11c9c49432c2fbcd1e4f8e046
 
 (setq org-directory "~/org/")
 
@@ -68,20 +65,6 @@
 
 (setq org-refile-targets '(("~/org/personal.org" :level . 1)
                             ("~/org/warriertech.org" :maxlevel . 2)))
-
-<<<<<<< HEAD
-(add-hook 'ruby-mode-hook 'robe-mode)
-(add-hook 'ruby-ts-mode-hook 'robe-mode)
-=======
-;; accept completion from copilot and fallback to company
-(use-package! copilot
-  :hook (prog-mode . copilot-mode)
-  :bind (:map copilot-completion-map
-              ("<tab>" . 'copilot-accept-completion)
-              ("TAB" . 'copilot-accept-completion)
-              ("C-TAB" . 'copilot-accept-completion-by-word)
-              ("C-<tab>" . 'copilot-accept-completion-by-word)))
->>>>>>> d7138f7f5dfb8fe11c9c49432c2fbcd1e4f8e046
 
 (use-package! prettier
   :hook (
