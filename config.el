@@ -29,7 +29,10 @@
   (exec-path-from-shell-initialize)
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
+<<<<<<< HEAD
 (setq lsp-disabled-clients '(rubocop-ls))
+=======
+>>>>>>> d7138f7f5dfb8fe11c9c49432c2fbcd1e4f8e046
 
 (setq org-directory "~/org/")
 
@@ -66,8 +69,19 @@
 (setq org-refile-targets '(("~/org/personal.org" :level . 1)
                             ("~/org/warriertech.org" :maxlevel . 2)))
 
+<<<<<<< HEAD
 (add-hook 'ruby-mode-hook 'robe-mode)
 (add-hook 'ruby-ts-mode-hook 'robe-mode)
+=======
+;; accept completion from copilot and fallback to company
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word)))
+>>>>>>> d7138f7f5dfb8fe11c9c49432c2fbcd1e4f8e046
 
 (use-package! prettier
   :hook (
@@ -76,7 +90,8 @@
          (css-mode . prettier-mode)
          (html-mode . prettier-mode)
          (markdown-mode . prettier-mode)
-         (terraform-mode . prettier-mode)))
+         (terraform-mode . prettier-mode))
+)
 
 (setq lsp-idle-delay 0.500)  ; Increase delay to half a second (default is 0.1)
 (setq lsp-enable-on-type-formatting nil)  ; Disable auto-formatting on typing
@@ -223,7 +238,7 @@
     (mail-host-address . "devdeveloper.ca")
     (user-full-name . "Devin")
     (user-mail-address . "devin@devdeveloper.ca")
-    (mu4e-compose-signature . "---\nRegards,\nDev"))
+    (mu4e-compose-signature . "\nBest,\nDev\nSoftware Developer | DevDeveloper.ca\nEmail: dev@devdeveloper.ca\nPhone: +1 (234) 567-8901\nLinkedIn: linkedin.com/in/devin-dev-d-63008412b\nGitHub: github.com/barnacleDevelopments"))
   t)
 
 (setq! message-send-mail-function 'smtpmail-send-it)
@@ -231,6 +246,10 @@
 (map! :leader
       :prefix ("o" . "open")
       "m" #'mu4e)
+
+(map! :localleader
+      :map mu4e-headers-mode-map
+      "c" #'mu4e-thread-fold-toggle)
 
 (map! :localleader
       :map dirvish-mode-map

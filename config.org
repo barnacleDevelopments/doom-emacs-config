@@ -35,7 +35,11 @@ Reference: https://leanpub.com/lit-config/read
   (exec-path-from-shell-initialize)
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
+<<<<<<< HEAD
 (setq lsp-disabled-clients '(rubocop-ls))
+=======
+
+>>>>>>> d7138f7f5dfb8fe11c9c49432c2fbcd1e4f8e046
 #+end_src
 * Package-specific configurations
 ** Org
@@ -86,10 +90,23 @@ Reference: https://leanpub.com/lit-config/read
 (setq org-refile-targets '(("~/org/personal.org" :level . 1)
                             ("~/org/warriertech.org" :maxlevel . 2)))
 #+END_SRC
+<<<<<<< HEAD
 ** Robe
 #+begin_src elisp :tangle ./config.el
 (add-hook 'ruby-mode-hook 'robe-mode)
 (add-hook 'ruby-ts-mode-hook 'robe-mode)
+=======
+** Copilot
+#+begin_src elisp :tangle ./config.el
+;; accept completion from copilot and fallback to company
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word)))
+>>>>>>> d7138f7f5dfb8fe11c9c49432c2fbcd1e4f8e046
 #+END_SRC
 ** Prettier
 *** Configuration
@@ -101,7 +118,8 @@ Reference: https://leanpub.com/lit-config/read
          (css-mode . prettier-mode)
          (html-mode . prettier-mode)
          (markdown-mode . prettier-mode)
-         (terraform-mode . prettier-mode)))
+         (terraform-mode . prettier-mode))
+)
 #+END_SRC
 ** LSP
 *** Configuration
@@ -283,7 +301,7 @@ Reference: https://leanpub.com/lit-config/read
     (mail-host-address . "devdeveloper.ca")
     (user-full-name . "Devin")
     (user-mail-address . "devin@devdeveloper.ca")
-    (mu4e-compose-signature . "---\nRegards,\nDev"))
+    (mu4e-compose-signature . "\nBest,\nDev\nSoftware Developer | DevDeveloper.ca\nEmail: dev@devdeveloper.ca\nPhone: +1 (234) 567-8901\nLinkedIn: linkedin.com/in/devin-dev-d-63008412b\nGitHub: github.com/barnacleDevelopments"))
   t)
 
 (setq! message-send-mail-function 'smtpmail-send-it)
@@ -291,6 +309,10 @@ Reference: https://leanpub.com/lit-config/read
 (map! :leader
       :prefix ("o" . "open")
       "m" #'mu4e)
+
+(map! :localleader
+      :map mu4e-headers-mode-map
+      "c" #'mu4e-thread-fold-toggle)
 #+end_src
 ** Dired
 #+begin_src elisp :tangle ./config.el

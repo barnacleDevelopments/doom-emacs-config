@@ -1,5 +1,3 @@
-;;; Elfeed score file                                     -*- lisp -*-
-;;; How much I give a shit points
 ((version 10)
  ("title")
  ("content")
@@ -34,6 +32,7 @@
   (:text "nova scotia" :title-value 99 :content-value 99 :type s)
   (:text "bioshock" :title-value 99 :content-value 99 :type s)
   (:text "javascript" :title-value 99 :content-value 99 :type s)
+
   ;; Bonus Points
   (:text "positive" :title-value 50 :content-value 50 :type W)
   (:text "motivational" :title-value 50 :content-value 50 :type W)
@@ -62,5 +61,6 @@
  ("authors"
   (:text "Ken Levine" :value 2000 :type s))
  ("feed"
-  (:text "Hyperledger" :value 500 :type S :attr t))
+  (:text "Nova Scotia News" :value 2 :type W :attr t)
+  )
  ("adjust-tags"))
