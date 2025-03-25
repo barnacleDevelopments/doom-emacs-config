@@ -30,9 +30,6 @@
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
 
-(with-eval-after-load 'eglot
- (add-to-list 'eglot-server-programs '((ruby-mode ruby-ts-mode) "ruby-lsp")))
-
 (setq org-directory "~/org/")
 
 (setq org-agenda-todo-ignore-scheduled 'future)
@@ -67,6 +64,15 @@
 
 (setq org-refile-targets '(("~/org/personal.org" :level . 1)
                             ("~/org/warriertech.org" :maxlevel . 2)))
+
+;; accept completion from copilot and fallback to company
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word)))
 
 (use-package! prettier
   :hook (

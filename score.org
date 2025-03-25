@@ -1,6 +1,7 @@
 * Elfeed Score
-#+begin_src elisp :tangle ./score.el
+#+begin_src elisp :tangle ~/.doom.d/score.el
 ;;; Elfeed score file                                     -*- lisp -*-
+;;; How much I give a shit points
 ((version 10)
  ("title")
  ("content")
@@ -64,7 +65,12 @@
  ("authors"
   (:text "Ken Levine" :value 2000 :type s))
  ("feed"
-  (:text "Nova Scotia News" :value 2 :type W)
+  (:text "Hyperledger" :value 1 :type S :attr t)
+  (:text "Nova Scotia News" :value 2 :type W :attr t)
   )
  ("adjust-tags"))
 #+end_src
+** High Priority
+
+** Medium Priority
+** Low Priority

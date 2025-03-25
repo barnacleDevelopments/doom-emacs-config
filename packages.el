@@ -18,6 +18,8 @@
 (package! kubernetes)
 (package! all-the-icons)
 (package! exec-path-from-shell)
+(package! copilot
+  :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 

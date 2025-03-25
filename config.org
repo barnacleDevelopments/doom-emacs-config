@@ -36,8 +36,6 @@ Reference: https://leanpub.com/lit-config/read
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
 
-(with-eval-after-load 'eglot
- (add-to-list 'eglot-server-programs '((ruby-mode ruby-ts-mode) "ruby-lsp")))
 #+end_src
 * Package-specific configurations
 ** Org
@@ -87,6 +85,17 @@ Reference: https://leanpub.com/lit-config/read
 
 (setq org-refile-targets '(("~/org/personal.org" :level . 1)
                             ("~/org/warriertech.org" :maxlevel . 2)))
+#+END_SRC
+** Copilot
+#+begin_src elisp :tangle ./config.el
+;; accept completion from copilot and fallback to company
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word)))
 #+END_SRC
 ** Prettier
 *** Configuration
