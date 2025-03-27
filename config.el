@@ -31,6 +31,10 @@
 (setenv "GIT_SSH_COMMAND" "ssh -v")
 (setq lsp-disabled-clients '(rubocop-ls))
 
+;; Relative Line Numbers
+        (setq display-line-numbers-type 'relative)
+(global-display-line-numbers-mode +1)
+
 (setq org-directory "~/org/")
 
 (setq org-agenda-todo-ignore-scheduled 'future)
@@ -65,16 +69,6 @@
 
 (setq org-refile-targets '(("~/org/personal.org" :level . 1)
                             ("~/org/warriertech.org" :maxlevel . 2)))
-
-(use-package! prettier
-  :hook (
-         (js-mode . prettier-mode)
-         (typescript-mode . prettier-mode)
-         (css-mode . prettier-mode)
-         (html-mode . prettier-mode)
-         (markdown-mode . prettier-mode)
-         (terraform-mode . prettier-mode))
-)
 
 (setq lsp-idle-delay 0.500)  ; Increase delay to half a second (default is 0.1)
 (setq lsp-enable-on-type-formatting nil)  ; Disable auto-formatting on typing
@@ -238,3 +232,12 @@
       :map dirvish-mode-map
       "R" #'query-replace
       "w" #'wdired-change-to-wdired-mode)
+
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word))
+  )

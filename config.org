@@ -36,6 +36,10 @@ Reference: https://leanpub.com/lit-config/read
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
 (setq lsp-disabled-clients '(rubocop-ls))
+
+;; Relative Line Numbers
+        (setq display-line-numbers-type 'relative)
+(global-display-line-numbers-mode +1)
 #+end_src
 * Package-specific configurations
 ** Org
@@ -90,16 +94,6 @@ Reference: https://leanpub.com/lit-config/read
 #+begin_src elisp :tangle ./config.el
 (add-hook 'ruby-mode-hook 'robe-mode)
 (add-hook 'ruby-ts-mode-hook 'robe-mode)
-** Copilot
-#+begin_src elisp :tangle ./config.el
-(use-package! copilot
-  :hook (prog-mode . copilot-mode)
-  :bind (:map copilot-completion-map
-              ("<tab>" . 'copilot-accept-completion)
-              ("TAB" . 'copilot-accept-completion)
-              ("C-TAB" . 'copilot-accept-completion-by-word)
-              ("C-<tab>" . 'copilot-accept-completion-by-word)))
-#+END_SRC
 ** Prettier
 *** Configuration
 #+begin_src elisp :tangle ./config.el
@@ -313,3 +307,14 @@ Reference: https://leanpub.com/lit-config/read
       "R" #'query-replace
       "w" #'wdired-change-to-wdired-mode)
 #+end_src
+** Copilot
+#+begin_src elisp :tangle ./config.el
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word))
+  )
+#+END_SRC
