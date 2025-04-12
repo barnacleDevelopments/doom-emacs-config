@@ -1,26 +1,11 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
-
-;; PROJECTILE CONFIG
-(setq projectile-project-search-path '("~/WebDev/"))
-
-;;WEB MODE
-(use-package! web-mode
-  :mode ("\\.ejs\\'" . web-mode)
-  :config
-  (setq web-mode-content-types-alist
-        '(("html" . "\\.ejs\\'")))
-  (setq web-mode-engines-alist
-        '(("ejs" . "\\.ejs\\'"))))
-(setq! doom-themes-treemacs-theme "doom-colors")
-
-(setq doom-font (font-spec :size 20))
-;;Shortcuts
 (setq avy-all-windows t)
-
-;;QC CLIENT CONFIG
 (setq display-line-numbers-type 'relative)
-(setq doom-theme 'doom-palenight)
 (setq display-line-numbers-type t)
+
+;; Relative Line Numbers
+(setq display-line-numbers-type 'relative)
+(global-display-line-numbers-mode +1)
 
 ; Mac Config
 (use-package! exec-path-from-shell
@@ -31,9 +16,19 @@
 (setenv "GIT_SSH_COMMAND" "ssh -v")
 (setq lsp-disabled-clients '(rubocop-ls))
 
-;; Relative Line Numbers
-        (setq display-line-numbers-type 'relative)
-(global-display-line-numbers-mode +1)
+(setq! doom-themes-treemacs-theme "doom-colors")
+(setq! doom-font (font-spec :size 20))
+(setq! doom-theme 'doom-palenight)
+
+(use-package! web-mode
+  :mode ("\\.ejs\\'" . web-mode)
+  :config
+  (setq web-mode-content-types-alist
+        '(("html" . "\\.ejs\\'")))
+  (setq web-mode-engines-alist
+        '(("ejs" . "\\.ejs\\'"))))
+
+(setq projectile-project-search-path '("~/WebDev/"))
 
 (setq org-directory "~/org/")
 
@@ -171,7 +166,7 @@
 (setq! ledger-schedule-file "~/org/schedual.ledger")
 (with-eval-after-load 'ledger-mode
   (add-to-list 'ledger-reports
-               '("budget" "ledger bal --budget Expenses -f ~/org/budget.ledger")))
+               '("budget" "ledger bal --budget Expenses -f ~/org/2025.ledger")))
 (defun ledger-analytic-start ()
   "Start the 'ledger-analytics' server on port 3000."
   (interactive)
@@ -180,8 +175,12 @@
         (message "Ledger Analytics server is already running.")
       (progn
         (start-process "ledger-analytics-process" buffer-name
-                       "ledger-analytics" "-f" "~/org/budget.ledger")
+                       "ledger-analytics" "-f" "~/org/2025.ledger")
         (message "Ledger Analytics server started on port 3000.")))))
+
+(map! :localleader
+      :map ledger-mode-map
+      "s" #'evil-ledger-align)
 
 (map! :leader
       :prefix "c"
@@ -226,7 +225,8 @@
 
 (map! :localleader
       :map mu4e-headers-mode-map
-      "c" #'mu4e-thread-fold-toggle)
+      "c" #'mu4e-thread-fold-toggle
+      "m" #'mu4e-view-mark-for-move)
 
 (map! :localleader
       :map dirvish-mode-map

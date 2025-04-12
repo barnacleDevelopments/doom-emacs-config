@@ -6,7 +6,6 @@
 ;; use 'M-x doom/reload'.
 (package! dashboard)
 (package! org-chef)
-(package! restclient)
 (package! counsel-jq)
 (package! ob-restclient)
 (package! prettier)
@@ -21,6 +20,7 @@
 (package! robe)
 (package! copilot
   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
+(package! flycheck-ledger)
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 
