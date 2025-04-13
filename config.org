@@ -5,29 +5,16 @@ Reference: https://leanpub.com/lit-config/read
 * General Settings
 #+begin_src elisp :tangle ./config.el
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
-
-;; PROJECTILE CONFIG
-(setq projectile-project-search-path '("~/WebDev/"))
-
-;;WEB MODE
-(use-package! web-mode
-  :mode ("\\.ejs\\'" . web-mode)
-  :config
-  (setq web-mode-content-types-alist
-        '(("html" . "\\.ejs\\'")))
-  (setq web-mode-engines-alist
-        '(("ejs" . "\\.ejs\\'"))))
-(setq! doom-themes-treemacs-theme "doom-colors")
-
-(setq doom-font (font-spec :size 20))
-;;Shortcuts
 (setq avy-all-windows t)
-
-;;QC CLIENT CONFIG
 (setq display-line-numbers-type 'relative)
-(setq doom-theme 'doom-palenight)
 (setq display-line-numbers-type t)
 
+;; Relative Line Numbers
+(setq display-line-numbers-type 'relative)
+(global-display-line-numbers-mode +1)
+#+end_src
+** Mac Config
+#+begin_src elisp :tangle ./config.el
 ; Mac Config
 (use-package! exec-path-from-shell
   :if (memq window-system '(mac ns x))
@@ -36,18 +23,36 @@ Reference: https://leanpub.com/lit-config/read
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
 (setq lsp-disabled-clients '(rubocop-ls))
-
-;; Relative Line Numbers
-        (setq display-line-numbers-type 'relative)
-(global-display-line-numbers-mode +1)
 #+end_src
 * Package-specific configurations
+** Doom
+*** Configuration
+#+begin_src elisp :tangle ./config.el
+(setq! doom-themes-treemacs-theme "doom-colors")
+(setq! doom-font (font-spec :size 20))
+(setq! doom-theme 'doom-palenight)
+#+end_src
+** Web Mode
+*** Configuration
+#+begin_src elisp :tangle ./config.el
+(use-package! web-mode
+  :mode ("\\.ejs\\'" . web-mode)
+  :config
+  (setq web-mode-content-types-alist
+        '(("html" . "\\.ejs\\'")))
+  (setq web-mode-engines-alist
+        '(("ejs" . "\\.ejs\\'"))))
+#+end_src
+** Projectile
+*** Configuration
+#+begin_src elisp :tangle ./config.el
+(setq projectile-project-search-path '("~/WebDev/"))
+#+end_src
 ** Org
-*** Todos
-**** TODO Learn about optimizing tasks and notes
-**** TODO When Clocking in add billable option/tag automatically
-**** TODO create capture template for meeting notes
-*** Configurations
+*** TODO Learn about optimizing tasks and notes
+*** TODO When Clocking in add billable option/tag automatically
+*** TODO create capture template for meeting notes
+*** Configuration
 **** Configuring org-directory
 #+begin_src elisp :tangle ./config.el
 (setq org-directory "~/org/")
@@ -171,8 +176,7 @@ Reference: https://leanpub.com/lit-config/read
 ** Elfeed
 :Elfeed-Docs:  https://github.com/skeeto/elfeed?tab=readme-ov-file
 :Elfeed-Score-Docs: https://www.unwoundstack.com/doc/elfeed-score/curr
-*** Todos
-**** TODO Implement Bongo: https://protesilaos.com/codelog/2020-09-11-emacs-elfeed-bongo/
+*** TODO Implement Bongo: https://protesilaos.com/codelog/2020-09-11-emacs-elfeed-bongo/
 *** Configurations
 #+begin_src elisp :tangle ./config.el
 (use-package! elfeed-score
@@ -231,7 +235,7 @@ Reference: https://leanpub.com/lit-config/read
 (setq! ledger-schedule-file "~/org/schedual.ledger")
 (with-eval-after-load 'ledger-mode
   (add-to-list 'ledger-reports
-               '("budget" "ledger bal --budget Expenses -f ~/org/budget.ledger")))
+               '("budget" "ledger bal --budget Expenses -f ~/org/2025.ledger")))
 (defun ledger-analytic-start ()
   "Start the 'ledger-analytics' server on port 3000."
   (interactive)
@@ -240,8 +244,12 @@ Reference: https://leanpub.com/lit-config/read
         (message "Ledger Analytics server is already running.")
       (progn
         (start-process "ledger-analytics-process" buffer-name
-                       "ledger-analytics" "-f" "~/org/budget.ledger")
+                       "ledger-analytics" "-f" "~/org/2025.ledger")
         (message "Ledger Analytics server started on port 3000.")))))
+
+(map! :localleader
+      :map ledger-mode-map
+      "s" #'evil-ledger-align)
 
 #+end_src
 ** Anzu
@@ -268,6 +276,7 @@ Reference: https://leanpub.com/lit-config/read
          (timestamp . "time"))))
 #+end_src
 ** MUE4
+*** Configuration
 #+begin_src elisp :tangle ./config.el
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
 
@@ -298,7 +307,8 @@ Reference: https://leanpub.com/lit-config/read
 
 (map! :localleader
       :map mu4e-headers-mode-map
-      "c" #'mu4e-thread-fold-toggle)
+      "c" #'mu4e-thread-fold-toggle
+      "m" #'mu4e-view-mark-for-move)
 #+end_src
 ** Dired
 #+begin_src elisp :tangle ./config.el
@@ -308,6 +318,7 @@ Reference: https://leanpub.com/lit-config/read
       "w" #'wdired-change-to-wdired-mode)
 #+end_src
 ** Copilot
+*** Configuration
 #+begin_src elisp :tangle ./config.el
 (use-package! copilot
   :hook (prog-mode . copilot-mode)
