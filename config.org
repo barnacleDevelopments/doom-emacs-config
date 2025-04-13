@@ -318,3 +318,10 @@ Reference: https://leanpub.com/lit-config/read
               ("C-<tab>" . 'copilot-accept-completion-by-word))
   )
 #+END_SRC
+** Org Jira
+*** TODO add org jira configuration
+https://github.com/ahungry/org-jira
+#+begin_src elisp :tangle ./config.el
+(setq jiralib-url "https://eventtemple.atlassian.net")
+
+#+end_src
