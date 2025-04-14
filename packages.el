@@ -20,11 +20,8 @@
 (package! robe)
 (package! copilot
   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
-<<<<<<< HEAD
 (package! org-jira)
-=======
 (package! flycheck-ledger)
->>>>>>> 67ac7e58c6f8d7b21b7b6deb3c4225a46e1e3211
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 

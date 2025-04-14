@@ -243,3 +243,5 @@
               ("C-TAB" . 'copilot-accept-completion-by-word)
               ("C-<tab>" . 'copilot-accept-completion-by-word))
   )
+
+(setq jiralib-url "https://eventtemple.atlassian.net")
