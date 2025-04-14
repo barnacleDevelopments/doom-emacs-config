@@ -32,22 +32,6 @@ Reference: https://leanpub.com/lit-config/read
 (setq! doom-font (font-spec :size 20))
 (setq! doom-theme 'doom-palenight)
 #+end_src
-** Web Mode
-*** Configuration
-#+begin_src elisp :tangle ./config.el
-(use-package! web-mode
-  :mode ("\\.ejs\\'" . web-mode)
-  :config
-  (setq web-mode-content-types-alist
-        '(("html" . "\\.ejs\\'")))
-  (setq web-mode-engines-alist
-        '(("ejs" . "\\.ejs\\'"))))
-#+end_src
-** Projectile
-*** Configuration
-#+begin_src elisp :tangle ./config.el
-(setq projectile-project-search-path '("~/WebDev/"))
-#+end_src
 ** Org
 *** TODO Learn about optimizing tasks and notes
 *** TODO When Clocking in add billable option/tag automatically
@@ -95,6 +79,26 @@ Reference: https://leanpub.com/lit-config/read
 (setq org-refile-targets '(("~/org/personal.org" :level . 1)
                             ("~/org/warriertech.org" :maxlevel . 2)))
 #+END_SRC
+** FlyCheck
+#+begin_src elisp :tangle ./config.el
+(add-hook 'after-init-hook #'global-flycheck-mode)
+#+end_src
+** Web Mode
+*** Configuration
+#+begin_src elisp :tangle ./config.el
+(use-package! web-mode
+  :mode ("\\.ejs\\'" . web-mode)
+  :config
+  (setq web-mode-content-types-alist
+        '(("html" . "\\.ejs\\'")))
+  (setq web-mode-engines-alist
+        '(("ejs" . "\\.ejs\\'"))))
+#+end_src
+** Projectile
+*** Configuration
+#+begin_src elisp :tangle ./config.el
+(setq projectile-project-search-path '("~/WebDev/"))
+#+end_src
 ** Robe
 #+begin_src elisp :tangle ./config.el
 (add-hook 'ruby-mode-hook 'robe-mode)

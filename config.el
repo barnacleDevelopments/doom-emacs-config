@@ -20,16 +20,6 @@
 (setq! doom-font (font-spec :size 20))
 (setq! doom-theme 'doom-palenight)
 
-(use-package! web-mode
-  :mode ("\\.ejs\\'" . web-mode)
-  :config
-  (setq web-mode-content-types-alist
-        '(("html" . "\\.ejs\\'")))
-  (setq web-mode-engines-alist
-        '(("ejs" . "\\.ejs\\'"))))
-
-(setq projectile-project-search-path '("~/WebDev/"))
-
 (setq org-directory "~/org/")
 
 (setq org-agenda-todo-ignore-scheduled 'future)
@@ -64,6 +54,18 @@
 
 (setq org-refile-targets '(("~/org/personal.org" :level . 1)
                             ("~/org/warriertech.org" :maxlevel . 2)))
+
+(add-hook 'after-init-hook #'global-flycheck-mode)
+
+(use-package! web-mode
+  :mode ("\\.ejs\\'" . web-mode)
+  :config
+  (setq web-mode-content-types-alist
+        '(("html" . "\\.ejs\\'")))
+  (setq web-mode-engines-alist
+        '(("ejs" . "\\.ejs\\'"))))
+
+(setq projectile-project-search-path '("~/WebDev/"))
 
 (setq lsp-idle-delay 0.500)  ; Increase delay to half a second (default is 0.1)
 (setq lsp-enable-on-type-formatting nil)  ; Disable auto-formatting on typing

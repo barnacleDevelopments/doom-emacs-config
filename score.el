@@ -10,7 +10,7 @@
   (:text "ghost story" :title-value 1000 :content-value 1000 :type w)
   (:text "fallout" :title-value 500 :content-value 500 :type w)
   (:text "call of duty" :title-value 500 :content-value 500 :type w)
-  (:text "Doom" :title-value 500 :content-value 500 :type w)
+  (:text "doom" :title-value 500 :content-value 500 :type w)
   (:text "elder scrolls" :title-value 500 :content-value 500 :type w)
   (:text "media molecule" :title-value 500 :content-value 500 :type w)
   (:text "magit release" :title-value 400 :content-value 400 :type w)
