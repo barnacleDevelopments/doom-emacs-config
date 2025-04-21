@@ -7,6 +7,20 @@
 (setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode +1)
 
+(defun eslint-fix-file ()
+  (interactive)
+  (message "eslint --fixing the file" (buffer-file-name))
+  (shell-command (concat "eslint --fix " (buffer-file-name))))
+
+(defun eslint-fix-file-and-revert ()
+  (interactive)
+  (eslint-fix-file)
+  (revert-buffer t t))
+
+(add-hook 'js2-mode-hook
+          (lambda ()
+            (add-hook 'after-save-hook #'eslint-fix-file-and-revert)))
+
 ; Mac Config
 (use-package! exec-path-from-shell
   :if (memq window-system '(mac ns x))
@@ -56,6 +70,9 @@
                             ("~/org/warriertech.org" :maxlevel . 2)))
 
 (add-hook 'after-init-hook #'global-flycheck-mode)
+(add-hook! 'typescript-mode
+  (lambda ()
+    (flycheck-select-checker 'javascript-eslint)))
 
 (use-package! web-mode
   :mode ("\\.ejs\\'" . web-mode)
@@ -81,7 +98,9 @@
   (setq lsp-signature-auto-activate nil)    ;; Disable signature help
   (setq lsp-modeline-code-actions-enable nil) ;; Disable code actions in modeline
   (setq lsp-modeline-diagnostics-enable nil) ;; Disable diagnostics in modeline
-  (setq lsp-lens-enable nil)) ;; Disable CodeLens
+  (setq lsp-lens-enable nil);; Disable CodeLens
+  (setq lsp-diagnostics-provider :none)
+        )
 (after! lsp-mode
   (setq lsp-typescript-auto-import-completions nil)) ;; Disable auto-imports
 
