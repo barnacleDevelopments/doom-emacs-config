@@ -55,6 +55,9 @@
 (setq org-refile-targets '(("~/org/personal.org" :level . 1)
                             ("~/org/warriertech.org" :maxlevel . 2)))
 
+(setq org-roam-directory "~/org-roam")
+(org-roam-db-autosync-mode)
+
 (add-hook 'after-init-hook #'global-flycheck-mode)
 
 (use-package! web-mode

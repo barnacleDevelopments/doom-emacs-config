@@ -20,12 +20,14 @@
   (:text "starship" :title-value 400 :content-value 400 :type w)
   (:text "mars" :title-value 400 :content-value 400 :type w)
   (:text "nova scotia election" :title-value 400 :content-value 400 :type w)
+  (:text "canada election" :title-value 400 :content-value 400 :type w)
   (:text "education" :title-value 300 :content-value 300 :type w)
   (:text "housing" :title-value 200 :content-value 200 :type w)
   (:text "healthcare" :title-value 200 :content-value 200 :type w)
   (:text "climate change" :title-value 100 :content-value 100 :type w)
   (:text "emissions targets" :title-value 50 :content-value 50 :type w)
   (:text "child care" :title-value 100 :content-value 100 :type w)
+  (:text "web development" :title-value 100 :content-value 100 :type w)
 
   ;; LOW SCORE
   (:text "halifax" :title-value 99 :content-value 99 :type s)
@@ -62,5 +64,6 @@
   (:text "Ken Levine" :value 2000 :type s))
  ("feed"
   (:text "Nova Scotia News" :value 2 :type w :attr t)
+  (:text "Syntax - Tasty Web Development Treats" :value 300 :type w :attr t)
   )
  ("adjust-tags"))

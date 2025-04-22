@@ -1,5 +1,5 @@
 * Elfeed Score
-#+begin_src elisp :tangle ~/.doom.d/score.el
+#+begin_src elisp :tangle ./score.el
 ;;; Elfeed score file                                     -*- lisp -*-
 ;;; How much I give a shit points
 ((version 10)
@@ -14,10 +14,10 @@
   (:text "ghost story" :title-value 1000 :content-value 1000 :type W)
   (:text "fallout" :title-value 500 :content-value 500 :type W)
   (:text "call of duty" :title-value 500 :content-value 500 :type W)
-  (:text "Doom" :title-value 500 :content-value 500 :type W)
   (:text "elder scrolls" :title-value 500 :content-value 500 :type W)
   (:text "media molecule" :title-value 500 :content-value 500 :type W)
   (:text "magit release" :title-value 400 :content-value 400 :type W)
+  (:text "doom" :title-value 500 :content-value 500 :type W)
 
   ;; MID SCORE
   (:text "halifax election" :title-value 400 :content-value 400 :type W)

@@ -79,6 +79,12 @@ Reference: https://leanpub.com/lit-config/read
 (setq org-refile-targets '(("~/org/personal.org" :level . 1)
                             ("~/org/warriertech.org" :maxlevel . 2)))
 #+END_SRC
+**** Roam
+***** Configuration
+#+begin_src elisp :tangle ./config.el
+(setq org-roam-directory "~/org-roam")
+(org-roam-db-autosync-mode)
+#+end_src
 ** FlyCheck
 #+begin_src elisp :tangle ./config.el
 (add-hook 'after-init-hook #'global-flycheck-mode)
