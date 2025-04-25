@@ -34,7 +34,7 @@
 (setq! doom-font (font-spec :size 20))
 (setq! doom-theme 'doom-palenight)
 
-(setq org-directory "~/org/")
+(setq org-directory "~/org-roam/")
 
 (setq org-agenda-todo-ignore-scheduled 'future)
 (setq org-agenda-start-day "-1d")
@@ -46,8 +46,10 @@
         "~/org/professional.org"
         "~/org/projects.org"
         "~/org/main.org"
+        "~/org-roam/daily"
+        "~/org-roam/tickets"
+        "~/doom/config.org"
 ))
-(setq org-agenda-start-with-follow-mode t)
 
 (defun org-summary-todo (n-done n-not-done)
   "Switch entry to DONE when all subentries are done, to TODO otherwise."
@@ -71,6 +73,33 @@
 
 (setq org-roam-directory "~/org-roam")
 (org-roam-db-autosync-mode)
+(setq org-roam-dailies-capture-templates
+      `(("d" "default" plain
+         "%?"
+         :target (file+head "%<%Y-%m-%d>.org"
+                            ,(concat "#+title: %<%Y-%m-%d>\n\n"
+                                     "* Goals this Quarter\n"
+                                     "- I'm responsible for NFE bugs.\n"
+                                     "- goal is to increase adoption of NFE by 60%.\n\n"
+                                     "* Standup\n** Yesterday\n** Today\n** Blockers\n** Action Items"))
+         :unnarrowed t
+         )))
+
+(setq org-roam-capture-templates
+      `(("t" "Ticket" plain
+         "%?"
+         :target (file+head "tickets/%<%Y%m%d%H%M%S>-${slug}.org"
+                            ,(concat "#+title: ${title}\n"
+                                     "#+created: %U\n"
+                                     "#+filetags: :ticket:\n\n"
+                                     "* Description\n"
+                                     "%^{Description}\n\n"
+                                     "* Checklist\n"
+                                     "** TODO Complete\n"
+                                     "** WAIT Create pull request\n"
+                                     "** WAIT Deploy to production\n"
+                                     "** WAIT Create release note in Slack\n"))
+         :unnarrowed t)))
 
 (add-hook 'after-init-hook #'global-flycheck-mode)
 (add-hook! 'typescript-mode
