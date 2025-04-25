@@ -64,6 +64,7 @@
   (:text "Ken Levine" :value 2000 :type s))
  ("feed"
   (:text "Nova Scotia News" :value 2 :type w :attr t)
-  (:text "Syntax - Tasty Web Development Treats" :value 300 :type w :attr t)
+  (:text "Syntax - Tasty Web Development Treats" :value 500 :type w :attr t)
+  (:text "Next.js Blog" :value 500 :type w :attr t)
   )
  ("adjust-tags"))
