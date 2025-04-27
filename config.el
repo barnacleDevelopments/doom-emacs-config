@@ -21,6 +21,10 @@
           (lambda ()
             (add-hook 'after-save-hook #'eslint-fix-file-and-revert)))
 
+(add-to-list 'load-path "~/WebDev/Projects/etesync-org")
+
+(require 'etesync-org)
+
 ; Mac Config
 (use-package! exec-path-from-shell
   :if (memq window-system '(mac ns x))
@@ -145,6 +149,23 @@
                                      "** TODO Review\n"
                                      ))
          :unnarrowed t)))
+
+(defun my/org-to-md-on-save ()
+  "Export Org to Markdown cleanly and copy it if in specific directory."
+  (when (and (eq major-mode 'org-mode)
+             (string-prefix-p (expand-file-name "~/org-roam/posts")
+                              (buffer-file-name)))
+    (let* ((org-export-with-toc nil)  ;; Disable table of contents
+           (org-export-with-section-numbers nil) ;; Optional: remove section numbers too
+           (org-md-headline-style 'atx) ;; Optional: use # headlines (GitHub style)
+           (exported-md (org-md-export-to-markdown))
+           (destination-dir "~/WebDev/Projects/PersonalSite/content/blog"))
+      (when (file-exists-p exported-md)
+        (copy-file exported-md
+                   (expand-file-name (file-name-nondirectory exported-md) destination-dir)
+                   t)
+        (message "Exported and copied markdown to %s" destination-dir)))))
+(add-hook 'after-save-hook 'my/org-to-md-on-save)
 
 (add-hook 'after-init-hook #'global-flycheck-mode)
 (add-hook! 'typescript-mode
