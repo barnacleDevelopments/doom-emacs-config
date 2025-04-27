@@ -87,7 +87,7 @@
          )
         ("e" "Event Temple" plain
          "%?"
-         :target (file+head "%<%Y-%m-%d>.org"
+         :target (file+head "%<%Y-%m-%d>-et.org"
                             ,(concat "#+title: %<%Y-%m-%d>\n\n"
                                      "* Goals this Quarter\n"
                                      "- I'm responsible for NFE bugs.\n"
@@ -102,14 +102,18 @@
          :target (file+head "tickets/%<%Y%m%d%H%M%S>-${slug}.org"
                             ,(concat "#+title: ${title}\n"
                                      "#+created: %U\n"
-                                     "#+filetags: :ticket:\n\n"
+                                     "#+filetags: :ticket:\n"
+                                     "#+jira_ticket_url: %^{JiraTicketURL}\n"
+                                     "#+pull_request_url:\n"
                                      "* Description\n"
                                      "%^{Description}\n\n"
                                      "* Checklist\n"
                                      "** TODO Complete\n"
+                                     "** WAIT Write tests\n"
                                      "** WAIT Create pull request\n"
+                                     "** WAIT Deploy to staging\n"
                                      "** WAIT Deploy to production\n"
-                                     "** WAIT Create release note in Slack\n"))
+                                     "** WAIT Create release note using template in Slack\n"))
          :unnarrowed t)
         ("p" "Project" plain
          "%?"
