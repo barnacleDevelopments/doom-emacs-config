@@ -109,7 +109,7 @@
                                      "** WAIT Create pull request\n"
                                      "** WAIT Deploy to staging\n"
                                      "** WAIT Deploy to production\n"
-                                     "** WAIT Create release note in Slack\n"))
+                                     "** WAIT Create release note using template in Slack\n"))
          :unnarrowed t)
         ("p" "Project" plain
          "%?"
