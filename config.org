@@ -23,14 +23,9 @@ Reference: https://leanpub.com/lit-config/read
   (eslint-fix-file)
   (revert-buffer t t))
 
-(add-hook 'js2-mode-hook
-          (lambda ()
-            (add-hook 'after-save-hook #'eslint-fix-file-and-revert)))
-
-(add-to-list 'load-path "~/WebDev/Projects/etesync-org")
-
-(require 'etesync-org)
-
+;; (add-hook 'js2-mode-hook
+;;           (lambda ()
+;;             (add-hook 'after-save-hook #'eslint-fix-file-and-revert)))
 #+end_src
 ** Mac Config
 #+begin_src elisp :tangle ./config.el
@@ -185,24 +180,29 @@ Reference: https://leanpub.com/lit-config/read
          :unnarrowed t)))
 #+end_src
 **** Blog Post Writing
-
-
-#+begin_src elisp :tangle ./config.el
+#+begin_src emacs-lisp :tangle ./config.el
+(setq org-export-show-temporary-export-buffer nil)
 (defun my/org-to-md-on-save ()
-  "Export Org to Markdown cleanly and copy it if in specific directory."
+  "Export Org file to Hugo-compatible Markdown cleanly, strip heading IDs, and copy it to the destination directory."
   (when (and (eq major-mode 'org-mode)
-             (string-prefix-p (expand-file-name "~/org-roam/posts")
-                              (buffer-file-name)))
-    (let* ((org-export-with-toc nil)  ;; Disable table of contents
-           (org-export-with-section-numbers nil) ;; Optional: remove section numbers too
-           (org-md-headline-style 'atx) ;; Optional: use # headlines (GitHub style)
-           (exported-md (org-md-export-to-markdown))
-           (destination-dir "~/WebDev/Projects/PersonalSite/content/blog"))
-      (when (file-exists-p exported-md)
-        (copy-file exported-md
-                   (expand-file-name (file-name-nondirectory exported-md) destination-dir)
-                   t)
-        (message "Exported and copied markdown to %s" destination-dir)))))
+             (buffer-file-name)
+             (string-prefix-p (expand-file-name "~/org-roam/posts/")
+                              (expand-file-name (buffer-file-name))))
+    ;; Don't show temporary export buffer
+      (let* ((base-name (file-name-base (buffer-file-name)))
+             (exported-md (org-hugo-export-as-md)))
+        (when (buffer-live-p exported-md)
+          (let* ((destination-dir (expand-file-name "~/WebDev/Projects/PersonalSite/content/blog/"))
+                 (title (replace-regexp-in-string "[[:digit:]]\\{14\\}-" "" base-name))
+                 (destination-file (expand-file-name (concat title ".mdx") destination-dir)))
+            (with-current-buffer exported-md
+              ;; 🧹 Strip {#id} before saving
+              (save-excursion
+                (goto-char (point-min))
+                (while (re-search-forward " {#\\([^}]+\\)}" nil t)
+                  (replace-match "")))
+              (write-region (point-min) (point-max) destination-file))
+            (kill-buffer exported-md))))))
 (add-hook 'after-save-hook 'my/org-to-md-on-save)
 #+end_src
 ** Slack

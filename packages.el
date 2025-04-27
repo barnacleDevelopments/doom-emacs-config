@@ -22,6 +22,7 @@
   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
 (package! org-jira)
 (package! flycheck-ledger)
+(package! ox-hugo)
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 
