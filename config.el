@@ -105,11 +105,12 @@
                                      "%^{Description}\n\n"
                                      "* Checklist\n"
                                      "** TODO Complete\n"
-                                     "** WAIT Write tests\n"
-                                     "** WAIT Create pull request\n"
-                                     "** WAIT Deploy to staging\n"
-                                     "** WAIT Deploy to production\n"
-                                     "** WAIT Create release note using template in Slack\n"))
+                                     "*** [ ] Write tests\n"
+                                     "*** [ ] Create pull request\n"
+                                     "*** [ ] Apply feedback if any\n"
+                                     "*** [ ] Deploy to staging\n"
+                                     "*** [ ] Deploy to production\n"
+                                     "*** [ ] Create release note using template in Slack\n"))
          :unnarrowed t)
         ("p" "Project" plain
          "%?"
@@ -150,7 +151,7 @@
                                      ))
          :unnarrowed t)))
 
-(setq org-export-show-temporary-export-buffer nil)
+(setq org-export-show-temporary-export-buffer t)
 (defun my/org-to-md-on-save ()
   "Export Org file to Hugo-compatible Markdown cleanly, strip heading IDs, and copy it to the destination directory."
   (when (and (eq major-mode 'org-mode)
