@@ -261,13 +261,11 @@ https://github.com/emacs-slack/emacs-slack
         "[/\\\\]dist$"))
 (setq lsp-file-watch-threshold 1000)  ;; Increase threshold to 1000 files
 (after! lsp-mode
-  (setq lsp-enable-symbol-highlighting nil) ;; Disable symbol highlighting
   (setq lsp-enable-on-type-formatting nil)  ;; Disable on-type formatting
   (setq lsp-signature-auto-activate nil)    ;; Disable signature help
   (setq lsp-modeline-code-actions-enable nil) ;; Disable code actions in modeline
   (setq lsp-modeline-diagnostics-enable nil) ;; Disable diagnostics in modeline
-  (setq lsp-lens-enable nil);; Disable CodeLens
-  (setq lsp-diagnostics-provider :none)
+  (setq lsp-diagnostics-provider :auto) ;; Disable diagnostics in modeline
         )
 (after! lsp-mode
   (setq lsp-typescript-auto-import-completions nil)) ;; Disable auto-imports
