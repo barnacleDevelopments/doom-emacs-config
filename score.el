@@ -66,5 +66,6 @@
   (:text "Nova Scotia News" :value 2 :type w :attr t)
   (:text "Syntax - Tasty Web Development Treats" :value 500 :type w :attr t)
   (:text "Next.js Blog" :value 500 :type w :attr t)
+  (:text "System76 Blog RSS Feed" :value 500 :type w :attr t)
   )
  ("adjust-tags"))
