@@ -31,23 +31,20 @@
 (setq lsp-disabled-clients '(rubocop-ls))
 
 (setq! doom-themes-treemacs-theme "doom-colors")
+(setq! treemacs-width 45)
+
 (setq! doom-font (font-spec :size 20))
 (setq! doom-theme 'doom-palenight)
 
-(setq org-directory "~/org-roam/")
+(setq org-directory "~/my-org-roam/")
 
 (setq org-agenda-todo-ignore-scheduled 'future)
 (setq org-agenda-start-day "-1d")
 (setq org-agenda-span 5)
 (setq org-agenda-files '(
-        "~/org/inbox.org"
-        "~/org/warriertech.org"
-        "~/org/personal.org"
-        "~/org/professional.org"
-        "~/org/projects.org"
-        "~/org/main.org"
-        "~/org-roam/daily"
-        "~/org-roam/tickets"
+        "~/my-org-roam/daily"
+        "~/my-org-roam/work-org-roam/daily"
+        "~/my-org-roam/work-org-roam/tickets"
         "~/doom/config.org"
 ))
 
@@ -58,20 +55,11 @@
 (add-hook 'org-after-todo-statistics-hook #'org-summary-todo)
 
 (setq org-capture-templates
-      '(("w" "Warriertech Todo" entry (file+headline "~/org/warriertech.org" "Inbox")
-         "* TODO %?\n  %U\n %a %i")
-        ("p" "Personal Todo" entry (file+headline "~/org/personal.org" "Inbox")
-         "* TODO %?\n  %U\n  %i")
-        ("j" "Journal" entry (file+olp+datetree "~/org/journal.org")
-         "* %U - %^{Title}\n  %?\n  %i")
-        ("c" "Cookbook" entry (file "~/org/cookbook.org")
+      '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
          "%(org-chef-get-recipe-from-url)"
          :empty-lines 1)))
 
-(setq org-refile-targets '(("~/org/personal.org" :level . 1)
-                            ("~/org/warriertech.org" :maxlevel . 2)))
-
-(setq org-roam-directory "~/org-roam")
+(setq org-roam-directory "~/my-org-roam")
 (org-roam-db-autosync-mode)
 
 (setq org-roam-dailies-capture-templates
@@ -84,7 +72,7 @@
          )
         ("e" "Event Temple" plain
          "%?"
-         :target (file+head "%<%Y-%m-%d>-et.org"
+         :target (file+head "~/my-org-roam/work-org-roam/daily/%<%Y-%m-%d>-et.org"
                             ,(concat "#+title: %<%Y-%m-%d>\n\n"
                                      "* Goals this Quarter\n"
                                      "- I'm responsible for NFE bugs.\n"
@@ -96,16 +84,20 @@
 (setq org-roam-capture-templates
       `(("t" "Ticket" plain
          "%?"
-         :target (file+head "tickets/%<%Y%m%d%H%M%S>-${slug}.org"
+         :target (file+head "work-org-roam/tickets/%<%Y%m%d%H%M%S>-${slug}.org"
                             ,(concat "#+title: ${title}\n"
                                      "#+created: %U\n"
                                      "#+filetags: :ticket:\n"
                                      "#+jira_ticket_url: %^{JiraTicketURL}\n"
-                                     "#+pull_request_url:\n"
+                                     "#+figma_url: %^{FigmaDesignURL}\n"
+                                     "#+pull_request_url: \n"
                                      "* Description\n"
                                      "%^{Description}\n\n"
+                                     "* Pull Request\n"
+                                     "** Description\n"
+                                     "** How to test\n"
                                      "* Checklist\n"
-                                     "** TODO Complete\n"
+                                     "** TODO Complete [0/6]\n"
                                      "*** [ ] Write tests\n"
                                      "*** [ ] Create pull request\n"
                                      "*** [ ] Apply feedback if any\n"
@@ -115,7 +107,7 @@
          :unnarrowed t)
         ("p" "Project" plain
          "%?"
-         :target (file+head "projects/%<%Y%m%d%H%M%S>-${slug}.org"
+         :target (file+head "work-org-roam/projects/%<%Y%m%d%H%M%S>-${slug}.org"
                             ,(concat "#+title: ${title}\n"
                                      "#+created: %U\n"
                                      "#+filetags: :project:\n\n"
@@ -200,13 +192,11 @@
         "[/\\\\]dist$"))
 (setq lsp-file-watch-threshold 1000)  ;; Increase threshold to 1000 files
 (after! lsp-mode
-  (setq lsp-enable-symbol-highlighting nil) ;; Disable symbol highlighting
   (setq lsp-enable-on-type-formatting nil)  ;; Disable on-type formatting
   (setq lsp-signature-auto-activate nil)    ;; Disable signature help
   (setq lsp-modeline-code-actions-enable nil) ;; Disable code actions in modeline
   (setq lsp-modeline-diagnostics-enable nil) ;; Disable diagnostics in modeline
-  (setq lsp-lens-enable nil);; Disable CodeLens
-  (setq lsp-diagnostics-provider :none)
+  (setq lsp-diagnostics-provider :auto) ;; Disable diagnostics in modeline
         )
 (after! lsp-mode
   (setq lsp-typescript-auto-import-completions nil)) ;; Disable auto-imports
