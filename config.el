@@ -73,6 +73,7 @@
 
 (setq org-roam-directory "~/org-roam")
 (org-roam-db-autosync-mode)
+
 (setq org-roam-dailies-capture-templates
       `(("d" "default" plain
          "%?"
@@ -151,7 +152,7 @@
                                      ))
          :unnarrowed t)))
 
-(setq org-export-show-temporary-export-buffer t)
+(setq org-export-show-temporary-export-buffer nil)
 (defun my/org-to-md-on-save ()
   "Export Org file to Hugo-compatible Markdown cleanly, strip heading IDs, and copy it to the destination directory."
   (when (and (eq major-mode 'org-mode)
