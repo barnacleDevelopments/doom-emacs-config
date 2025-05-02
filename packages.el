@@ -23,6 +23,7 @@
 (package! org-jira)
 (package! flycheck-ledger)
 (package! ox-hugo)
+(package! coffee-mode)
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 

@@ -42,12 +42,6 @@
 (setq org-agenda-start-day "-1d")
 (setq org-agenda-span 5)
 (setq org-agenda-files '(
-        "~/org/inbox.org"
-        "~/org/warriertech.org"
-        "~/org/personal.org"
-        "~/org/professional.org"
-        "~/org/projects.org"
-        "~/org/main.org"
         "~/my-org-roam/daily"
         "~/my-org-roam/work-org-roam/daily"
         "~/my-org-roam/work-org-roam/tickets"
