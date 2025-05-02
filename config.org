@@ -39,10 +39,14 @@ Reference: https://leanpub.com/lit-config/read
 (setq lsp-disabled-clients '(rubocop-ls))
 #+end_src
 * Package-specific configurations
+** Treemacs
+#+begin_src elisp :tangle ./config.el
+(setq! doom-themes-treemacs-theme "doom-colors")
+(setq! treemacs-width 45)
+#+end_src
 ** Doom
 *** Configuration
 #+begin_src elisp :tangle ./config.el
-(setq! doom-themes-treemacs-theme "doom-colors")
 (setq! doom-font (font-spec :size 20))
 (setq! doom-theme 'doom-palenight)
 #+end_src
@@ -52,7 +56,7 @@ Reference: https://leanpub.com/lit-config/read
 *** Configuration
 **** Configuring org-directory
 #+begin_src elisp :tangle ./config.el
-(setq org-directory "~/org-roam/")
+(setq org-directory "~/my-org-roam/")
 #+END_SRC
 **** Agenda
 #+begin_src elisp :tangle ./config.el
@@ -66,11 +70,11 @@ Reference: https://leanpub.com/lit-config/read
         "~/org/professional.org"
         "~/org/projects.org"
         "~/org/main.org"
-        "~/org-roam/daily"
-        "~/org-roam/tickets"
+        "~/my-org-roam/daily"
+        "~/my-org-roam/work-org-roam/daily"
+        "~/my-org-roam/work-org-roam/tickets"
         "~/doom/config.org"
 ))
-
 #+end_src
 **** Templating
 ***** Configuration
@@ -82,25 +86,15 @@ Reference: https://leanpub.com/lit-config/read
 (add-hook 'org-after-todo-statistics-hook #'org-summary-todo)
 
 (setq org-capture-templates
-      '(("w" "Warriertech Todo" entry (file+headline "~/org/warriertech.org" "Inbox")
-         "* TODO %?\n  %U\n %a %i")
-        ("p" "Personal Todo" entry (file+headline "~/org/personal.org" "Inbox")
-         "* TODO %?\n  %U\n  %i")
-        ("j" "Journal" entry (file+olp+datetree "~/org/journal.org")
-         "* %U - %^{Title}\n  %?\n  %i")
-        ("c" "Cookbook" entry (file "~/org/cookbook.org")
+      '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
          "%(org-chef-get-recipe-from-url)"
          :empty-lines 1)))
-
-(setq org-refile-targets '(("~/org/personal.org" :level . 1)
-                            ("~/org/warriertech.org" :maxlevel . 2)))
 #+END_SRC
 **** Roam
 ***** Configuration
-
 # https://orgmode.org/manual/Template-elements.html
 #+begin_src elisp :tangle ./config.el
-(setq org-roam-directory "~/org-roam")
+(setq org-roam-directory "~/my-org-roam")
 (org-roam-db-autosync-mode)
 (setq org-roam-dailies-capture-templates
       `(("d" "default" plain
@@ -112,7 +106,7 @@ Reference: https://leanpub.com/lit-config/read
          )
         ("e" "Event Temple" plain
          "%?"
-         :target (file+head "%<%Y-%m-%d>-et.org"
+         :target (file+head "~/my-org-roam/work-org-roam/daily/%<%Y-%m-%d>-et.org"
                             ,(concat "#+title: %<%Y-%m-%d>\n\n"
                                      "* Goals this Quarter\n"
                                      "- I'm responsible for NFE bugs.\n"
@@ -124,16 +118,20 @@ Reference: https://leanpub.com/lit-config/read
 (setq org-roam-capture-templates
       `(("t" "Ticket" plain
          "%?"
-         :target (file+head "tickets/%<%Y%m%d%H%M%S>-${slug}.org"
+         :target (file+head "work-org-roam/tickets/%<%Y%m%d%H%M%S>-${slug}.org"
                             ,(concat "#+title: ${title}\n"
                                      "#+created: %U\n"
                                      "#+filetags: :ticket:\n"
                                      "#+jira_ticket_url: %^{JiraTicketURL}\n"
-                                     "#+pull_request_url:\n"
+                                     "#+figma_url: %^{FigmaDesignURL}\n"
+                                     "#+pull_request_url: \n"
                                      "* Description\n"
                                      "%^{Description}\n\n"
+                                     "* Pull Request\n"
+                                     "** Description\n"
+                                     "** How to test\n"
                                      "* Checklist\n"
-                                     "** TODO Complete\n"
+                                     "** TODO Complete [0/6]\n"
                                      "*** [ ] Write tests\n"
                                      "*** [ ] Create pull request\n"
                                      "*** [ ] Apply feedback if any\n"
@@ -143,7 +141,7 @@ Reference: https://leanpub.com/lit-config/read
          :unnarrowed t)
         ("p" "Project" plain
          "%?"
-         :target (file+head "projects/%<%Y%m%d%H%M%S>-${slug}.org"
+         :target (file+head "work-org-roam/projects/%<%Y%m%d%H%M%S>-${slug}.org"
                             ,(concat "#+title: ${title}\n"
                                      "#+created: %U\n"
                                      "#+filetags: :project:\n\n"
