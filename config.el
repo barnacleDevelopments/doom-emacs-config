@@ -45,6 +45,7 @@
         "~/my-org-roam/daily"
         "~/my-org-roam/work-org-roam/daily"
         "~/my-org-roam/work-org-roam/tickets"
+        "~/my-org-roam/sources"
         "~/doom/config.org"
 ))
 
@@ -95,7 +96,7 @@
                                      "%^{Description}\n\n"
                                      "* Pull Request\n"
                                      "** Description\n"
-                                     "** How to test\n"
+                                     "** How to test\n\n"
                                      "* Checklist\n"
                                      "** TODO Complete [0/6]\n"
                                      "*** [ ] Write tests\n"
@@ -114,10 +115,13 @@
                                      "* Description\n"
                                      "%^{Description}\n\n"
                                      "* Checklist\n"
-                                     "** TODO Complete\n"
-                                     "** WAIT Create pull request\n"
-                                     "** WAIT Deploy to production\n"
-                                     "** WAIT Create release note in Slack\n"))
+                                     "** TODO Complete [0/6]\n"
+                                     "*** [ ] Write tests\n"
+                                     "*** [ ] Create pull request\n"
+                                     "*** [ ] Apply feedback if any\n"
+                                     "*** [ ] Deploy to staging\n"
+                                     "*** [ ] Deploy to production\n"
+                                     "*** [ ] Create release note using template in Slack\n"))
          :unnarrowed t)
         ("b" "Post" plain
          "%?"
@@ -139,6 +143,8 @@
                                      "#+filetags: :%^{tag}:\n\n"
                                      "* Description\n"
                                      "%^{Description}\n\n"
+                                     "* References\n"
+                                     "- \n"
                                      "* Checklist\n"
                                      "** TODO Review\n"
                                      ))
