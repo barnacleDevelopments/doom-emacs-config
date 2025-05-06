@@ -48,6 +48,25 @@
         "~/my-org-roam/sources"
         "~/doom/config.org"
 ))
+(defun org-export-to-markdown-and-copy-clean ()
+  "Export Org buffer to Markdown, remove <a> tags and TOC, copy to clipboard without saving a file."
+  (interactive)
+  (let* ((raw-md (org-export-as 'md))
+         ;; Remove <a id="..."></a> tags
+         (no-anchors (replace-regexp-in-string "<a id=\"[^\"]+\"></a>\n?" "" raw-md))
+         ;; Remove 'Table of Contents' section
+         (clean-md (replace-regexp-in-string
+                    "# Table of Contents\n\\(?:.*\n\\)*?\n\\{1,2\\}# " "# "
+                    no-anchors)))
+    (with-temp-buffer
+      (insert clean-md)
+      (clipboard-kill-region (point-min) (point-max)))
+    (message "Clean Markdown (no TOC, no anchors) copied to clipboard.")))
+
+(with-eval-after-load 'org
+  (map! :map org-mode-map
+        :localleader
+        "e m" #'org-export-to-markdown-and-copy-clean))
 
 (defun org-summary-todo (n-done n-not-done)
   "Switch entry to DONE when all subentries are done, to TODO otherwise."
@@ -212,15 +231,28 @@
   (set (make-local-variable 'truncate-partial-width-windows) nil))
 (add-hook! 'compilation-mode-hook 'my-compilation-mode-hook)
 
-(setq gpt-api-key (getenv "CHAT_GPT_API_KEY"))
+(setq! gpt-api-key (getenv "CHAT_GPT_API_KEY"))
+;; (use-package! gptel
+;;  :config
+;;  (setq! gptel-api-key gpt-api-key))
+
+;; (gptel-make-ollama "Ollama"
+;;   :host "127.0.0.1:11434"
+;;   :stream t
+;;   :models '(mistral:latest deepseek-coder-v2:latest))
+;; OPTIONAL configuration
+
 (use-package! gptel
  :config
  (setq! gptel-api-key gpt-api-key))
 
-(gptel-make-ollama "Ollama"
-  :host "127.0.0.1:11434"
+;; Github Models offers an OpenAI compatible API
+(gptel-make-openai "Github Models" ;Any name you want
+  :host "models.inference.ai.azure.com"
+  :endpoint "/chat/completions?api-version=2024-05-01-preview"
   :stream t
-  :models '(mistral:latest deepseek-coder-v2:latest))
+  :key gpt-api-key
+  :models '(gpt-4o))
 
 (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll)
 
