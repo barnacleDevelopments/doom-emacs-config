@@ -70,25 +70,30 @@ Reference: https://leanpub.com/lit-config/read
         "~/my-org-roam/sources"
         "~/doom/config.org"
 ))
-(defun org-export-to-markdown-and-copy-clean ()
-  "Export Org buffer to Markdown, remove <a> tags and TOC, copy to clipboard without saving a file."
-  (interactive)
-  (let* ((raw-md (org-export-as 'md))
-         ;; Remove <a id="..."></a> tags
-         (no-anchors (replace-regexp-in-string "<a id=\"[^\"]+\"></a>\n?" "" raw-md))
-         ;; Remove 'Table of Contents' section
-         (clean-md (replace-regexp-in-string
-                    "# Table of Contents\n\\(?:.*\n\\)*?\n\\{1,2\\}# " "# "
-                    no-anchors)))
-    (with-temp-buffer
-      (insert clean-md)
-      (clipboard-kill-region (point-min) (point-max)))
-    (message "Clean Markdown (no TOC, no anchors) copied to clipboard.")))
+(defun my/org-md-filter-sub-to-underscore (text backend info)
+  "Replace <sub>...</sub> with _... in GFM export."
+  (when (eq backend 'gfm)
+    (replace-regexp-in-string
+     "<sub>\\([^<]+\\)</sub>" "_\\1" text)))
 
-(with-eval-after-load 'org
-  (map! :map org-mode-map
-        :localleader
-        "e m" #'org-export-to-markdown-and-copy-clean))
+(defun my/org-md-filter-remove-anchors (text backend info)
+  "Remove <a id=\"...\"></a> tags from export TEXT when exporting to GFM."
+  (when (eq backend 'gfm)
+    (replace-regexp-in-string "<a id=\"[^\"]+\"></a>\n?" "" text)))
+
+(defun org-export-to-markdown-and-copy-clean ()
+  "Export Org buffer to GFM Markdown, clean via filters, and copy to clipboard."
+  (interactive)
+  (require 'ox-gfm)
+  (let ((org-export-filter-final-output-functions
+         '(my/org-md-filter-remove-anchors
+           my/org-md-filter-sub-to-underscore))
+        (org-export-with-toc nil)) ;; Disable TOC
+    (let ((clean-md (org-export-as 'gfm)))
+      (with-temp-buffer
+        (insert clean-md)
+        (clipboard-kill-region (point-min) (point-max)))
+      (message "Clean GFM Markdown copied to clipboard."))))
 
 #+end_src
 **** Templating
@@ -310,15 +315,17 @@ https://github.com/emacs-slack/emacs-slack
 ;;  :config
 ;;  (setq! gptel-api-key gpt-api-key))
 
-;; (gptel-make-ollama "Ollama"
-;;   :host "127.0.0.1:11434"
-;;   :stream t
-;;   :models '(mistral:latest deepseek-coder-v2:latest))
 ;; OPTIONAL configuration
 
 (use-package! gptel
  :config
- (setq! gptel-api-key gpt-api-key))
+ (setq! gptel-api-key gpt-api-key)
+ (setq! gptel-default-mode 'org-mode))
+
+(gptel-make-ollama "Ollama"
+  :host "127.0.0.1:11434"
+  :stream t
+  :models '(mistral:latest deepseek-coder-v2:latest))
 
 ;; Github Models offers an OpenAI compatible API
 (gptel-make-openai "Github Models" ;Any name you want
@@ -328,8 +335,6 @@ https://github.com/emacs-slack/emacs-slack
   :key gpt-api-key
   :models '(gpt-4o))
 
-(add-hook 'gptel-post-stream-hook 'gptel-auto-scroll)
-
 (add-hook 'gptel-post-response-functions 'gptel-end-of-response)
 
 (map! :leader
@@ -338,13 +343,17 @@ https://github.com/emacs-slack/emacs-slack
 
 (map! :leader
       :prefix ("l" . "GPT")
+      "c" #'gptel-context-add
       "r" #'gptel-rewrite
+      "m" #'gptel-menu
+      "s" #'gptel-send
+      "x" #'gptel-context-remove-all
       "a" #'gptel--rewrite-accept)
 
 (map! :localleader
-      "c" #'gptel--infix-context-add-file
+      "c" #'gptel-context-add
       "m" #'gptel-menu
-      "r" #'gptel-context-remove-all)
+      "x" #'gptel-context-remove-all)
   #+end_src
 ** Elfeed
 :Elfeed-Docs:  https://github.com/skeeto/elfeed?tab=readme-ov-file
