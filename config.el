@@ -9,8 +9,8 @@
 
 (defun eslint-fix-file ()
   (interactive)
-  (message "eslint --fixing the file" (buffer-file-name))
-  (shell-command (concat "eslint --fix " (buffer-file-name))))
+  (message "npx eslint --fixing the file" (buffer-file-name))
+  (shell-command (concat "npx eslint --fix " (buffer-file-name))))
 
 (defun eslint-fix-file-and-revert ()
   (interactive)
@@ -247,12 +247,6 @@
  (setq! gptel-api-key gpt-api-key))
 
 ;; Github Models offers an OpenAI compatible API
-(gptel-make-openai "Github Models" ;Any name you want
-  :host "models.inference.ai.azure.com"
-  :endpoint "/chat/completions?api-version=2024-05-01-preview"
-  :stream t
-  :key gpt-api-key
-  :models '(gpt-4o))
 
 (add-hook 'gptel-post-stream-hook 'gptel-auto-scroll)
 
