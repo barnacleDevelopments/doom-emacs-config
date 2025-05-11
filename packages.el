@@ -24,6 +24,7 @@
 (package! flycheck-ledger)
 (package! ox-hugo)
 (package! coffee-mode)
+(package! ox-gfm)
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 
