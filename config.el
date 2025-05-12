@@ -237,12 +237,7 @@
 (add-hook! 'compilation-mode-hook 'my-compilation-mode-hook)
 
 (setq! gpt-api-key (getenv "CHAT_GPT_API_KEY"))
-;; (use-package! gptel
-;;  :config
-;;  (setq! gptel-api-key gpt-api-key))
-
-;; OPTIONAL configuration
-
+(setq! github-gpt-api-key (getenv "GITHUB_GPT_API_KEY"))
 (use-package! gptel
  :config
  (setq! gptel-api-key gpt-api-key)
@@ -253,7 +248,14 @@
   :stream t
   :models '(mistral:latest deepseek-coder-v2:latest))
 
-;; Github Models offers an OpenAI compatible API
+(gptel-make-openai "Github Models"
+  :host "models.inference.ai.azure.com"
+  :endpoint "/chat/completions?api-version=2024-05-01-preview"
+  :stream t
+  :key github-gpt-api-key
+  :models '(gpt-4o))
+
+(gptel-make-gh-copilot "Copilot")
 
 (add-hook 'gptel-post-response-functions 'gptel-end-of-response)
 
