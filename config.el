@@ -121,6 +121,8 @@
                                      "* Pull Request\n"
                                      "** Description\n"
                                      "** How to test\n\n"
+                                     "* Code\n"
+                                     "- \n\n"
                                      "* Checklist\n"
                                      "** TODO Complete [0/6]\n"
                                      "*** [ ] Write tests\n"
