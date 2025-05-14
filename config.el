@@ -279,6 +279,23 @@
       "m" #'gptel-menu
       "x" #'gptel-context-remove-all)
 
+(defun my/projectile-switch-project-action ()
+  "Custom actions based on the project name or path."
+  (let ((project-name (projectile-project-name))
+        (project-root (projectile-project-root)))
+    (cond
+     ((string= project-name "eventtemple")
+      (message "Setting up eventtemple BE project environment")
+      (gptel-context-add-file (expand-file-name "ai-context.org" project-root))
+      (find-file (expand-file-name "README.md" project-root)))
+
+     ((string= project-name "eventtemple-frontend")
+      (message "Setting up eventtemple FE project environment")
+      (gptel-context-add-file (expand-file-name "ai-context.org" project-root)))
+)))
+
+(add-hook 'projectile-after-switch-project-hook #'my/projectile-switch-project-action)
+
 (use-package! elfeed-score
   :ensure t
   :config
