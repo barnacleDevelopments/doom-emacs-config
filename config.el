@@ -9,8 +9,10 @@
 
 (defun eslint-fix-file ()
   (interactive)
-  (message "npx eslint --fixing the file" (buffer-file-name))
-  (shell-command (concat "npx eslint --fix " (buffer-file-name))))
+  (let ((file (shell-quote-argument (buffer-file-name))))
+    (message "Fixing with ESLint: %s" file)
+    (call-process-shell-command
+     (format "npx eslint --fix %s > /dev/null 2>&1" file) nil 0)))
 
 (defun eslint-fix-file-and-revert ()
   (interactive)
@@ -279,20 +281,30 @@
       "m" #'gptel-menu
       "x" #'gptel-context-remove-all)
 
+(defun my/gptel-context-add-folder (dir)
+  "Add all files in DIR (recursively) to gptel context."
+  (dolist (file (directory-files-recursively dir ".*" t))
+    (when (file-regular-p file)
+      (gptel-context-add-file file))))
+
 (defun my/projectile-switch-project-action ()
   "Custom actions based on the project name or path."
   (let ((project-name (projectile-project-name))
         (project-root (projectile-project-root)))
+    (gptel-context-remove-all)
     (cond
      ((string= project-name "eventtemple")
       (message "Setting up eventtemple BE project environment")
       (gptel-context-add-file (expand-file-name "ai-context.org" project-root))
+      (my/gptel-context-add-folder (expand-file-name ".github/instructions" project-root))
       (find-file (expand-file-name "README.md" project-root)))
 
      ((string= project-name "eventtemple-frontend")
       (message "Setting up eventtemple FE project environment")
-      (gptel-context-add-file (expand-file-name "ai-context.org" project-root)))
-)))
+      (gptel-context-add-file (expand-file-name "pnpm-workspace.yaml" project-root))
+      (gptel-context-add-file (expand-file-name "ai-context.org" project-root))
+      (my/gptel-context-add-folder (expand-file-name ".github/instructions" project-root))
+     )))
 
 (add-hook 'projectile-after-switch-project-hook #'my/projectile-switch-project-action)
 
