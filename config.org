@@ -382,9 +382,11 @@ https://github.com/emacs-slack/emacs-slack
       (gptel-context-add-file (expand-file-name "ai-context.org" project-root))
       (my/gptel-context-add-folder (expand-file-name ".github/instructions" project-root))
      )))
+)
 
 (add-hook 'projectile-after-switch-project-hook #'my/projectile-switch-project-action)
 #+end_src
+
 **** TODO figure out how to save context between project switches
 **** TODO
 ** Elfeed

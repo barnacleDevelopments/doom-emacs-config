@@ -305,6 +305,7 @@
       (gptel-context-add-file (expand-file-name "ai-context.org" project-root))
       (my/gptel-context-add-folder (expand-file-name ".github/instructions" project-root))
      )))
+)
 
 (add-hook 'projectile-after-switch-project-hook #'my/projectile-switch-project-action)
 
