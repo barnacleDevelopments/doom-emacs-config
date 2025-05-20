@@ -179,7 +179,7 @@ Reference: https://leanpub.com/lit-config/read
                                      "*** [ ] Deploy to production\n"
                                      "*** [ ] Create release note using template in Slack\n"))
          :unnarrowed t)
-        ("p" "Project" plain
+        ("p" "ET Project" plain
          "%?"
          :target (file+head "work-org-roam/projects/%<%Y%m%d%H%M%S>-${slug}.org"
                             ,(concat "#+title: ${title}\n"
@@ -195,6 +195,18 @@ Reference: https://leanpub.com/lit-config/read
                                      "*** [ ] Deploy to staging\n"
                                      "*** [ ] Deploy to production\n"
                                      "*** [ ] Create release note using template in Slack\n"))
+         :unnarrowed t)
+        ("i" "Project" plain
+         "%?"
+         :target (file+head "projects/%<%Y%m%d%H%M%S>-${slug}.org"
+                            ,(concat "#+title: ${title}\n"
+                                     "#+created: %U\n"
+                                     "#+filetags: :project:\n\n"
+                                     "* Description\n"
+                                     "%^{Description}\n\n"
+                                     "* Checklist\n"
+                                     "** TODO Complete [0/6]\n"
+                                     ""))
          :unnarrowed t)
         ("b" "Post" plain
          "%?"
@@ -248,6 +260,33 @@ Reference: https://leanpub.com/lit-config/read
               (write-region (point-min) (point-max) destination-file))
             (kill-buffer exported-md))))))
 (add-hook 'after-save-hook 'my/org-to-md-on-save)
+#+end_src
+** MCP
+#+begin_src elisp :tangle ./config.el
+(after! mcp
+  (require 'mcp-hub)
+    (setq mcp-hub-servers
+        '(("filesystem" . (:command "npx" :args ("-y" "@modelcontextprotocol/server-filesystem" "~/WebDev/Projects/PersonalSite")))
+            ("fetch" . (:command "uvx" :args ("mcp-server-fetch")))))
+)
+(defun gptel-mcp-register-tool ()
+  (interactive)
+  (let ((tools (mcp-hub-get-all-tool :asyncp t :categoryp t)))
+    (mapcar (lambda (tool)
+              (apply #'gptel-make-tool tool))
+            tools)))
+
+(defun gptel-mcp-use-tool ()
+  (interactive)
+  (let ((tools (mcp-hub-get-all-tool :asyncp t :categoryp t)))
+    (mapcar (lambda (tool)
+              (let ((path (list (plist-get tool :category)
+                                (plist-get tool :name))))
+                (push (gptel-get-tool path) gptel-tools)))
+            tools)))
+
+;; Automatically start all MCP servers after Emacs initializes
+(add-hook 'after-init-hook #'mcp-hub-start-all-server)
 #+end_src
 ** Slack
 *** TODO Implement slack integration
@@ -509,39 +548,22 @@ https://github.com/emacs-slack/emacs-slack
 
 (setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
 
-(if (memq window-system '(mac ns x))
-    (set-email-account! "devin.davis@eventtemple.com"
-    '((mu4e-sent-folder . "/Sent Items")
-        (mu4e-drafts-folder . "/Drafts")
-        (mu4e-trash-folder . "/Trash")
-        (mu4e-get-mail-command . "offlineimap -o")
-        (mu4e-update-interval . 60)
-        (smtpmail-smtp-user . "devin")
-        (smtpmail-smtp-server . "smtp.google.com")
-        (smtpmail-smtp-service . 465)
-        (smtpmail-stream-type . ssl)
-        (auth-source-debug t)
-        (mail-host-address . "eventtemple.com")
-        (user-full-name . "Devin")
-        (user-mail-address . "devin.davis@eventtemple.com")
-        (mu4e-compose-signature . "\nBest,\nDev\nSoftware Developer"))
-    t)
-    (set-email-account! "devin@devdeveloper.ca"
-    '((mu4e-sent-folder . "/Sent Items")
-        (mu4e-drafts-folder . "/Drafts")
-        (mu4e-trash-folder . "/Trash")
-        (mu4e-get-mail-command . "offlineimap -o")
-        (mu4e-update-interval . 60)
-        (smtpmail-smtp-user . "devin")
-        (smtpmail-smtp-server . "smtp.mailfence.com")
-        (smtpmail-smtp-service . 465)
-        (smtpmail-stream-type . ssl)
-        (auth-source-debug t)
-        (mail-host-address . "devdeveloper.ca")
-        (user-full-name . "Devin")
-        (user-mail-address . "devin@devdeveloper.ca")
-        (mu4e-compose-signature . "\nBest,\nDev\nSoftware Developer | DevDeveloper.ca\nEmail: dev@devdeveloper.ca\nPhone: +1 (234) 567-8901\nLinkedIn: linkedin.com/in/devin-dev-d-63008412b\nGitHub: github.com/barnacleDevelopments"))
-    t))
+(set-email-account! "devin@devdeveloper.ca"
+'((mu4e-sent-folder . "/Sent Items")
+    (mu4e-drafts-folder . "/Drafts")
+    (mu4e-trash-folder . "/Trash")
+    (mu4e-get-mail-command . "offlineimap -o")
+    (mu4e-update-interval . 60)
+    (smtpmail-smtp-user . "devin")
+    (smtpmail-smtp-server . "smtp.mailfence.com")
+    (smtpmail-smtp-service . 465)
+    (smtpmail-stream-type . ssl)
+    (auth-source-debug t)
+    (mail-host-address . "devdeveloper.ca")
+    (user-full-name . "Devin")
+    (user-mail-address . "devin@devdeveloper.ca")
+    (mu4e-compose-signature . "\nBest,\nDev\nSoftware Developer | DevDeveloper.ca\nEmail: dev@devdeveloper.ca\nPhone: +1 (234) 567-8901\nLinkedIn: linkedin.com/in/devin-dev-d-63008412b\nGitHub: github.com/barnacleDevelopments"))
+t)
 
 (setq! message-send-mail-function 'smtpmail-send-it)
 
