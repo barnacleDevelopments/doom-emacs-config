@@ -113,7 +113,18 @@
          )))
 
 (setq org-roam-capture-templates
-      `(("t" "Ticket" plain
+      `(("g" "Generic" plain
+         "%?"
+         :target (file+head "work-org-roam/%<%Y%m%d%H%M%S>-${slug}.org"
+                            ,(concat "#+title: ${title}\n"
+                                     "#+created: %U\n"
+                                     "#+filetags: :%^{tag}:\n"
+                                     "* Description\n"
+                                     "%^{Description}\n\n"
+                                     "- \n\n"
+                                     "** TODO Review \n"))
+         :unnarrowed t)
+        ("t" "Ticket" plain
          "%?"
          :target (file+head "work-org-roam/tickets/%<%Y%m%d%H%M%S>-${slug}.org"
                             ,(concat "#+title: ${title}\n"
