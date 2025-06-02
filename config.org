@@ -46,6 +46,12 @@ Reference: https://leanpub.com/lit-config/read
 (setq! doom-themes-treemacs-theme "doom-colors")
 (setq! treemacs-width 45)
 #+end_src
+** Abrevv
+#+begin_src elisp :tangle ./config.el
+(setq! default-abbrev-mode t)
+(setq! abbrev-file-name "~/.doom.d/abbrev.el")
+(quietly-read-abbrev-file)
+#+end_src
 ** Doom
 *** Configuration
 #+begin_src elisp :tangle ./config.el
@@ -53,8 +59,6 @@ Reference: https://leanpub.com/lit-config/read
 (setq! doom-theme 'doom-palenight)
 #+end_src
 ** Org
-*** TODO Learn about optimizing tasks and notes
-*** TODO When Clocking in add billable option/tag automatically
 *** Configuration
 **** Configuring org-directory
 #+begin_src elisp :tangle ./config.el

@@ -35,6 +35,10 @@
 (setq! doom-themes-treemacs-theme "doom-colors")
 (setq! treemacs-width 45)
 
+(setq! default-abbrev-mode t)
+(setq! abbrev-file-name "~/.doom.d/abbrev.el")
+(quietly-read-abbrev-file)
+
 (setq! doom-font (font-spec :size 20))
 (setq! doom-theme 'doom-palenight)
 
