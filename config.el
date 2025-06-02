@@ -35,7 +35,7 @@
 (setq! doom-themes-treemacs-theme "doom-colors")
 (setq! treemacs-width 45)
 
-(setq! doom-font (font-spec :size 20))
+(setq! doom-font (font-spec :size 16))
 (setq! doom-theme 'doom-palenight)
 
 (setq org-directory "~/my-org-roam/")
@@ -227,10 +227,28 @@
 
 (after! mcp
   (require 'mcp-hub)
-    (setq mcp-hub-servers
-        '(("filesystem" . (:command "npx" :args ("-y" "@modelcontextprotocol/server-filesystem" "~/WebDev/Projects/PersonalSite")))
-            ("fetch" . (:command "uvx" :args ("mcp-server-fetch")))))
-)
+  (setq mcp-hub-servers
+        '(("postgres" . (:command "podman"
+                         :args ("run" "-i" "--rm" "mcp/postgres"
+                               "postgresql://postgres:postgres@host.docker.internal:5432/eventtemple_dev")))
+          ("redis" . (:command "podman"
+                     :args ("run" "-i" "--rm"
+                           "-e" "REDIS_HOST=host.docker.internal"
+                           "mcp/redis")))
+          ("semgrep" . (:command "podman"
+                       :args ("run" "-i" "--rm"
+                             "ghcr.io/semgrep/mcp"
+                             "-t" "stdio")))
+          ("atlassian" . (:command "npx"
+                         :args ("-y" "mcp-remote"
+                               "https://mcp.atlassian.com/v1/sse")))
+          ("github" . (:command "docker"
+                      :args ("run" "-i" "--rm"
+                            "-e" "GITHUB_GPT_API_KEY"
+                            "ghcr.io/github/github-mcp-server")))
+          ("filesystem" . (:command "npx"
+                          :args ("-y" "@modelcontextprotocol/server-filesystem"
+                                "~/Projects"))))))
 (defun gptel-mcp-register-tool ()
   (interactive)
   (let ((tools (mcp-hub-get-all-tool :asyncp t :categoryp t)))
@@ -238,17 +256,11 @@
               (apply #'gptel-make-tool tool))
             tools)))
 
-(defun gptel-mcp-use-tool ()
-  (interactive)
-  (let ((tools (mcp-hub-get-all-tool :asyncp t :categoryp t)))
-    (mapcar (lambda (tool)
-              (let ((path (list (plist-get tool :category)
-                                (plist-get tool :name))))
-                (push (gptel-get-tool path) gptel-tools)))
-            tools)))
-
-;; Automatically start all MCP servers after Emacs initializes
-(add-hook 'after-init-hook #'mcp-hub-start-all-server)
+;; Automatically start all MCP servers and register tools after Emacs initializes
+(add-hook 'after-init-hook
+          (lambda ()
+            (mcp-hub-start-all-server)
+            (gptel-mcp-register-tool)))
 
 (add-hook 'after-init-hook #'global-flycheck-mode)
 (add-hook! 'typescript-mode
@@ -283,57 +295,65 @@
 (after! lsp-mode
   (setq lsp-typescript-auto-import-completions nil)) ;; Disable auto-imports
 
+(map! :leader
+      (:prefix ("c" . "+code")
+       (:prefix-map ("l" . "+lsp")
+        "r" #'lsp-javascript-remove-unused-imports)))
+
 (defun my-compilation-mode-hook ()
   (setq truncate-lines nil) ;; automatically becomes buffer local
   (set (make-local-variable 'truncate-partial-width-windows) nil))
 (add-hook! 'compilation-mode-hook 'my-compilation-mode-hook)
 
-(setq! gpt-api-key (getenv "CHAT_GPT_API_KEY"))
-(setq! github-gpt-api-key (getenv "GITHUB_GPT_API_KEY"))
-(use-package! gptel
- :config
- (setq! gptel-api-key gpt-api-key)
- (setq! gptel-default-mode 'org-mode))
+;; API keys
+(setq! gpt-api-key (getenv "CHAT_GPT_API_KEY")
+       github-gpt-api-key (getenv "GITHUB_GPT_API_KEY"))
 
+;; GPTel configuration
+(use-package! gptel
+  :config
+  (setq! gptel-api-key gpt-api-key
+         gptel-default-mode 'org-mode))
+
+;; Backends
 (gptel-make-ollama "Ollama"
   :host "127.0.0.1:11434"
   :stream t
   :models '(mistral:latest deepseek-coder-v2:latest))
 
-(gptel-make-openai "Github Models"
-  :host "models.inference.ai.azure.com"
-  :endpoint "/chat/completions?api-version=2024-05-01-preview"
-  :stream t
-  :key github-gpt-api-key
-  :models '(gpt-4o))
-
 (gptel-make-gh-copilot "Copilot")
 
+;; Default backend and model
+(setq! gptel-model 'claude-sonnet-4
+       gptel-backend (gptel-make-gh-copilot "Copilot"))
+
+;; Hooks
 (add-hook 'gptel-post-response-functions 'gptel-end-of-response)
-
-(map! :leader
-      :prefix ("o" . "open")
-      "c" #'gptel)
-
-(map! :leader
-      :prefix ("l" . "GPT")
-      "c" #'gptel-context-add
-      "r" #'gptel-rewrite
-      "m" #'gptel-menu
-      "s" #'gptel-send
-      "x" #'gptel-context-remove-all
-      "a" #'gptel--rewrite-accept)
-
-(map! :localleader
-      "c" #'gptel-context-add
-      "m" #'gptel-menu
-      "x" #'gptel-context-remove-all)
 
 (defun my/gptel-context-add-folder (dir)
   "Add all files in DIR (recursively) to gptel context."
   (dolist (file (directory-files-recursively dir ".*" t))
     (when (file-regular-p file)
       (gptel-context-add-file file))))
+
+(defun my/gptel-context-remove-all ()
+  (let ((project-name (projectile-project-name))
+        (project-root (projectile-project-root)))
+    (gptel-context-remove-all)
+    (cond
+     ((string= project-name "eventtemple")
+      (message "Setting up eventtemple BE project environment")
+      (gptel-context-add-file (expand-file-name "ai-context.org" project-root))
+      (my/gptel-context-add-folder (expand-file-name ".github/instructions" project-root))
+      (find-file (expand-file-name "README.md" project-root)))
+
+     ((string= project-name "eventtemple-frontend")
+      (message "Setting up eventtemple FE project environment")
+      (gptel-context-add-file (expand-file-name "pnpm-workspace.yaml" project-root))
+      (gptel-context-add-file (expand-file-name "ai-context.org" project-root))
+      (my/gptel-context-add-folder (expand-file-name ".github/instructions" project-root))
+     )))
+ )
 
 (defun my/projectile-switch-project-action ()
   "Custom actions based on the project name or path."
@@ -356,6 +376,17 @@
 )
 
 (add-hook 'projectile-after-switch-project-hook #'my/projectile-switch-project-action)
+
+;; Keybindings
+(map! :leader
+      (:prefix ("o" . "open") "c" #'gptel)
+      (:prefix ("l" . "GPT")
+       "c" #'gptel-context-add
+       "r" #'gptel-rewrite
+       "m" #'gptel-menu
+       "s" #'gptel-send
+       "x" #'my/gptel-context-remove-all
+       "a" #'gptel--rewrite-accept))
 
 (use-package! elfeed-score
   :ensure t
@@ -425,7 +456,7 @@
 
 (map! :leader
       :prefix "c"
-      "R" #'query-replace)
+      "R" #'projectile-replace)
 
 (map! :localleader
       :map terraform-mode-map
