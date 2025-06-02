@@ -36,6 +36,10 @@
 (setq! treemacs-width 45)
 
 (setq! doom-font (font-spec :size 16))
+(setq! default-abbrev-mode t)
+(setq! abbrev-file-name "~/.doom.d/abbrev.el")
+(quietly-read-abbrev-file)
+
 (setq! doom-theme 'doom-palenight)
 
 (setq org-directory "~/my-org-roam/")
