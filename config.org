@@ -49,7 +49,7 @@ Reference: https://leanpub.com/lit-config/read
 ** Abrevv
 #+begin_src elisp :tangle ./config.el
 (setq! default-abbrev-mode t)
-(setq! abbrev-file-name "~/.doom.d/abbrev.el")
+(setq! abbrev-file-name "./abbrev.el")
 (quietly-read-abbrev-file)
 #+end_src
 ** Doom
