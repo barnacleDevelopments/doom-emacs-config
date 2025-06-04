@@ -323,7 +323,7 @@
 (gptel-make-ollama "Ollama"
   :host "127.0.0.1:11434"
   :stream t
-  :models '(mistral:latest deepseek-coder-v2:latest))
+  :models '(mistral:latest deepseek-coder-v2:latest llama3.2:3b llama3.1:8b))
 
 (gptel-make-gh-copilot "Copilot")
 
