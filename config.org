@@ -59,12 +59,13 @@ Reference: https://leanpub.com/lit-config/read
 (setq! doom-theme 'doom-palenight)
 #+end_src
 ** Org
-*** Configuration
-**** Configuring org-directory
+*** General
+**** Configuration
 #+begin_src elisp :tangle ./config.el
 (setq org-directory "~/my-org-roam/")
 #+END_SRC
-**** Agenda
+*** Agenda
+**** Configuration
 #+begin_src elisp :tangle ./config.el
 (setq org-agenda-todo-ignore-scheduled 'future)
 (setq org-agenda-start-day "-1d")
@@ -76,6 +77,24 @@ Reference: https://leanpub.com/lit-config/read
         "~/my-org-roam/sources"
         "~/doom/config.org"
 ))
+#+end_src
+*** Templating
+**** Configuration
+#+begin_src elisp :tangle ./config.el
+(defun org-summary-todo (n-done n-not-done)
+  "Switch entry to DONE when all subentries are done, to TODO otherwise."
+  (let (org-log-done org-todo-log-states)   ; turn off logging
+    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
+(add-hook 'org-after-todo-statistics-hook #'org-summary-todo)
+
+(setq org-capture-templates
+      '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
+         "%(org-chef-get-recipe-from-url)"
+         :empty-lines 1)))
+#+END_SRC
+*** Markdown Functions
+**** Configuration
+#+begin_src elisp :tangle ./config.el
 (defun my/org-md-filter-sub-to-underscore (text backend info)
   "Replace <sub>...</sub> with _... in GFM export."
   (when (eq backend 'gfm)
@@ -100,24 +119,9 @@ Reference: https://leanpub.com/lit-config/read
         (insert clean-md)
         (clipboard-kill-region (point-min) (point-max)))
       (message "Clean GFM Markdown copied to clipboard."))))
-
 #+end_src
-**** Templating
-***** Configuration
-#+begin_src elisp :tangle ./config.el
-(defun org-summary-todo (n-done n-not-done)
-  "Switch entry to DONE when all subentries are done, to TODO otherwise."
-  (let (org-log-done org-todo-log-states)   ; turn off logging
-    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
-(add-hook 'org-after-todo-statistics-hook #'org-summary-todo)
-
-(setq org-capture-templates
-      '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
-         "%(org-chef-get-recipe-from-url)"
-         :empty-lines 1)))
-#+END_SRC
-**** Roam
-***** Configuration
+*** Roam
+**** Configuration
 # https://orgmode.org/manual/Template-elements.html
 #+begin_src elisp :tangle ./config.el
 (setq org-roam-directory "~/my-org-roam")
@@ -239,7 +243,8 @@ Reference: https://leanpub.com/lit-config/read
                                      ))
          :unnarrowed t)))
 #+end_src
-**** Blog Post Writing
+*** Blog Post Writing
+**** Configuration
 #+begin_src emacs-lisp :tangle ./config.el
 (setq org-export-show-temporary-export-buffer nil)
 (defun my/org-to-md-on-save ()

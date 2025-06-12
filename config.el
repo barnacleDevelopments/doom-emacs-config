@@ -54,6 +54,18 @@
         "~/my-org-roam/sources"
         "~/doom/config.org"
 ))
+
+(defun org-summary-todo (n-done n-not-done)
+  "Switch entry to DONE when all subentries are done, to TODO otherwise."
+  (let (org-log-done org-todo-log-states)   ; turn off logging
+    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
+(add-hook 'org-after-todo-statistics-hook #'org-summary-todo)
+
+(setq org-capture-templates
+      '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
+         "%(org-chef-get-recipe-from-url)"
+         :empty-lines 1)))
+
 (defun my/org-md-filter-sub-to-underscore (text backend info)
   "Replace <sub>...</sub> with _... in GFM export."
   (when (eq backend 'gfm)
@@ -78,17 +90,6 @@
         (insert clean-md)
         (clipboard-kill-region (point-min) (point-max)))
       (message "Clean GFM Markdown copied to clipboard."))))
-
-(defun org-summary-todo (n-done n-not-done)
-  "Switch entry to DONE when all subentries are done, to TODO otherwise."
-  (let (org-log-done org-todo-log-states)   ; turn off logging
-    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
-(add-hook 'org-after-todo-statistics-hook #'org-summary-todo)
-
-(setq org-capture-templates
-      '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
-         "%(org-chef-get-recipe-from-url)"
-         :empty-lines 1)))
 
 (setq org-roam-directory "~/my-org-roam")
 (org-roam-db-autosync-mode)
