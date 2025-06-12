@@ -416,6 +416,56 @@
 
 (elfeed-search-set-filter  "@3-days-ago")
 
+(defun my-elfeed-entries-last-3-days ()
+  "Collect Elfeed entries from the past 3 days."
+  (interactive)
+  (let* ((now (float-time))
+         (cutoff (- now (* 3 24 60 60)))
+         (entries '()))
+    (with-elfeed-db-visit (entry feed)
+      (when (> (elfeed-entry-date entry) cutoff)
+        (push entry entries)))
+    entries))
+
+(defun my-elfeed-format-entries (entries)
+  "Format Elfeed ENTRIES into a plain text string with just the titles."
+  (mapconcat
+   (lambda (entry)
+     (format "Title: %s" (elfeed-entry-title entry)))
+   (nreverse entries)
+   "\n"))
+
+
+(defun my-elfeed-summarize-last-3-days ()
+  "Summarize Elfeed entries from the past 3 days using GPTel."
+  (interactive)
+  (let* ((entries (my-elfeed-entries-last-3-days))
+         (prompt (if entries
+                     (format "Summarize the following news articles from the past 3 days:\n\n%s"
+                             (my-elfeed-format-entries entries))
+                   "There are no Elfeed entries from the past 3 days."))
+         (buf (get-buffer-create "*elfeed-summary*")))
+    ;; Clear buffer *before* request, to avoid confusion if callback called multiple times
+    (with-current-buffer buf
+      (read-only-mode -1)
+      (erase-buffer)
+      (insert "Waiting for GPTel response...\n")
+      (read-only-mode 1))
+    (display-buffer buf)
+    (gptel-request
+     prompt
+     :callback
+     (lambda (response info)
+       (with-current-buffer buf
+         (read-only-mode -1)
+         (erase-buffer)
+         (if response
+             (insert response)
+           (insert "No response received from GPT. Info: " (format "%S" info)))
+         (read-only-mode 1)
+         (goto-char (point-min))
+         (display-buffer buf))))))
+
 ;;Docs: https://kubernetes-el.github.io/kubernetes-el/
 (use-package! kubernetes
   :ensure t
