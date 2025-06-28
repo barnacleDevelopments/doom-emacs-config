@@ -201,8 +201,6 @@
                                      "%^{Description}\n\n"
                                      "* References\n"
                                      "- \n"
-                                     "* Checklist\n"
-                                     "** TODO Review\n"
                                      ))
          :unnarrowed t)))
 
@@ -386,7 +384,7 @@
 (map! :leader
       (:prefix ("o" . "open") "c" #'gptel)
       (:prefix ("l" . "GPT")
-       "c" #'gptel-context-add
+       "c" #'gptel-add
        "r" #'gptel-rewrite
        "m" #'gptel-menu
        "s" #'gptel-send
