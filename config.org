@@ -464,6 +464,12 @@ https://github.com/emacs-slack/emacs-slack
 
 (add-hook 'projectile-after-switch-project-hook #'my/projectile-switch-project-action)
 
+;; File Context switching
+(defun load-ledger-context ()
+    (load-file "./contexts/ledger_context.org"))
+  :config
+  (add-hook 'ledger-mode-hook 'load-ledger-context)
+
 ;; Keybindings
 (map! :leader
       (:prefix ("o" . "open") "c" #'gptel)
@@ -508,6 +514,9 @@ https://github.com/emacs-slack/emacs-slack
 
 (elfeed-search-set-filter  "@3-days-ago")
 
+#+end_src
+**** AI Summary Functions
+#+begin_src elisp :tangle ./config.el
 (defun my-elfeed-entries-last-3-days ()
   "Collect Elfeed entries from the past 3 days."
   (interactive)
@@ -527,38 +536,70 @@ https://github.com/emacs-slack/emacs-slack
    (nreverse entries)
    "\n"))
 
+(defun my-elfeed-summarize-by-tag-org (days)
+  "Summarize Elfeed entries from the past DAYS days, grouped by tag, in Org-mode format."
+  (interactive (list (read-number "Days back: " 3)))
+  (let* ((tag (completing-read "Tag: " (mapcar #'symbol-name (elfeed-db-get-all-tags)) nil t))
+         (filter-str (format "@%d-days-ago +%s" days tag))
+         entries)
+    ;; Collect entries matching the filter
+    (with-elfeed-db-visit (entry feed)
+      (when (elfeed-search-filter (elfeed-search-parse-filter filter-str)
+                                  entry feed nil)
+        (push entry entries)))
+    (setq entries (nreverse entries))
 
-(defun my-elfeed-summarize-last-3-days ()
-  "Summarize Elfeed entries from the past 3 days using GPTel."
-  (interactive)
-  (let* ((entries (my-elfeed-entries-last-3-days))
-         (prompt (if entries
-                     (format "Summarize the following news articles from the past 3 days:\n\n%s"
-                             (my-elfeed-format-entries entries))
-                   "There are no Elfeed entries from the past 3 days."))
-         (buf (get-buffer-create "*elfeed-summary*")))
-    ;; Clear buffer *before* request, to avoid confusion if callback called multiple times
-    (with-current-buffer buf
-      (read-only-mode -1)
-      (erase-buffer)
-      (insert "Waiting for GPTel response...\n")
-      (read-only-mode 1))
-    (display-buffer buf)
-    (gptel-request
-     prompt
-     :callback
-     (lambda (response info)
-       (with-current-buffer buf
-         (read-only-mode -1)
-         (erase-buffer)
-         (if response
-             (insert response)
-           (insert "No response received from GPT. Info: " (format "%S" info)))
-         (read-only-mode 1)
-         (goto-char (point-min))
-         (display-buffer buf))))))
+    (let ((buf (get-buffer-create "*elfeed-org-summary*"))
+          (prompt (if entries
+                      (format "Summarize these %d '%s'-tagged entries from the last %d days:\n\n%s"
+                              (length entries) tag days
+                              (my-elfeed-format-entries entries))
+                    (format "No entries tagged '%s' in the last %d days." tag days))))
+      (with-current-buffer buf
+        (org-mode)
+        (read-only-mode -1)
+        (erase-buffer)
+        (insert (format "#+TITLE: Elfeed Summary — %s\n#+DATE: %s\n\n"
+                        tag
+                        (format-time-string "%Y-%m-%d")))
+        (when entries
+          (insert "* Entries\n")
+          (dolist (e entries)
+            (let ((link (elfeed-entry-link e))
+                  (title (org-no-properties (elfeed-entry-title e)))
+                  (source-url (or (elfeed-meta e :link)
+                                 (elfeed-entry-link e)
+                                 (elfeed-entry-feed e))))
+              (insert (format "- %s\n  Source: %s\n"
+                              (org-make-link-string link title)
+                              source-url))))
+          (insert "\n"))
+        (insert "* Summary (AI)\n\n" prompt "\n\n")
+        (insert "* Sources\n")
+        (insert (format "- Filter syntax: `@%d‑days‑ago +%s`\n" days tag))
+        (insert (format "- Entries selected using public API: `elfeed-search-filter` + `with-elfeed-db-visit`\n"))
+        (insert "- More on Elfeed filter syntax: [[https://github.com/skeeto/elfeed][elfeed GitHub]]\n")
+        (insert "- Example of Elfeed-org config: [[https://github.com/remyhonig/elfeed-org][elfeed-org GitHub]]\n")
+        ;; Provide link label definitions
+        (insert (format "[elfeed]: %s\n" "https://github.com/skeeto/elfeed")
+                (format "[elfeed-org]: %s\n" "https://github.com/remyhonig/elfeed-org"))
+        (org-cycle '(64))
+        (read-only-mode 1))
+      (display-buffer buf)
+
+      ;; Send to GPTel
+      (gptel-request
+       prompt
+       :callback (lambda (response info)
+                   (with-current-buffer buf
+                     (read-only-mode -1)
+                     (goto-char (point-max))
+                     (insert "\n" (or response (format "No response; info: %S" info)))
+                     (org-cycle '(64))
+                     (read-only-mode 1)
+                     (goto-char (point-min))
+                     (display-buffer buf)))))))
 #+end_src
-
 ** Kubernetes El
 *** Configuration
 #+begin_src elisp :tangle ./config.el
