@@ -397,6 +397,11 @@
        "x" #'my/gptel-context-remove-all
        "a" #'gptel--rewrite-accept))
 
+(after! aider
+  (global-set-key (kbd "C-c a") #'aider-transient-menu))
+(require 'aider-doom)
+(aider-doom-enable)
+
 (use-package! elfeed-score
   :ensure t
   :config
