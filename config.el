@@ -48,10 +48,12 @@
 (setq org-agenda-start-day "-1d")
 (setq org-agenda-span 5)
 (setq org-agenda-files '(
+        "~/my-org-roam/projects"
         "~/my-org-roam/daily"
         "~/my-org-roam/work-org-roam/daily"
         "~/my-org-roam/work-org-roam/tickets"
         "~/my-org-roam/sources"
+        "~/my-org-roam/mobile-notes"
         "~/doom/config.org"
 ))
 
@@ -382,11 +384,11 @@
 
 (add-hook 'projectile-after-switch-project-hook #'my/projectile-switch-project-action)
 
-;; File Context switching
-(defun load-ledger-context ()
-    (load-file "./contexts/ledger_context.org"))
-  :config
-  (add-hook 'ledger-mode-hook 'load-ledger-context)
+;; ;; File Context switching
+;; (defun load-ledger-context ()
+;;     (load-file "./contexts/ledger_context.org"))
+;;   :config
+;;   (add-hook 'ledger-mode-hook 'load-ledger-context)
 
 ;; Keybindings
 (map! :leader
@@ -529,10 +531,10 @@
         "d" #'kubernetes-describe
         "n" #'kubernetes-set-namespace))
 
-(setq! ledger-schedule-file "~/org/schedual.ledger")
+(setq! ledger-schedule-file "~/my-org-roam/schedual.ledger")
 (with-eval-after-load 'ledger-mode
   (add-to-list 'ledger-reports
-               '("budget" "ledger bal --budget Expenses -f ~/org/2025.ledger")))
+               '("budget" "ledger bal --budget Expenses -f ~/my-org-roam/2025.ledger")))
 (defun ledger-analytic-start ()
   "Start the 'ledger-analytics' server on port 3000."
   (interactive)
@@ -541,7 +543,7 @@
         (message "Ledger Analytics server is already running.")
       (progn
         (start-process "ledger-analytics-process" buffer-name
-                       "ledger-analytics" "-f" "~/org/2025.ledger")
+                       "ledger-analytics" "-f" "~/my-org-roam/2025.ledger")
         (message "Ledger Analytics server started on port 3000.")))))
 
 (map! :localleader

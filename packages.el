@@ -26,7 +26,7 @@
 (package! coffee-mode)
 (package! ox-gfm)
 (package! mcp :recipe (:host github :repo "lizqwerscott/mcp.el"))
-
+(package! coffee-mode)
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 
