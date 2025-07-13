@@ -244,8 +244,6 @@ Reference: https://leanpub.com/lit-config/read
                                      "%^{Description}\n\n"
                                      "* References\n"
                                      "- \n"
-                                     "* Checklist\n"
-                                     "** TODO Review\n"
                                      ))
          :unnarrowed t)))
 #+end_src
@@ -482,7 +480,7 @@ https://github.com/emacs-slack/emacs-slack
 (map! :leader
       (:prefix ("o" . "open") "c" #'gptel)
       (:prefix ("l" . "GPT")
-       "c" #'gptel-context-add
+       "c" #'gptel-add
        "r" #'gptel-rewrite
        "m" #'gptel-menu
        "s" #'gptel-send
@@ -492,6 +490,13 @@ https://github.com/emacs-slack/emacs-slack
 
 **** TODO figure out how to save context between project switches
 **** TODO
+** Aider
+#+begin_src elisp :tangle ./config.el
+(after! aider
+  (global-set-key (kbd "C-c a") #'aider-transient-menu))
+(require 'aider-doom)
+(aider-doom-enable)
+#+end_src
 ** Elfeed
 :Elfeed-Docs:  https://github.com/skeeto/elfeed?tab=readme-ov-file
 :Elfeed-Score-Docs: https://www.unwoundstack.com/doc/elfeed-score/curr

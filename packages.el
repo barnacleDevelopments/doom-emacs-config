@@ -27,6 +27,12 @@
 (package! ox-gfm)
 (package! mcp :recipe (:host github :repo "lizqwerscott/mcp.el"))
 (package! coffee-mode)
+(package! transient)
+(package! aider)
+(use-package aider-helm
+  :after (aider helm))
+(package! markdown-mode)
+
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 
