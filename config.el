@@ -485,6 +485,7 @@
                               (org-make-link-string link title)
                               source-url))))
           (insert "\n"))
+
         (insert "* Summary (AI)\n\n" prompt "\n\n")
         (insert "* Sources\n")
         (insert (format "- Filter syntax: `@%d‑days‑ago +%s`\n" days tag))
@@ -499,7 +500,7 @@
       (display-buffer buf)
 
       ;; Send to GPTel
-      (gptel-request
+      (if (> (length entries) 0)(gptel-request
        prompt
        :callback (lambda (response info)
                    (with-current-buffer buf
@@ -509,7 +510,7 @@
                      (org-cycle '(64))
                      (read-only-mode 1)
                      (goto-char (point-min))
-                     (display-buffer buf)))))))
+                     (display-buffer buf))))))))
 
 ;;Docs: https://kubernetes-el.github.io/kubernetes-el/
 (use-package! kubernetes
