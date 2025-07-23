@@ -25,6 +25,7 @@ Reference: https://leanpub.com/lit-config/read
   (eslint-fix-file)
   (revert-buffer t t))
 
+(setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
 ;; (add-hook 'js2-mode-hook
 ;;           (lambda ()
 ;;             (add-hook 'after-save-hook #'eslint-fix-file-and-revert)))
@@ -545,7 +546,7 @@ https://github.com/emacs-slack/emacs-slack
   "Format Elfeed ENTRIES into a plain text string with just the titles."
   (mapconcat
    (lambda (entry)
-     (format "Title: %s" (elfeed-entry-title entry)))
+     (format "- %s" (elfeed-entry-title entry)))
    (nreverse entries)
    "\n"))
 
@@ -555,24 +556,30 @@ https://github.com/emacs-slack/emacs-slack
   (let* ((tag (completing-read "Tag: " (mapcar #'symbol-name (elfeed-db-get-all-tags)) nil t))
          (filter-str (format "@%d-days-ago +%s" days tag))
          entries)
-    ;; Collect entries matching the filter
+    ;; Make list of enties
     (with-elfeed-db-visit (entry feed)
       (when (elfeed-search-filter (elfeed-search-parse-filter filter-str)
                                   entry feed nil)
         (push entry entries)))
+
+    ;
     (setq entries (nreverse entries))
 
     (let ((buf (get-buffer-create "*elfeed-org-summary*"))
-          (prompt (if entries
-                      (format "Summarize these %d '%s'-tagged entries from the last %d days:\n\n%s"
+       ; Create the prompt
+       (prompt (if entries
+                      (format "Summary of these %d '%s'-tagged entries from the last %d days:\n\n%s. Provide only a point form list that summurizes in a couple sentences. Highlight the key elements using bold. Seperate each list item with a empty line. Make it highly readable. After each list entry insert the link to the entries."
                               (length entries) tag days
                               (my-elfeed-format-entries entries))
                     (format "No entries tagged '%s' in the last %d days." tag days))))
+
+      ; Begin append buffer contents
       (with-current-buffer buf
         (org-mode)
         (read-only-mode -1)
         (erase-buffer)
-        (insert (format "#+TITLE: Elfeed Summary — %s\n#+DATE: %s\n\n"
+        (insert prompt)
+        (insert (format "#+TITLE: Elfeed Summary of Tag: %s\n#+DATE: %s\n\n"
                         tag
                         (format-time-string "%Y-%m-%d")))
         (when entries
@@ -581,38 +588,29 @@ https://github.com/emacs-slack/emacs-slack
             (let ((link (elfeed-entry-link e))
                   (title (org-no-properties (elfeed-entry-title e)))
                   (source-url (or (elfeed-meta e :link)
-                                 (elfeed-entry-link e)
-                                 (elfeed-entry-feed e))))
-              (insert (format "- %s\n  Source: %s\n"
-                              (org-make-link-string link title)
-                              source-url))))
+                                 (elfeed-entry-link e))))
+          (insert (org-make-link-string link title))))
           (insert "\n"))
-
-        (insert "* Summary (AI)\n\n" prompt "\n\n")
-        (insert "* Sources\n")
-        (insert (format "- Filter syntax: `@%d‑days‑ago +%s`\n" days tag))
-        (insert (format "- Entries selected using public API: `elfeed-search-filter` + `with-elfeed-db-visit`\n"))
-        (insert "- More on Elfeed filter syntax: [[https://github.com/skeeto/elfeed][elfeed GitHub]]\n")
-        (insert "- Example of Elfeed-org config: [[https://github.com/remyhonig/elfeed-org][elfeed-org GitHub]]\n")
-        ;; Provide link label definitions
-        (insert (format "[elfeed]: %s\n" "https://github.com/skeeto/elfeed")
-                (format "[elfeed-org]: %s\n" "https://github.com/remyhonig/elfeed-org"))
+       (insert (format "- Filter syntax: `@%d‑days‑ago +%s`\n" days tag))
         (org-cycle '(64))
         (read-only-mode 1))
       (display-buffer buf)
 
       ;; Send to GPTel
-      (if (> (length entries) 0)(gptel-request
+      (if (> (length entries) 0)
+      (gptel-request
        prompt
        :callback (lambda (response info)
                    (with-current-buffer buf
                      (read-only-mode -1)
                      (goto-char (point-max))
+                     (insert "\n* Summary: ")
                      (insert "\n" (or response (format "No response; info: %S" info)))
                      (org-cycle '(64))
                      (read-only-mode 1)
                      (goto-char (point-min))
-                     (display-buffer buf))))))))
+                     (display-buffer buf)))))))
+  )
 #+end_src
 ** Kubernetes El
 *** Configuration
@@ -690,7 +688,6 @@ https://github.com/emacs-slack/emacs-slack
 #+begin_src elisp :tangle ./config.el
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
 
-(setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
 
 (set-email-account! "devin@devdeveloper.ca"
 '((mu4e-sent-folder . "/Sent Items")
