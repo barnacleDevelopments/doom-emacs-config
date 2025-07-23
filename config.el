@@ -101,7 +101,7 @@
          "%?"
          :target (file+head "%<%Y-%m-%d>.org"
                             ,(concat "#+title: %<%Y-%m-%d>\n\n"
-                                     "* Goals"))
+                                     ""))
          :unnarrowed t
          )
         ("e" "Event Temple" plain

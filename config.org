@@ -80,10 +80,6 @@ Reference: https://leanpub.com/lit-config/read
         "~/doom/config.org"
 ))
 #+end_src
-
-#+RESULTS:
-| ~/my-org-roam/daily | ~/my-org-roam/work-org-roam/daily | ~/my-org-roam/work-org-roam/tickets | ~/my-org-roam/sources | ~/my-org-roam/mobile-notes | ~/doom/config.org |
-
 *** Templating
 **** Configuration
 #+begin_src elisp :tangle ./config.el
@@ -142,7 +138,7 @@ Reference: https://leanpub.com/lit-config/read
          "%?"
          :target (file+head "%<%Y-%m-%d>.org"
                             ,(concat "#+title: %<%Y-%m-%d>\n\n"
-                                     "* Goals"))
+                                     ""))
          :unnarrowed t
          )
         ("e" "Event Temple" plain
