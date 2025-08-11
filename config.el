@@ -312,14 +312,16 @@
 (add-hook! 'compilation-mode-hook 'my-compilation-mode-hook)
 
 ;; API keys
-(setq! gpt-api-key (getenv "CHAT_GPT_API_KEY")
-       github-gpt-api-key (getenv "GITHUB_GPT_API_KEY"))
-
-;; GPTel configuration
-(use-package! gptel
-  :config
-  (setq! gptel-api-key gpt-api-key
-         gptel-default-mode 'org-mode))
+;; (setq! gpt-api-key (getenv "CHAT_GPT_API_KEY")
+;;        github-gpt-api-key (getenv "GITHUB_GPT_API_KEY"))
+;; ;; GPTel configuration
+;; (use-package! gptel
+;;   :config
+;;   (setq! gptel-api-key gpt-api-key
+;;          gptel-default-mode 'org-mode))
+(after! gptel
+  (setq gptel-backends nil)
+  (add-to-list 'gptel-backends (gptel-make-gh-copilot "Copilot")))
 
 ;; Backends
 (gptel-make-ollama "Ollama"
@@ -611,3 +613,5 @@ t)
   )
 
 (setq jiralib-url "https://eventtemple.atlassian.net")
+
+
