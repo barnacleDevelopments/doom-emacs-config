@@ -20,6 +20,8 @@
   (revert-buffer t t))
 
 (setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
+
+(add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
 ;; (add-hook 'js2-mode-hook
 ;;           (lambda ()
 ;;             (add-hook 'after-save-hook #'eslint-fix-file-and-revert)))
@@ -480,18 +482,23 @@
         (insert (format "#+TITLE: Elfeed Summary of Tag: %s\n#+DATE: %s\n\n"
                         tag
                         (format-time-string "%Y-%m-%d")))
+
+        ; make a link entry for each article
         (when entries
           (insert "* Entries\n")
           (dolist (e entries)
             (let ((link (elfeed-entry-link e))
-                  (title (org-no-properties (elfeed-entry-title e)))
-                  (source-url (or (elfeed-meta e :link)
-                                 (elfeed-entry-link e))))
+                  (title (org-no-properties (elfeed-entry-title e))))
           (insert (org-make-link-string link title))))
           (insert "\n"))
-       (insert (format "- Filter syntax: `@%d‑days‑ago +%s`\n" days tag))
+
+      ;; insert the fitler used
+      (insert (format "- Filter syntax: `@%d‑days‑ago +%s`\n" days tag))
+
         (org-cycle '(64))
         (read-only-mode 1))
+
+
       (display-buffer buf)
 
       ;; Send to GPTel
