@@ -109,9 +109,6 @@
          "%?"
          :target (file+head "~/my-org-roam/work-org-roam/daily/%<%Y-%m-%d>-et.org"
                             ,(concat "#+title: %<%Y-%m-%d>\n\n"
-                                     "* Goals this Quarter\n"
-                                     "- I'm responsible for NFE bugs.\n"
-                                     "- goal is to increase adoption of NFE by 60%.\n\n"
                                      "* Standup\n** Yesterday\n** Today\n** Blockers\n** Action Items"))
          :unnarrowed t
          )))
