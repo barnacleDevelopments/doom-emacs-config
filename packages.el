@@ -32,6 +32,7 @@
 (use-package aider-helm
   :after (aider helm))
 (package! markdown-mode)
+(package! nov)
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
