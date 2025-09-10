@@ -22,6 +22,20 @@
 (setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
 
 (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
+
+(map! :leader
+      :desc "Comment Region"
+      :prefix ("c" . "+code")
+       (:prefix-map ("f" . "format")
+                    "c" #'comment-region))
+
+(map! :leader
+      :desc "Uncomment Region"
+      :prefix ("c" . "+code")
+       (:prefix-map ("f" . "format")
+                    "C" #'uncomment-region))
+
+
 ;; (add-hook 'js2-mode-hook
 ;;           (lambda ()
 ;;             (add-hook 'after-save-hook #'eslint-fix-file-and-revert)))
@@ -299,6 +313,7 @@
         )
 (after! lsp-mode
   (setq lsp-typescript-auto-import-completions nil)) ;; Disable auto-imports
+
 
 (map! :leader
       (:prefix ("c" . "+code")
