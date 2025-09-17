@@ -22,6 +22,20 @@
 (setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
 
 (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
+
+(map! :leader
+      :desc "Comment Region"
+      :prefix ("c" . "+code")
+       (:prefix-map ("f" . "format")
+                    "c" #'comment-region))
+
+(map! :leader
+      :desc "Uncomment Region"
+      :prefix ("c" . "+code")
+       (:prefix-map ("f" . "format")
+                    "C" #'uncomment-region))
+
+
 ;; (add-hook 'js2-mode-hook
 ;;           (lambda ()
 ;;             (add-hook 'after-save-hook #'eslint-fix-file-and-revert)))
@@ -111,9 +125,6 @@
          "%?"
          :target (file+head "~/my-org-roam/work-org-roam/daily/%<%Y-%m-%d>-et.org"
                             ,(concat "#+title: %<%Y-%m-%d>\n\n"
-                                     "* Goals this Quarter\n"
-                                     "- I'm responsible for NFE bugs.\n"
-                                     "- goal is to increase adoption of NFE by 60%.\n\n"
                                      "* Standup\n** Yesterday\n** Today\n** Blockers\n** Action Items"))
          :unnarrowed t
          )))
@@ -310,6 +321,7 @@
         )
 (after! lsp-mode
   (setq lsp-typescript-auto-import-completions nil)) ;; Disable auto-imports
+
 
 (map! :leader
       (:prefix ("c" . "+code")
