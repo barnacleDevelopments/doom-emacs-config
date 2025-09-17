@@ -207,7 +207,18 @@
                                      "* References\n"
                                      "- \n"
                                      ))
-         :unnarrowed t)))
+         :unnarrowed t)
+("P" "Person" plain
+         "%?"
+         :target (file+head "people/%<%Y%m%d%H%M%S>-${slug}.org"
+                            ,(concat "#+title: ${title}\n"
+                                     "#+created: %U\n"
+                                     "#+filetags: :%^{tag}: :person:\n\n"
+                                     "* Description\n\n"
+                                     "- \n"
+                                     ))
+         :unnarrowed t)
+        ))
 
 (setq org-export-show-temporary-export-buffer nil)
 (defun my/org-to-md-on-save ()
@@ -247,9 +258,6 @@
                        :args ("run" "-i" "--rm"
                              "ghcr.io/semgrep/mcp"
                              "-t" "stdio")))
-          ("atlassian" . (:command "npx"
-                         :args ("-y" "mcp-remote"
-                               "https://mcp.atlassian.com/v1/sse")))
           ("github" . (:command "docker"
                       :args ("run" "-i" "--rm"
                             "-e" "GITHUB_GPT_API_KEY"
@@ -329,7 +337,7 @@
 (gptel-make-ollama "Ollama"
   :host "127.0.0.1:11434"
   :stream t
-  :models '(mistral:latest deepseek-coder-v2:latest llama3.2:3b llama3.1:8b))
+  :models '(mistral:latest deepseek-coder-v2:latest llama3.2:3b llama3.1:8b gpt-oss:20b))
 
 (gptel-make-gh-copilot "Copilot")
 
@@ -542,10 +550,12 @@
         "d" #'kubernetes-describe
         "n" #'kubernetes-set-namespace))
 
-(setq! ledger-schedule-file "~/my-org-roam/schedual.ledger")
+(setq! current-year-ledger-file "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
+(setq! ledger-schedule-file "~/Documents/Personal/Finance/Banking/Ledger/schedule.ledger")
+(setq! ledger-default-journal "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
 (with-eval-after-load 'ledger-mode
   (add-to-list 'ledger-reports
-               '("budget" "ledger bal --budget Expenses -f ~/my-org-roam/2025.ledger")))
+               '("budget" "ledger bal --budget Expenses -f" current-year-ledger-file)))
 (defun ledger-analytic-start ()
   "Start the 'ledger-analytics' server on port 3000."
   (interactive)
@@ -554,7 +564,7 @@
         (message "Ledger Analytics server is already running.")
       (progn
         (start-process "ledger-analytics-process" buffer-name
-                       "ledger-analytics" "-f" "~/my-org-roam/2025.ledger")
+                       "ledger-analytics" "-f" current-year-ledger-file)
         (message "Ledger Analytics server started on port 3000.")))))
 
 (map! :localleader
@@ -618,7 +628,5 @@ t)
               ("C-TAB" . 'copilot-accept-completion-by-word)
               ("C-<tab>" . 'copilot-accept-completion-by-word))
   )
-
-(setq jiralib-url "https://eventtemple.atlassian.net")
 
 

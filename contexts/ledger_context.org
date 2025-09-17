@@ -49,7 +49,7 @@ These are some transaction categories that might be hard to guess:
     Expenses:Laundry                          $25.25
     Liabilities:Credit:MasterCard
 
-2025/05/31 MASABI *
+2025/05/31 MASABI
     Expenses:Transportation:Bus               $48.00
     Liabilities:Credit:MasterCard
 
