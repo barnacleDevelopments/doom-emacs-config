@@ -2,6 +2,8 @@
 
 Reference: https://leanpub.com/lit-config/read
 
+* Docs
+[[https://emacsredux.com/blog/2023/04/11/looking-up-words-in-a-dictionary/][Emacs Dictionary]]
 * General Settings
 #+begin_src elisp :tangle ./config.el
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
@@ -29,22 +31,6 @@ Reference: https://leanpub.com/lit-config/read
 
 (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
 
-(map! :leader
-      :desc "Comment Region"
-      :prefix ("c" . "+code")
-       (:prefix-map ("f" . "format")
-                    "c" #'comment-region))
-
-(map! :leader
-      :desc "Uncomment Region"
-      :prefix ("c" . "+code")
-       (:prefix-map ("f" . "format")
-                    "C" #'uncomment-region))
-
-
-;; (add-hook 'js2-mode-hook
-;;           (lambda ()
-;;             (add-hook 'after-save-hook #'eslint-fix-file-and-revert)))
 #+end_src
 ** Mac Config
 #+begin_src elisp :tangle ./config.el
@@ -57,8 +43,20 @@ Reference: https://leanpub.com/lit-config/read
 (setenv "GIT_SSH_COMMAND" "ssh -v")
 (setq lsp-disabled-clients '(rubocop-ls))
 #+end_src
-* Docs
-[[https://emacsredux.com/blog/2023/04/11/looking-up-words-in-a-dictionary/][Emacs Dictionary]]
+** Shortcuts
+#+begin_src elisp :tangle ./config.el
+(map! :leader
+      :desc "Comment Region"
+      :prefix ("c" . "+code")
+       (:prefix-map ("f" . "format")
+                    "c" #'comment-region))
+
+(map! :leader
+      :desc "Uncomment Region"
+      :prefix ("c" . "+code")
+       (:prefix-map ("f" . "format")
+                    "C" #'uncomment-region))
+#+end_src
 * Package-specific configurations
 ** Treemacs
 #+begin_src elisp :tangle ./config.el
@@ -334,9 +332,6 @@ Reference: https://leanpub.com/lit-config/read
             (gptel-mcp-register-tool)))
 
 #+end_src
-** Slack
-*** TODO Implement slack integration
-https://github.com/emacs-slack/emacs-slack
 ** FlyCheck
 #+begin_src elisp :tangle ./config.el
 (add-hook 'after-init-hook #'global-flycheck-mode)

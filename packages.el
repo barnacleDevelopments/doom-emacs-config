@@ -33,6 +33,7 @@
   :after (aider helm))
 (package! markdown-mode)
 (package! nov)
+(package! flymake-eslint)
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)

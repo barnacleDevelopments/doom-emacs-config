@@ -23,6 +23,15 @@
 
 (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
 
+; Mac Config
+(use-package! exec-path-from-shell
+  :if (memq window-system '(mac ns x))
+  :config
+  (exec-path-from-shell-initialize)
+  (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
+(setenv "GIT_SSH_COMMAND" "ssh -v")
+(setq lsp-disabled-clients '(rubocop-ls))
+
 (map! :leader
       :desc "Comment Region"
       :prefix ("c" . "+code")
@@ -34,20 +43,6 @@
       :prefix ("c" . "+code")
        (:prefix-map ("f" . "format")
                     "C" #'uncomment-region))
-
-
-;; (add-hook 'js2-mode-hook
-;;           (lambda ()
-;;             (add-hook 'after-save-hook #'eslint-fix-file-and-revert)))
-
-; Mac Config
-(use-package! exec-path-from-shell
-  :if (memq window-system '(mac ns x))
-  :config
-  (exec-path-from-shell-initialize)
-  (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
-(setenv "GIT_SSH_COMMAND" "ssh -v")
-(setq lsp-disabled-clients '(rubocop-ls))
 
 (setq! doom-themes-treemacs-theme "doom-colors")
 (setq! treemacs-width 45)
