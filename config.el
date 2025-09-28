@@ -250,39 +250,7 @@
             (kill-buffer exported-md))))))
 (add-hook 'after-save-hook 'my/org-to-md-on-save)
 
-(after! mcp
-  (require 'mcp-hub)
-  (setq mcp-hub-servers
-        '(("postgres" . (:command "podman"
-                         :args ("run" "-i" "--rm" "mcp/postgres"
-                               "postgresql://postgres:postgres@host.docker.internal:5432/eventtemple_dev")))
-          ("redis" . (:command "podman"
-                     :args ("run" "-i" "--rm"
-                           "-e" "REDIS_HOST=host.docker.internal"
-                           "mcp/redis")))
-          ("semgrep" . (:command "podman"
-                       :args ("run" "-i" "--rm"
-                             "ghcr.io/semgrep/mcp"
-                             "-t" "stdio")))
-          ("github" . (:command "docker"
-                      :args ("run" "-i" "--rm"
-                            "-e" "GITHUB_GPT_API_KEY"
-                            "ghcr.io/github/github-mcp-server")))
-          ("filesystem" . (:command "npx"
-                          :args ("-y" "@modelcontextprotocol/server-filesystem"
-                                "~/Projects"))))))
-(defun gptel-mcp-register-tool ()
-  (interactive)
-  (let ((tools (mcp-hub-get-all-tool :asyncp t :categoryp t)))
-    (mapcar (lambda (tool)
-              (apply #'gptel-make-tool tool))
-            tools)))
 
-;; Automatically start all MCP servers and register tools after Emacs initializes
-(add-hook 'after-init-hook
-          (lambda ()
-            (mcp-hub-start-all-server)
-            (gptel-mcp-register-tool)))
 
 (add-hook 'after-init-hook #'global-flycheck-mode)
 (add-hook! 'typescript-mode

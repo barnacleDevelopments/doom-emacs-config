@@ -297,39 +297,6 @@ Reference: https://leanpub.com/lit-config/read
 #+end_src
 ** MCP
 #+begin_src elisp :tangle ./config.el
-(after! mcp
-  (require 'mcp-hub)
-  (setq mcp-hub-servers
-        '(("postgres" . (:command "podman"
-                         :args ("run" "-i" "--rm" "mcp/postgres"
-                               "postgresql://postgres:postgres@host.docker.internal:5432/eventtemple_dev")))
-          ("redis" . (:command "podman"
-                     :args ("run" "-i" "--rm"
-                           "-e" "REDIS_HOST=host.docker.internal"
-                           "mcp/redis")))
-          ("semgrep" . (:command "podman"
-                       :args ("run" "-i" "--rm"
-                             "ghcr.io/semgrep/mcp"
-                             "-t" "stdio")))
-          ("github" . (:command "docker"
-                      :args ("run" "-i" "--rm"
-                            "-e" "GITHUB_GPT_API_KEY"
-                            "ghcr.io/github/github-mcp-server")))
-          ("filesystem" . (:command "npx"
-                          :args ("-y" "@modelcontextprotocol/server-filesystem"
-                                "~/Projects"))))))
-(defun gptel-mcp-register-tool ()
-  (interactive)
-  (let ((tools (mcp-hub-get-all-tool :asyncp t :categoryp t)))
-    (mapcar (lambda (tool)
-              (apply #'gptel-make-tool tool))
-            tools)))
-
-;; Automatically start all MCP servers and register tools after Emacs initializes
-(add-hook 'after-init-hook
-          (lambda ()
-            (mcp-hub-start-all-server)
-            (gptel-mcp-register-tool)))
 
 #+end_src
 ** FlyCheck
@@ -338,6 +305,7 @@ Reference: https://leanpub.com/lit-config/read
 (add-hook! 'typescript-mode
   (lambda ()
     (flycheck-select-checker 'javascript-eslint)))
+
 #+end_src
 ** Web Mode
 *** Configuration
@@ -365,12 +333,17 @@ Reference: https://leanpub.com/lit-config/read
 (use-package! prettier
   :hook (
          (js-mode . prettier-mode)
-         (typescript-mode . prettier-mode)
          (css-mode . prettier-mode)
          (html-mode . prettier-mode)
          (markdown-mode . prettier-mode)
          (terraform-mode . prettier-mode))
 )
+(use-package! apheleia
+  :config
+  ;; Map prettier to typescript-tsx-mode
+  (setf (alist-get 'typescript-tsx-mode apheleia-mode-alist) 'prettier)
+  ;; Enable apheleia-mode automatically in TSX buffers
+  (add-hook 'typescript-tsx-mode-hook #'apheleia-mode))
 #+END_SRC
 ** LSP
 *** Configuration
