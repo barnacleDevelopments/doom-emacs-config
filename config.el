@@ -550,10 +550,6 @@
       :prefix "c"
       "R" #'projectile-replace)
 
-(map! :localleader
-      :map terraform-mode-map
-      "d" #'terraform-open-doc)
-
 (setq logview-additional-submodes
       '(("Pino JSON Logs"
          (format . "JSON")

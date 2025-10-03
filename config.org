@@ -327,23 +327,16 @@ Reference: https://leanpub.com/lit-config/read
 #+begin_src elisp :tangle ./config.el
 (add-hook 'ruby-mode-hook 'robe-mode)
 (add-hook 'ruby-ts-mode-hook 'robe-mode)
-** Prettier
+** Apheleia
 *** Configuration
 #+begin_src elisp :tangle ./config.el
-(use-package! prettier
-  :hook (
-         (js-mode . prettier-mode)
-         (css-mode . prettier-mode)
-         (html-mode . prettier-mode)
-         (markdown-mode . prettier-mode)
-         (terraform-mode . prettier-mode))
-)
 (use-package! apheleia
   :config
   ;; Map prettier to typescript-tsx-mode
   (setf (alist-get 'typescript-tsx-mode apheleia-mode-alist) 'prettier)
   ;; Enable apheleia-mode automatically in TSX buffers
   (add-hook 'typescript-tsx-mode-hook #'apheleia-mode))
+(setq apheleia-formatters-respect-indent-level nil)
 #+END_SRC
 ** LSP
 *** Configuration
@@ -663,13 +656,6 @@ Reference: https://leanpub.com/lit-config/read
 (map! :leader
       :prefix "c"
       "R" #'projectile-replace)
-#+end_src
-** Terraform
-*** Configuration
-#+begin_src elisp :tangle ./config.el
-(map! :localleader
-      :map terraform-mode-map
-      "d" #'terraform-open-doc)
 #+end_src
 ** Logview
 *** Configuration
