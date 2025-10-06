@@ -305,7 +305,6 @@ Reference: https://leanpub.com/lit-config/read
 (add-hook! 'typescript-mode
   (lambda ()
     (flycheck-select-checker 'javascript-eslint)))
-
 #+end_src
 ** Web Mode
 *** Configuration
@@ -332,11 +331,10 @@ Reference: https://leanpub.com/lit-config/read
 #+begin_src elisp :tangle ./config.el
 (use-package! apheleia
   :config
-  ;; Map prettier to typescript-tsx-mode
   (setf (alist-get 'typescript-tsx-mode apheleia-mode-alist) 'prettier)
-  ;; Enable apheleia-mode automatically in TSX buffers
-  (add-hook 'typescript-tsx-mode-hook #'apheleia-mode))
-(setq apheleia-formatters-respect-indent-level nil)
+  (add-hook 'typescript-tsx-mode-hook #'apheleia-mode)
+  (setq apheleia-formatters-respect-indent-level nil)
+)
 #+END_SRC
 ** LSP
 *** Configuration
@@ -471,9 +469,6 @@ Reference: https://leanpub.com/lit-config/read
        "x" #'my/gptel-context-remove-all
        "a" #'gptel--rewrite-accept))
 #+end_src
-
-**** TODO figure out how to save context between project switches
-**** TODO
 ** Aider
 #+begin_src elisp :tangle ./config.el
 (after! aider
@@ -608,15 +603,9 @@ Reference: https://leanpub.com/lit-config/read
   :ensure t
   :commands (kubernetes-overview)
   :config
-  (setq kubernetes-poll-frequency 3600
-        kubernetes-redraw-frequency 3600))
-
-(map! :leader
-      :prefix "o"
-      "k" #'kubernetes-overview)
-
-(after! kubernetes
-  (map! :localleader
+    (setq kubernetes-poll-frequency 3600
+        kubernetes-redraw-frequency 3600)
+    (map! :localleader
         :map kubernetes-overview-mode-map
         "s" #'kubernetes-display-service
         "p" #'kubernetes-display-pod
@@ -624,7 +613,11 @@ Reference: https://leanpub.com/lit-config/read
         "l" #'kubernetes-logs
         "e" #'kubernetes-edit
         "d" #'kubernetes-describe
-        "n" #'kubernetes-set-namespace))
+        "n" #'kubernetes-set-namespace)
+    (map! :leader
+        :prefix "o"
+        "k" #'kubernetes-overview)
+ )
 #+end_src
 ** Ledger
 *** Configuration
@@ -649,6 +642,29 @@ Reference: https://leanpub.com/lit-config/read
 (map! :localleader
       :map ledger-mode-map
       "s" #'evil-ledger-align)
+(after! ledger
+    :config
+    (setq! current-year-ledger-file "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
+    (setq! ledger-schedule-file "~/Documents/Personal/Finance/Banking/Ledger/schedule.ledger")
+    (setq! ledger-default-journal "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
+    (with-eval-after-load 'ledger-mode
+    (add-to-list 'ledger-reports
+                '("budget" "ledger bal --budget Expenses -f" current-year-ledger-file)))
+    (defun ledger-analytic-start ()
+    "Start the 'ledger-analytics' server on port 3000."
+    (interactive)
+    (let ((buffer-name "*Ledger Analytics Server*"))
+        (if (get-buffer buffer-name)
+            (message "Ledger Analytics server is already running.")
+        (progn
+            (start-process "ledger-analytics-process" buffer-name
+                        "ledger-analytics" "-f" current-year-ledger-file)
+            (message "Ledger Analytics server started on port 3000.")))))
+
+    (map! :localleader
+        :map ledger-mode-map
+        "s" #'evil-ledger-align)
+    )
 #+end_src
 ** Anzu
 *** Configuration
@@ -669,35 +685,37 @@ Reference: https://leanpub.com/lit-config/read
 ** MUE4
 *** Configuration
 #+begin_src elisp :tangle ./config.el
-(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+(after! mu4e
+  :config
+    (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
 
+    (set-email-account! "devin@devdeveloper.ca"
+    '((mu4e-sent-folder . "/Sent Items")
+        (mu4e-drafts-folder . "/Drafts")
+        (mu4e-trash-folder . "/Trash")
+        (mu4e-get-mail-command . "offlineimap -o")
+        (mu4e-update-interval . 60)
+        (smtpmail-smtp-user . "devin")
+        (smtpmail-smtp-server . "smtp.mailfence.com")
+        (smtpmail-smtp-service . 465)
+        (smtpmail-stream-type . ssl)
+        (auth-source-debug t)
+        (mail-host-address . "devdeveloper.ca")
+        (user-full-name . "Devin")
+        (user-mail-address . "devin@devdeveloper.ca"))
+    t)
 
-(set-email-account! "devin@devdeveloper.ca"
-'((mu4e-sent-folder . "/Sent Items")
-    (mu4e-drafts-folder . "/Drafts")
-    (mu4e-trash-folder . "/Trash")
-    (mu4e-get-mail-command . "offlineimap -o")
-    (mu4e-update-interval . 60)
-    (smtpmail-smtp-user . "devin")
-    (smtpmail-smtp-server . "smtp.mailfence.com")
-    (smtpmail-smtp-service . 465)
-    (smtpmail-stream-type . ssl)
-    (auth-source-debug t)
-    (mail-host-address . "devdeveloper.ca")
-    (user-full-name . "Devin")
-    (user-mail-address . "devin@devdeveloper.ca"))
-t)
+    (setq! message-send-mail-function 'smtpmail-send-it)
 
-(setq! message-send-mail-function 'smtpmail-send-it)
+    (map! :leader
+        :prefix ("o" . "open")
+        "m" #'mu4e)
 
-(map! :leader
-      :prefix ("o" . "open")
-      "m" #'mu4e)
-
-(map! :localleader
-      :map mu4e-headers-mode-map
-      "c" #'mu4e-thread-fold-toggle
-      "m" #'mu4e-view-mark-for-move)
+    (map! :localleader
+        :map mu4e-headers-mode-map
+        "c" #'mu4e-thread-fold-toggle
+        "m" #'mu4e-view-mark-for-move)
+  )
 #+end_src
 ** Dired
 #+begin_src elisp :tangle ./config.el
@@ -706,19 +724,21 @@ t)
       "R" #'query-replace
       "w" #'wdired-change-to-wdired-mode)
 #+end_src
-** Copilot
-*** Configuration
-#+begin_src elisp :tangle ./config.el
-(use-package! copilot
-  :hook (prog-mode . copilot-mode)
-  :bind (:map copilot-completion-map
-              ("<tab>" . 'copilot-accept-completion)
-              ("TAB" . 'copilot-accept-completion)
-              ("C-TAB" . 'copilot-accept-completion-by-word)
-              ("C-<tab>" . 'copilot-accept-completion-by-word))
-  )
-#+END_SRC
 ** Org Jira
+** Claude Code
+
+#+begin_src elisp :tangle ./config.el
+(setq claude-code-terminal-backend 'vterm)
+#+end_src
+*** Monet
+#+begin_src elisp :tangle ./config.el
+(use-package! claude-code
+  :config
+  (monet-mode 1)
+  (add-hook 'claude-code-process-environment-functions 
+            #'monet-start-server-function))
+
+#+end_src
 ** Magit
 *** Forge
 #+begin_src elisp :tangle ./config.el

@@ -507,15 +507,9 @@
   :ensure t
   :commands (kubernetes-overview)
   :config
-  (setq kubernetes-poll-frequency 3600
-        kubernetes-redraw-frequency 3600))
-
-(map! :leader
-      :prefix "o"
-      "k" #'kubernetes-overview)
-
-(after! kubernetes
-  (map! :localleader
+    (setq kubernetes-poll-frequency 3600
+        kubernetes-redraw-frequency 3600)
+    (map! :localleader
         :map kubernetes-overview-mode-map
         "s" #'kubernetes-display-service
         "p" #'kubernetes-display-pod
@@ -523,28 +517,35 @@
         "l" #'kubernetes-logs
         "e" #'kubernetes-edit
         "d" #'kubernetes-describe
-        "n" #'kubernetes-set-namespace))
+        "n" #'kubernetes-set-namespace)
+    (map! :leader
+        :prefix "o"
+        "k" #'kubernetes-overview)
+ )
 
-(setq! current-year-ledger-file "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
-(setq! ledger-schedule-file "~/Documents/Personal/Finance/Banking/Ledger/schedule.ledger")
-(setq! ledger-default-journal "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
-(with-eval-after-load 'ledger-mode
-  (add-to-list 'ledger-reports
-               '("budget" "ledger bal --budget Expenses -f" current-year-ledger-file)))
-(defun ledger-analytic-start ()
-  "Start the 'ledger-analytics' server on port 3000."
-  (interactive)
-  (let ((buffer-name "*Ledger Analytics Server*"))
-    (if (get-buffer buffer-name)
-        (message "Ledger Analytics server is already running.")
-      (progn
-        (start-process "ledger-analytics-process" buffer-name
-                       "ledger-analytics" "-f" current-year-ledger-file)
-        (message "Ledger Analytics server started on port 3000.")))))
+(after! ledger
+    :config
+    (setq! current-year-ledger-file "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
+    (setq! ledger-schedule-file "~/Documents/Personal/Finance/Banking/Ledger/schedule.ledger")
+    (setq! ledger-default-journal "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
+    (with-eval-after-load 'ledger-mode
+    (add-to-list 'ledger-reports
+                '("budget" "ledger bal --budget Expenses -f" current-year-ledger-file)))
+    (defun ledger-analytic-start ()
+    "Start the 'ledger-analytics' server on port 3000."
+    (interactive)
+    (let ((buffer-name "*Ledger Analytics Server*"))
+        (if (get-buffer buffer-name)
+            (message "Ledger Analytics server is already running.")
+        (progn
+            (start-process "ledger-analytics-process" buffer-name
+                        "ledger-analytics" "-f" current-year-ledger-file)
+            (message "Ledger Analytics server started on port 3000.")))))
 
-(map! :localleader
-      :map ledger-mode-map
-      "s" #'evil-ledger-align)
+    (map! :localleader
+        :map ledger-mode-map
+        "s" #'evil-ledger-align)
+    )
 
 (map! :leader
       :prefix "c"
@@ -556,48 +557,49 @@
          (levels . "level")
          (timestamp . "time"))))
 
-(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+(after! mu4e
+  :config
+    (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
 
+    (set-email-account! "devin@devdeveloper.ca"
+    '((mu4e-sent-folder . "/Sent Items")
+        (mu4e-drafts-folder . "/Drafts")
+        (mu4e-trash-folder . "/Trash")
+        (mu4e-get-mail-command . "offlineimap -o")
+        (mu4e-update-interval . 60)
+        (smtpmail-smtp-user . "devin")
+        (smtpmail-smtp-server . "smtp.mailfence.com")
+        (smtpmail-smtp-service . 465)
+        (smtpmail-stream-type . ssl)
+        (auth-source-debug t)
+        (mail-host-address . "devdeveloper.ca")
+        (user-full-name . "Devin")
+        (user-mail-address . "devin@devdeveloper.ca"))
+    t)
 
-(set-email-account! "devin@devdeveloper.ca"
-'((mu4e-sent-folder . "/Sent Items")
-    (mu4e-drafts-folder . "/Drafts")
-    (mu4e-trash-folder . "/Trash")
-    (mu4e-get-mail-command . "offlineimap -o")
-    (mu4e-update-interval . 60)
-    (smtpmail-smtp-user . "devin")
-    (smtpmail-smtp-server . "smtp.mailfence.com")
-    (smtpmail-smtp-service . 465)
-    (smtpmail-stream-type . ssl)
-    (auth-source-debug t)
-    (mail-host-address . "devdeveloper.ca")
-    (user-full-name . "Devin")
-    (user-mail-address . "devin@devdeveloper.ca"))
-t)
+    (setq! message-send-mail-function 'smtpmail-send-it)
 
-(setq! message-send-mail-function 'smtpmail-send-it)
+    (map! :leader
+        :prefix ("o" . "open")
+        "m" #'mu4e)
 
-(map! :leader
-      :prefix ("o" . "open")
-      "m" #'mu4e)
-
-(map! :localleader
-      :map mu4e-headers-mode-map
-      "c" #'mu4e-thread-fold-toggle
-      "m" #'mu4e-view-mark-for-move)
+    (map! :localleader
+        :map mu4e-headers-mode-map
+        "c" #'mu4e-thread-fold-toggle
+        "m" #'mu4e-view-mark-for-move)
+  )
 
 (map! :localleader
       :map dirvish-mode-map
       "R" #'query-replace
       "w" #'wdired-change-to-wdired-mode)
 
-(use-package! copilot
-  :hook (prog-mode . copilot-mode)
-  :bind (:map copilot-completion-map
-              ("<tab>" . 'copilot-accept-completion)
-              ("TAB" . 'copilot-accept-completion)
-              ("C-TAB" . 'copilot-accept-completion-by-word)
-              ("C-<tab>" . 'copilot-accept-completion-by-word))
-  )
+(setq claude-code-terminal-backend 'vterm)
+
+(use-package! claude-code
+  :config
+  (monet-mode 1)
+  (add-hook 'claude-code-process-environment-functions 
+            #'monet-start-server-function))
 
 
