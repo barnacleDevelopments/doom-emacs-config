@@ -7,17 +7,24 @@
 (setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode +1)
 
-(defun eslint-fix-file ()
-  (interactive)
-  (let ((file (shell-quote-argument (buffer-file-name))))
-    (message "Fixing with ESLint: %s" file)
-    (call-process-shell-command
-     (format "npx eslint --fix %s > /dev/null 2>&1" file) nil 0)))
+(after! flycheck
+  ;; Use eslint checker for typescript
+  (flycheck-add-mode 'javascript-eslint 'tsx-ts-mode)
+  (flycheck-add-mode 'javascript-eslint 'typescript-ts-mode)
 
-(defun eslint-fix-file-and-revert ()
-  (interactive)
-  (eslint-fix-file)
-  (revert-buffer t t))
+  (defun my/eslint-fix-file ()
+    "Fix current file with ESLint."
+    (interactive)
+    (when buffer-file-name
+      (shell-command (format "npx eslint --fix %s"
+                            (shell-quote-argument buffer-file-name)))
+      (revert-buffer t t t)))
+  
+  (map! :map (tsx-ts-mode-map typescript-ts-mode-map)
+        :localleader
+        "e f" #'my/eslint-fix-file)
+
+  )
 
 (setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
 
@@ -267,24 +274,22 @@
 
 (setq projectile-project-search-path '("~/WebDev/"))
 
-(setq lsp-idle-delay 0.500)  ; Increase delay to half a second (default is 0.1)
-(setq lsp-enable-on-type-formatting nil)  ; Disable auto-formatting on typing
-(setq lsp-file-watch-ignored-directories
-      '("[/\\\\]\\.git$"
-        "[/\\\\]node_modules$"
-        "[/\\\\]build$"
-        "[/\\\\]dist$"))
-(setq lsp-file-watch-threshold 1000)  ;; Increase threshold to 1000 files
 (after! lsp-mode
   (setq lsp-enable-on-type-formatting nil)  ;; Disable on-type formatting
   (setq lsp-signature-auto-activate nil)    ;; Disable signature help
   (setq lsp-modeline-code-actions-enable nil) ;; Disable code actions in modeline
   (setq lsp-modeline-diagnostics-enable nil) ;; Disable diagnostics in modeline
-  (setq lsp-diagnostics-provider :auto) ;; Disable diagnostics in modeline
+    (setq lsp-idle-delay 0.500)  ; Increase delay to half a second (default is 0.1)
+    (setq lsp-enable-on-type-formatting nil)  ; Disable auto-formatting on typing
+    (setq lsp-file-watch-ignored-directories
+        '("[/\\\\]\\.git$"
+            "[/\\\\]node_modules$"
+            "[/\\\\]build$"
+            "[/\\\\]dist$"))
+    (setq lsp-file-watch-threshold 1000)  ;; Increase threshold to 1000 files
+  (setq lsp-typescript-auto-import-completions nil) ;; Disable auto-imports
+   (setq lsp-diagnostics-provider :flycheck)
         )
-(after! lsp-mode
-  (setq lsp-typescript-auto-import-completions nil)) ;; Disable auto-imports
-
 
 (map! :leader
       (:prefix ("c" . "+code")
@@ -523,6 +528,26 @@
         "k" #'kubernetes-overview)
  )
 
+(setq! current-year-ledger-file "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
+(setq! ledger-schedule-file "~/Documents/Personal/Finance/Banking/Ledger/schedule.ledger")
+(setq! ledger-default-journal "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
+(with-eval-after-load 'ledger-mode
+  (add-to-list 'ledger-reports
+               '("budget" "ledger bal --budget Expenses -f" current-year-ledger-file)))
+(defun ledger-analytic-start ()
+  "Start the 'ledger-analytics' server on port 3000."
+  (interactive)
+  (let ((buffer-name "*Ledger Analytics Server*"))
+    (if (get-buffer buffer-name)
+        (message "Ledger Analytics server is already running.")
+      (progn
+        (start-process "ledger-analytics-process" buffer-name
+                       "ledger-analytics" "-f" current-year-ledger-file)
+        (message "Ledger Analytics server started on port 3000.")))))
+
+(map! :localleader
+      :map ledger-mode-map
+      "s" #'evil-ledger-align)
 (after! ledger
     :config
     (setq! current-year-ledger-file "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
@@ -603,3 +628,161 @@
             #'monet-start-server-function))
 
 
+
+(use-package! prodigy
+  :config
+  (defun my/start-eventtemple-dev-environment ()
+  "Start all development processes with Prodigy."
+  (interactive)
+  (prodigy-start-service (prodigy-find-service "core-web"))
+  (prodigy-start-service (prodigy-find-service "core-jobs"))
+  (prodigy-start-service (prodigy-find-service "frontends"))
+  (prodigy-start-service (prodigy-find-service "admin"))
+  (prodigy-start-service (prodigy-find-service "caddy")))
+
+  (defun my/stop-eventtemple-dev-environment ()
+    "Stop all development processes with Prodigy."
+    (interactive)
+  (prodigy-stop-service (prodigy-find-service "core-web"))
+  (prodigy-stop-service (prodigy-find-service "core-jobs"))
+  (prodigy-stop-service (prodigy-find-service "frontends"))
+  (prodigy-stop-service (prodigy-find-service "admin"))
+  (prodigy-stop-service (prodigy-find-service "caddy"))
+
+    )
+  
+  (defun my/restart-eventtemple-dev-environment ()
+    "Restart all development processes with Prodigy."
+    (interactive)
+  (prodigy-restart-service (prodigy-find-service "core-web"))
+  (prodigy-restart-service (prodigy-find-service "core-jobs"))
+  (prodigy-restart-service (prodigy-find-service "frontends"))
+  (prodigy-restart-service (prodigy-find-service "admin"))
+  (prodigy-restart-service (prodigy-find-service "caddy"))
+
+    )
+(prodigy-define-service
+  :name "core-web"
+  :command "bundle"
+  :args '("exec" "rails" "server")
+  :cwd "~/Projects/eventtemple"
+  :env '(("RUBY_DEBUG_SESSION_NAME" "core-web")
+         ("RUBY_DEBUG_OPEN" "true"))
+  :tags '(dev rails))
+
+(prodigy-define-service
+  :name "core-jobs"
+  :command "bundle"
+  :args '("exec" "sidekiq")
+  :cwd "~/Projects/eventtemple"
+  :env '(("RUBY_DEBUG_SESSION_NAME" "core-jobs")
+         ("RUBY_DEBUG_OPEN" "true"))
+  :tags '(dev rails))
+
+(prodigy-define-service
+  :name "frontends"
+  :command "npm"
+  :args '("run" "dev")
+  :cwd "~/Projects/eventtemple-frontend"
+  :env '(("NODE_OPTIONS" "--inspect"))
+  :tags '(dev node))
+
+(prodigy-define-service
+  :name "caddy"
+  :command "caddy"
+  :args '("run")
+  :cwd "~/Projects/eventtemple"
+  :tags '(dev))
+)
+
+(use-package prodigy
+  :config
+  (setq prodigy-view-buffer-maximum-size 10000
+        prodigy-view-truncate-by-default t)
+  
+  (defun my/prodigy-prettify-buffer ()
+    "Make Prodigy buffer more readable"
+    (interactive)
+    (let ((inhibit-read-only t))
+      (save-excursion
+        ;; Apply ANSI colors
+        (ansi-color-apply-on-region (point-min) (point-max))
+        
+        ;; Dim SQL queries
+        (goto-char (point-min))
+        (while (re-search-forward "^  \\(CACHE \\)?\\(SELECT\\|UPDATE\\|INSERT\\)" nil t)
+          (put-text-property (line-beginning-position) (line-end-position) 'face 'shadow))
+        
+        ;; Highlight HTTP requests (green)
+        (goto-char (point-min))
+        (while (re-search-forward "^Started \\(GET\\|POST\\|PUT\\|DELETE\\)" nil t)
+          (put-text-property (line-beginning-position) (line-end-position)
+                            'face '(:foreground "#50fa7b" :weight bold)))
+        
+        ;; Highlight responses
+        (goto-char (point-min))
+        (while (re-search-forward "^Completed \\([0-9]+\\)" nil t)
+          (let ((status (string-to-number (match-string 1))))
+            (put-text-property (line-beginning-position) (line-end-position)
+                              'face (cond ((< status 300) '(:foreground "#50fa7b"))
+                                         ((< status 400) '(:foreground "#f1fa8c"))
+                                         (t '(:foreground "#ff5555" :weight bold))))))
+        
+        ;; Highlight errors (red)
+        (goto-char (point-min))
+        (while (re-search-forward "\\(ERROR\\|FATAL\\|Exception\\)" nil t)
+          (put-text-property (line-beginning-position) (line-end-position)
+                            'face '(:foreground "#ff5555" :weight bold))))))
+  
+(defun my/prodigy-toggle-sql ()
+  "Toggle SQL query visibility"
+  (interactive)
+  (let ((inhibit-read-only t))
+    ;; Fix: Don't add if already present, and use proper format
+    (unless (member 'sql-hidden buffer-invisibility-spec)
+      (if (eq buffer-invisibility-spec t)
+          (setq buffer-invisibility-spec '(sql-hidden))
+        (add-to-invisibility-spec 'sql-hidden)))
+    
+    (save-excursion
+      (goto-char (point-min))
+      (let ((hiding (not (text-property-any (point-min) (point-max) 'sql-visibility-hidden t))))
+        
+        ;; Match SQL queries and database operations
+        (while (re-search-forward 
+                (concat "^  \\("
+                        "CACHE \\|"
+                        "SELECT\\|UPDATE\\|INSERT\\|DELETE\\|"
+                        "[A-Z][a-zA-Z]+ Load\\|"
+                        "[A-Z][a-zA-Z]+ Count\\|"
+                        "[A-Z][a-zA-Z]+ Pluck\\|"
+                        "[A-Z][a-zA-Z]+ Exists?\\|"
+                        "SQL"
+                        "\\)")
+                nil t)
+          (let ((start (line-beginning-position)))
+            (forward-line 1)
+            (while (and (not (eobp)) 
+                       (looking-at "^  \\( \\|↳\\)"))
+              (forward-line 1))
+            (let ((end (point)))
+              (if hiding
+                  (progn
+                    (put-text-property start end 'invisible 'sql-hidden)
+                    (put-text-property start end 'sql-visibility-hidden t))
+                (remove-text-properties start end '(invisible nil sql-visibility-hidden nil))))))
+        
+        (message (if hiding "SQL queries hidden" "SQL queries visible"))))))
+
+(add-hook 'prodigy-view-mode-hook
+          (lambda ()
+            (visual-line-mode 1)
+            ;; Initialize invisibility spec properly
+            (when (eq buffer-invisibility-spec t)
+              (setq buffer-invisibility-spec nil))
+            (my/prodigy-prettify-buffer)
+            ;; Keybindings
+            (local-set-key (kbd "C-c C-r") #'my/prodigy-prettify-buffer)
+            (local-set-key (kbd "C-c C-s") #'my/prodigy-toggle-sql)))
+  
+  )

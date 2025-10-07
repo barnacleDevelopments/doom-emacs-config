@@ -36,7 +36,7 @@
 (package! flymake-eslint)
 (package! claude-code :recipe (:host github :repo "stevemolitor/claude-code.el"))
 (package! monet :recipe (:host github :repo "stevemolitor/monet"))
-
+(package! prodigy :recipe (:host gihub :repo "rejeep/prodigy.el"))
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 
