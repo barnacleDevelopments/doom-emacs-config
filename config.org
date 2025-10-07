@@ -750,38 +750,45 @@ Reference: https://leanpub.com/lit-config/read
 #+end_src
 ** Prodigy
 #+begin_src elisp :tangle ./config.el
-(use-package! prodigy
+(use-package prodigy
   :config
-  (defun my/start-eventtemple-dev-environment ()
+  
+  (setq prodigy-view-buffer-maximum-size 10000
+        prodigy-view-truncate-by-default t)
+  
+(defun my/start-eventtemple-dev-environment ()
   "Start all development processes with Prodigy."
   (interactive)
-  (prodigy-start-service (prodigy-find-service "core-web"))
-  (prodigy-start-service (prodigy-find-service "core-jobs"))
-  (prodigy-start-service (prodigy-find-service "frontends"))
-  (prodigy-start-service (prodigy-find-service "admin"))
-  (prodigy-start-service (prodigy-find-service "caddy")))
+  (prodigy)
+  (let ((services '("core-web" "core-jobs" "frontends" "caddy")))
+    (dolist (service-name services)
+      (let ((service (prodigy-find-service service-name)))
+        (if service
+            (prodigy-start-service service)
+          (message "Service '%s' not found" service-name))))))
 
-  (defun my/stop-eventtemple-dev-environment ()
-    "Stop all development processes with Prodigy."
-    (interactive)
-  (prodigy-stop-service (prodigy-find-service "core-web"))
-  (prodigy-stop-service (prodigy-find-service "core-jobs"))
-  (prodigy-stop-service (prodigy-find-service "frontends"))
-  (prodigy-stop-service (prodigy-find-service "admin"))
-  (prodigy-stop-service (prodigy-find-service "caddy"))
+(defun my/stop-eventtemple-dev-environment ()
+  "Stop all development processes with Prodigy."
+  (interactive)
+  (prodigy)
+  (let ((services '("core-web" "core-jobs" "frontends" "caddy")))
+    (dolist (service-name services)
+      (let ((service (prodigy-find-service service-name)))
+        (if service
+            (prodigy-stop-service service)
+          (message "Service '%s' not found" service-name))))))
 
-    )
-  
-  (defun my/restart-eventtemple-dev-environment ()
-    "Restart all development processes with Prodigy."
-    (interactive)
-  (prodigy-restart-service (prodigy-find-service "core-web"))
-  (prodigy-restart-service (prodigy-find-service "core-jobs"))
-  (prodigy-restart-service (prodigy-find-service "frontends"))
-  (prodigy-restart-service (prodigy-find-service "admin"))
-  (prodigy-restart-service (prodigy-find-service "caddy"))
+(defun my/restart-eventtemple-dev-environment ()
+  "Restart all development processes with Prodigy."
+  (interactive)
+  (prodigy) 
+  (let ((services '("core-web" "core-jobs" "frontends" "caddy")))
+    (dolist (service-name services)
+      (let ((service (prodigy-find-service service-name)))
+        (if service
+            (prodigy-restart-service service)
+          (message "Service '%s' not found" service-name))))))
 
-    )
 (prodigy-define-service
   :name "core-web"
   :command "bundle"
@@ -814,13 +821,6 @@ Reference: https://leanpub.com/lit-config/read
   :args '("run")
   :cwd "~/Projects/eventtemple"
   :tags '(dev))
-)
-
-(use-package prodigy
-  :config
-  (setq prodigy-view-buffer-maximum-size 10000
-        prodigy-view-truncate-by-default t)
-  
   (defun my/prodigy-prettify-buffer ()
     "Make Prodigy buffer more readable"
     (interactive)
@@ -905,6 +905,13 @@ Reference: https://leanpub.com/lit-config/read
             ;; Keybindings
             (local-set-key (kbd "C-c C-r") #'my/prodigy-prettify-buffer)
             (local-set-key (kbd "C-c C-s") #'my/prodigy-toggle-sql)))
+
+   (map! :leader
+         :prefix ("P" . "+prodigy")
+         (:prefix-map ("e" . "Event Temple")
+                      "s" 'my/start-eventtemple-dev-environment
+                      "x" 'my/stop-eventtemple-dev-environment
+                      "r" 'my/restart-eventtemple-dev-environment))
   
   )
 #+end_src
