@@ -380,32 +380,19 @@ Reference: https://leanpub.com/lit-config/read
 [[https://github.com/karthink/gptel?tab=readme-ov-file#chatgpt][GPTEL Docs]]
 *** Configuration
 #+begin_src elisp :tangle ./config.el
-;; API keys
-;; (setq! gpt-api-key (getenv "CHAT_GPT_API_KEY")
-;;        github-gpt-api-key (getenv "GITHUB_GPT_API_KEY"))
-;; ;; GPTel configuration
-;; (use-package! gptel
-;;   :config
-;;   (setq! gptel-api-key gpt-api-key
-;;          gptel-default-mode 'org-mode))
 (after! gptel
   (setq gptel-backends nil)
-  (add-to-list 'gptel-backends (gptel-make-gh-copilot "Copilot")))
+  (add-to-list 'gptel-backends (gptel-make-gh-copilot "Copilot"))
+  (gptel-make-ollama "Ollama"
+    :host "127.0.0.1:11434"
+    :stream t
+    :models '(mistral:latest deepseek-coder-v2:latest llama3.2:3b llama3.1:8b gpt-oss:20b))
 
-;; Backends
-(gptel-make-ollama "Ollama"
-  :host "127.0.0.1:11434"
-  :stream t
-  :models '(mistral:latest deepseek-coder-v2:latest llama3.2:3b llama3.1:8b gpt-oss:20b))
-
-(gptel-make-gh-copilot "Copilot")
-
-;; Default backend and model
-(setq! gptel-model 'claude-sonnet-4
-       gptel-backend (gptel-make-gh-copilot "Copilot"))
-
-;; Hooks
-(add-hook 'gptel-post-response-functions 'gptel-end-of-response)
+  (gptel-make-gh-copilot "Copilot")
+    (setq! gptel-model 'claude-sonnet-4
+        gptel-backend (gptel-make-gh-copilot "Copilot"))
+    (add-hook 'gptel-post-response-functions 'gptel-end-of-response)
+)
 
 #+end_src
 *** Context Configuration
@@ -473,6 +460,16 @@ Reference: https://leanpub.com/lit-config/read
        "s" #'gptel-send
        "x" #'my/gptel-context-remove-all
        "a" #'gptel--rewrite-accept))
+#+end_src
+** Copilot
+#+begin_src elisp :tangle ./config.el
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word)))
 #+end_src
 ** Aider
 #+begin_src elisp :tangle ./config.el
@@ -794,6 +791,7 @@ Reference: https://leanpub.com/lit-config/read
   :command "bundle"
   :args '("exec" "rails" "server")
   :cwd "~/Projects/eventtemple"
+  :url "https://client.eventtempledev.com"
   :env '(("RUBY_DEBUG_SESSION_NAME" "core-web")
          ("RUBY_DEBUG_OPEN" "true"))
   :tags '(dev rails))
@@ -812,6 +810,7 @@ Reference: https://leanpub.com/lit-config/read
   :command "npm"
   :args '("run" "dev")
   :cwd "~/Projects/eventtemple-frontend"
+  :url "https://app.eventtempledev.com"
   :env '(("NODE_OPTIONS" "--inspect"))
   :tags '(dev node))
 
@@ -821,90 +820,6 @@ Reference: https://leanpub.com/lit-config/read
   :args '("run")
   :cwd "~/Projects/eventtemple"
   :tags '(dev))
-  (defun my/prodigy-prettify-buffer ()
-    "Make Prodigy buffer more readable"
-    (interactive)
-    (let ((inhibit-read-only t))
-      (save-excursion
-        ;; Apply ANSI colors
-        (ansi-color-apply-on-region (point-min) (point-max))
-        
-        ;; Dim SQL queries
-        (goto-char (point-min))
-        (while (re-search-forward "^  \\(CACHE \\)?\\(SELECT\\|UPDATE\\|INSERT\\)" nil t)
-          (put-text-property (line-beginning-position) (line-end-position) 'face 'shadow))
-        
-        ;; Highlight HTTP requests (green)
-        (goto-char (point-min))
-        (while (re-search-forward "^Started \\(GET\\|POST\\|PUT\\|DELETE\\)" nil t)
-          (put-text-property (line-beginning-position) (line-end-position)
-                            'face '(:foreground "#50fa7b" :weight bold)))
-        
-        ;; Highlight responses
-        (goto-char (point-min))
-        (while (re-search-forward "^Completed \\([0-9]+\\)" nil t)
-          (let ((status (string-to-number (match-string 1))))
-            (put-text-property (line-beginning-position) (line-end-position)
-                              'face (cond ((< status 300) '(:foreground "#50fa7b"))
-                                         ((< status 400) '(:foreground "#f1fa8c"))
-                                         (t '(:foreground "#ff5555" :weight bold))))))
-        
-        ;; Highlight errors (red)
-        (goto-char (point-min))
-        (while (re-search-forward "\\(ERROR\\|FATAL\\|Exception\\)" nil t)
-          (put-text-property (line-beginning-position) (line-end-position)
-                            'face '(:foreground "#ff5555" :weight bold))))))
-  
-(defun my/prodigy-toggle-sql ()
-  "Toggle SQL query visibility"
-  (interactive)
-  (let ((inhibit-read-only t))
-    ;; Fix: Don't add if already present, and use proper format
-    (unless (member 'sql-hidden buffer-invisibility-spec)
-      (if (eq buffer-invisibility-spec t)
-          (setq buffer-invisibility-spec '(sql-hidden))
-        (add-to-invisibility-spec 'sql-hidden)))
-    
-    (save-excursion
-      (goto-char (point-min))
-      (let ((hiding (not (text-property-any (point-min) (point-max) 'sql-visibility-hidden t))))
-        
-        ;; Match SQL queries and database operations
-        (while (re-search-forward 
-                (concat "^  \\("
-                        "CACHE \\|"
-                        "SELECT\\|UPDATE\\|INSERT\\|DELETE\\|"
-                        "[A-Z][a-zA-Z]+ Load\\|"
-                        "[A-Z][a-zA-Z]+ Count\\|"
-                        "[A-Z][a-zA-Z]+ Pluck\\|"
-                        "[A-Z][a-zA-Z]+ Exists?\\|"
-                        "SQL"
-                        "\\)")
-                nil t)
-          (let ((start (line-beginning-position)))
-            (forward-line 1)
-            (while (and (not (eobp)) 
-                       (looking-at "^  \\( \\|↳\\)"))
-              (forward-line 1))
-            (let ((end (point)))
-              (if hiding
-                  (progn
-                    (put-text-property start end 'invisible 'sql-hidden)
-                    (put-text-property start end 'sql-visibility-hidden t))
-                (remove-text-properties start end '(invisible nil sql-visibility-hidden nil))))))
-        
-        (message (if hiding "SQL queries hidden" "SQL queries visible"))))))
-
-(add-hook 'prodigy-view-mode-hook
-          (lambda ()
-            (visual-line-mode 1)
-            ;; Initialize invisibility spec properly
-            (when (eq buffer-invisibility-spec t)
-              (setq buffer-invisibility-spec nil))
-            (my/prodigy-prettify-buffer)
-            ;; Keybindings
-            (local-set-key (kbd "C-c C-r") #'my/prodigy-prettify-buffer)
-            (local-set-key (kbd "C-c C-s") #'my/prodigy-toggle-sql)))
 
    (map! :leader
          :prefix ("P" . "+prodigy")
