@@ -28,15 +28,13 @@
 (package! mcp :recipe (:host github :repo "lizqwerscott/mcp.el"))
 (package! coffee-mode)
 (package! transient)
-(package! aider)
-(use-package aider-helm
-  :after (aider helm))
 (package! markdown-mode)
 (package! nov)
 (package! flymake-eslint)
 (package! claude-code :recipe (:host github :repo "stevemolitor/claude-code.el"))
 (package! monet :recipe (:host github :repo "stevemolitor/monet"))
-(package! prodigy :recipe (:host gihub :repo "rejeep/prodigy.el"))
+(package! prodigy :recipe (:host github :repo "rejeep/prodigy.el"))
+
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 
