@@ -362,13 +362,6 @@
 
 (add-hook 'projectile-after-switch-project-hook #'my/projectile-switch-project-action)
 
-;; ;; File Context switching
-;; (defun load-ledger-context ()
-;;     (load-file "./contexts/ledger_context.org"))
-;;   :config
-;;   (add-hook 'ledger-mode-hook 'load-ledger-context)
-
-;; Keybindings
 (map! :leader
       (:prefix ("o" . "open") "c" #'gptel)
       (:prefix ("l" . "GPT")
@@ -379,18 +372,7 @@
        "x" #'my/gptel-context-remove-all
        "a" #'gptel--rewrite-accept))
 
-(use-package! copilot
-  :hook (prog-mode . copilot-mode)
-  :bind (:map copilot-completion-map
-              ("<tab>" . 'copilot-accept-completion)
-              ("TAB" . 'copilot-accept-completion)
-              ("C-TAB" . 'copilot-accept-completion-by-word)
-              ("C-<tab>" . 'copilot-accept-completion-by-word)))
 
-(after! aider
-  (global-set-key (kbd "C-c a") #'aider-transient-menu))
-(require 'aider-doom)
-(aider-doom-enable)
 
 (use-package! elfeed-score
   :ensure t
@@ -614,13 +596,18 @@
       "R" #'query-replace
       "w" #'wdired-change-to-wdired-mode)
 
-(setq claude-code-terminal-backend 'vterm)
+(use-package! claude-code
+    :config
+        (setq claude-code-terminal-backend 'vterm)
+)
 
 (use-package! claude-code
   :config
   (monet-mode 1)
   (add-hook 'claude-code-process-environment-functions
-            #'monet-start-server-function))
+            #'monet-start-server-function)
+  (claude-code-mode)
+  )
 
 ;; Global leader keybindings for Claude Code
 (map! :leader
@@ -644,7 +631,7 @@
 
 
 
-(use-package prodigy
+(after! prodigy
   :config
   
   (setq prodigy-view-buffer-maximum-size 10000
@@ -683,6 +670,17 @@
             (prodigy-restart-service service)
           (message "Service '%s' not found" service-name))))))
 
+(defun my/start-portfolio-dev-environment ()
+  "Start all development processes with Prodigy."
+  (interactive)
+  (prodigy)
+  (let ((services '("portfolio-website")))
+    (dolist (service-name services)
+      (let ((service (prodigy-find-service service-name)))
+        (if service
+            (prodigy-start-service service)
+          (message "Service '%s' not found" service-name))))))
+
 (prodigy-define-service
   :name "core-web"
   :command "bundle"
@@ -718,11 +716,22 @@
   :cwd "~/Projects/eventtemple"
   :tags '(dev))
 
-   (map! :leader
+(prodigy-define-service
+  :name "portfolio-website"
+  :command "npm"
+  :args '("run dev")
+  :cwd "~/WebDev/Projects/PersonalSite"
+  :tags '(dev))
+
+(map! :leader
          :prefix ("P" . "+prodigy")
-         (:prefix-map ("e" . "Event Temple")
+        (:prefix-map ("e" . "Event Temple")
                       "s" 'my/start-eventtemple-dev-environment
                       "x" 'my/stop-eventtemple-dev-environment
-                      "r" 'my/restart-eventtemple-dev-environment))
-  
-  )
+                      "r" 'my/restart-eventtemple-dev-environment)
+
+        (:prefix-map ("e" . "Portfolio Website")
+                      "s" 'my/start-portfolio-dev-environment
+                      "x" 'my/stop-portfolio-dev-environment
+                      "r" 'my/restart-portfolio-dev-environment))
+)
