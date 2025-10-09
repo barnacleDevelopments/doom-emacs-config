@@ -619,8 +619,28 @@
 (use-package! claude-code
   :config
   (monet-mode 1)
-  (add-hook 'claude-code-process-environment-functions 
+  (add-hook 'claude-code-process-environment-functions
             #'monet-start-server-function))
+
+;; Global leader keybindings for Claude Code
+(map! :leader
+      (:prefix ("C" . "+claude-code")
+       "c" #'claude-code
+       "t" #'claude-code-toggle
+       "s" #'claude-code-send-region
+       "b" #'claude-code-send-buffer
+       "x" #'claude-code-clear
+       "a" #'claude-code-add-context-file
+       "r" #'claude-code-remove-context-file
+       "l" #'claude-code-list-context))
+
+;; Localleader bindings for buffers (when in code)
+(map! :localleader
+      :map (prog-mode-map text-mode-map)
+      (:prefix ("c" . "+claude")
+       "c" #'claude-code-chat
+       "s" #'claude-code-send-region
+       "b" #'claude-code-send-buffer))
 
 
 
