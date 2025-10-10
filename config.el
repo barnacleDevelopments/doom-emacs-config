@@ -372,7 +372,13 @@
        "x" #'my/gptel-context-remove-all
        "a" #'gptel--rewrite-accept))
 
-
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word)))
 
 (use-package! elfeed-score
   :ensure t
@@ -730,7 +736,7 @@
                       "x" 'my/stop-eventtemple-dev-environment
                       "r" 'my/restart-eventtemple-dev-environment)
 
-        (:prefix-map ("e" . "Portfolio Website")
+        (:prefix-map ("p" . "Portfolio Website")
                       "s" 'my/start-portfolio-dev-environment
                       "x" 'my/stop-portfolio-dev-environment
                       "r" 'my/restart-portfolio-dev-environment))

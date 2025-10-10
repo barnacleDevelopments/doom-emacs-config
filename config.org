@@ -455,6 +455,13 @@ Reference: https://leanpub.com/lit-config/read
 #+end_src
 ** Copilot
 #+begin_src elisp :tangle ./config.el
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("<tab>" . 'copilot-accept-completion)
+              ("TAB" . 'copilot-accept-completion)
+              ("C-TAB" . 'copilot-accept-completion-by-word)
+              ("C-<tab>" . 'copilot-accept-completion-by-word)))
 #+end_src
 ** Elfeed
 :Elfeed-Docs:  https://github.com/skeeto/elfeed?tab=readme-ov-file
@@ -850,7 +857,7 @@ Reference: https://leanpub.com/lit-config/read
                       "x" 'my/stop-eventtemple-dev-environment
                       "r" 'my/restart-eventtemple-dev-environment)
 
-        (:prefix-map ("e" . "Portfolio Website")
+        (:prefix-map ("p" . "Portfolio Website")
                       "s" 'my/start-portfolio-dev-environment
                       "x" 'my/stop-portfolio-dev-environment
                       "r" 'my/restart-portfolio-dev-environment))
