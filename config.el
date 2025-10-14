@@ -365,7 +365,7 @@
 (map! :leader
       (:prefix ("o" . "open") "c" #'gptel)
       (:prefix ("l" . "GPT")
-       "c" #'gptel-add
+       "a" #'gptel-add
        "r" #'gptel-rewrite
        "m" #'gptel-menu
        "s" #'gptel-send
@@ -379,6 +379,7 @@
               ("TAB" . 'copilot-accept-completion)
               ("C-TAB" . 'copilot-accept-completion-by-word)
               ("C-<tab>" . 'copilot-accept-completion-by-word)))
+
 
 (use-package! elfeed-score
   :ensure t
@@ -597,10 +598,25 @@
         "m" #'mu4e-view-mark-for-move)
   )
 
+(after! dirvish
+  (setq! dirvish-quick-access-entries
+    `(("h" "~/"                        "Home")
+    ("e" ,user-emacs-directory         "Emacs user directory")
+    ("p" "~/WebDev/Projects"           "Projects")
+    ("f" "~/Documents"                 "Documents")
+    ("d" "~/Downloads/"                "Downloads")
+    ("m" "/mnt/"                       "Mounted drives")
+    ("t" "~/.local/share/Trash/files/" "Trash")))
+)
+
 (map! :localleader
       :map dirvish-mode-map
       "R" #'query-replace
       "w" #'wdired-change-to-wdired-mode)
+
+(map! :leader
+      ("d" #'dirvish-quick-access)
+)
 
 (use-package! claude-code
     :config
@@ -613,131 +629,180 @@
   (add-hook 'claude-code-process-environment-functions
             #'monet-start-server-function)
   (claude-code-mode)
-  )
+)
 
 ;; Global leader keybindings for Claude Code
 (map! :leader
-      (:prefix ("C" . "+claude-code")
-       "c" #'claude-code
-       "t" #'claude-code-toggle
-       "s" #'claude-code-send-region
-       "b" #'claude-code-send-buffer
-       "x" #'claude-code-clear
-       "a" #'claude-code-add-context-file
-       "r" #'claude-code-remove-context-file
-       "l" #'claude-code-list-context))
+      (:prefix ("l" . "++GPT")
+        (:prefix-map ("c" . "claude-code")
+          "c" #'claude-code
+          "r" (lambda () (interactive)
+                (claude-code-send-escape)
+                (claude-code-send-escape))
+          "o" #'claude-code-toggle
+          "/" #'claude-code-slash-commands
+          "s" #'claude-code-send-command
+          "b" #'claude-code-send-buffer
+          "k" #'claude-code-kill
+          "K" #'claude-code-kill-all
+          "x" #'claude-code-clear
+          "a" #'claude-code-add-context-file
+          "e" #'claude-code-send-escape
+          "l" #'claude-code-list-context)))
+
 
 ;; Localleader bindings for buffers (when in code)
 (map! :localleader
       :map (prog-mode-map text-mode-map)
       (:prefix ("c" . "+claude")
-       "c" #'claude-code-chat
-       "s" #'claude-code-send-region
-       "b" #'claude-code-send-buffer))
+       "s" #'claude-code-send
+       "o" #'claude-code-toggle))
 
 
+
+(defun my/start-services (services)
+    (prodigy)
+    (dolist (service-name services)
+        (let ((service (prodigy-find-service service-name)))
+            (if service
+                (prodigy-start-service service)
+                    (message "Service '%s' not found" service-name))))
+)
+
+(defun my/stop-services (services)
+    (prodigy)
+    (dolist (service-name services)
+        (let ((service (prodigy-find-service service-name)))
+            (if service
+                (prodigy-stop-service service)
+            (message "Service '%s' not found" service-name))))
+)
+
+(defun my/restart-services (services)
+    (prodigy)
+    (dolist (service-name services)
+        (let ((service (prodigy-find-service service-name)))
+            (if service
+                (prodigy-restart-service service)
+            (message "Service '%s' not found" service-name))))
+)
+
+(defun my/start-eventtemple-dev-environment ()
+"Start all development processes with Prodigy."
+    (interactive)
+    (my/start-services '("core-web" "core-jobs" "frontends" "caddy")))
+
+(defun my/stop-eventtemple-dev-environment ()
+"Stop all development processes with Prodigy."
+    (interactive)
+    (my/stop-services '("core-web" "core-jobs" "frontends" "caddy")))
+
+(defun my/restart-eventtemple-dev-environment ()
+"Restart all development processes with Prodigy."
+    (interactive)
+    (my/restart-services '("core-web" "core-jobs" "frontends" "caddy")))
+
+(defun my/start-portfolio-dev-environment ()
+"Start all development processes with Prodigy."
+    (interactive)
+    (my/start-services '("portfolio-website")))
+
+(defun my/stop-portfolio-dev-environment ()
+"Stop all development processes with Prodigy."
+    (interactive)
+    (my/stop-services '("portfolio-website")))
+
+(defun my/restart-portfolio-dev-environment ()
+"Restart all development processes with Prodigy."
+    (interactive)
+    (my/restart-services '("portfolio-website")))
+
+(defun my/start-farmers-map-dev-environment ()
+"Start all development processes with Prodigy."
+    (interactive)
+    (my/start-services '("farmers-map")))
+
+(defun my/stop-farmers-map-dev-environment ()
+"Stop all development processes with Prodigy."
+    (interactive)
+    (my/stop-services '("farmers-map")))
+
+(defun my/restart-farmers-map-dev-environment ()
+"Restart all development processes with Prodigy."
+    (interactive)
+    (my/restart-services '("farmers-map")))
 
 (after! prodigy
   :config
-  
-  (setq prodigy-view-buffer-maximum-size 10000
+    (setq prodigy-view-buffer-maximum-size 10000
         prodigy-view-truncate-by-default t)
-  
-(defun my/start-eventtemple-dev-environment ()
-  "Start all development processes with Prodigy."
-  (interactive)
-  (prodigy)
-  (let ((services '("core-web" "core-jobs" "frontends" "caddy")))
-    (dolist (service-name services)
-      (let ((service (prodigy-find-service service-name)))
-        (if service
-            (prodigy-start-service service)
-          (message "Service '%s' not found" service-name))))))
 
-(defun my/stop-eventtemple-dev-environment ()
-  "Stop all development processes with Prodigy."
-  (interactive)
-  (prodigy)
-  (let ((services '("core-web" "core-jobs" "frontends" "caddy")))
-    (dolist (service-name services)
-      (let ((service (prodigy-find-service service-name)))
-        (if service
-            (prodigy-stop-service service)
-          (message "Service '%s' not found" service-name))))))
+    ; Define all the services
+    (prodigy-define-service
+        :name "core-web"
+        :command "bundle"
+        :args '("exec" "rails" "server")
+        :cwd "~/Projects/eventtemple"
+        :url "https://client.eventtempledev.com"
+        :env '(("RUBY_DEBUG_SESSION_NAME" "core-web")
+                ("RUBY_DEBUG_OPEN" "true"))
+        :tags '(dev rails))
 
-(defun my/restart-eventtemple-dev-environment ()
-  "Restart all development processes with Prodigy."
-  (interactive)
-  (prodigy) 
-  (let ((services '("core-web" "core-jobs" "frontends" "caddy")))
-    (dolist (service-name services)
-      (let ((service (prodigy-find-service service-name)))
-        (if service
-            (prodigy-restart-service service)
-          (message "Service '%s' not found" service-name))))))
+    (prodigy-define-service
+        :name "core-jobs"
+        :command "bundle"
+        :args '("exec" "sidekiq")
+        :cwd "~/Projects/eventtemple"
+        :env '(("RUBY_DEBUG_SESSION_NAME" "core-jobs")
+                ("RUBY_DEBUG_OPEN" "true"))
+        :tags '(dev rails))
 
-(defun my/start-portfolio-dev-environment ()
-  "Start all development processes with Prodigy."
-  (interactive)
-  (prodigy)
-  (let ((services '("portfolio-website")))
-    (dolist (service-name services)
-      (let ((service (prodigy-find-service service-name)))
-        (if service
-            (prodigy-start-service service)
-          (message "Service '%s' not found" service-name))))))
+    (prodigy-define-service
+        :name "frontends"
+        :command "npm"
+        :args '("run" "dev")
+        :cwd "~/Projects/eventtemple-frontend"
+        :url "https://app.eventtempledev.com"
+        :env '(("NODE_OPTIONS" "--inspect"))
+        :tags '(dev node))
 
-(prodigy-define-service
-  :name "core-web"
-  :command "bundle"
-  :args '("exec" "rails" "server")
-  :cwd "~/Projects/eventtemple"
-  :url "https://client.eventtempledev.com"
-  :env '(("RUBY_DEBUG_SESSION_NAME" "core-web")
-         ("RUBY_DEBUG_OPEN" "true"))
-  :tags '(dev rails))
+    (prodigy-define-service
+        :name "caddy"
+        :command "caddy"
+        :args '("run")
+        :cwd "~/Projects/eventtemple"
+        :tags '(dev))
 
-(prodigy-define-service
-  :name "core-jobs"
-  :command "bundle"
-  :args '("exec" "sidekiq")
-  :cwd "~/Projects/eventtemple"
-  :env '(("RUBY_DEBUG_SESSION_NAME" "core-jobs")
-         ("RUBY_DEBUG_OPEN" "true"))
-  :tags '(dev rails))
+    (prodigy-define-service
+        :name "portfolio-website"
+        :command "npm"
+        :args '("run" "develop")
+        :cwd "~/WebDev/Projects/PersonalSite"
+        :stop-signal 'sigkill
+        :kill-process-buffer-on-stop t
+        :tags '(dev))
 
-(prodigy-define-service
-  :name "frontends"
-  :command "npm"
-  :args '("run" "dev")
-  :cwd "~/Projects/eventtemple-frontend"
-  :url "https://app.eventtempledev.com"
-  :env '(("NODE_OPTIONS" "--inspect"))
-  :tags '(dev node))
-
-(prodigy-define-service
-  :name "caddy"
-  :command "caddy"
-  :args '("run")
-  :cwd "~/Projects/eventtemple"
-  :tags '(dev))
-
-(prodigy-define-service
-  :name "portfolio-website"
-  :command "npm"
-  :args '("run dev")
-  :cwd "~/WebDev/Projects/PersonalSite"
-  :tags '(dev))
+    (prodigy-define-service
+        :name "farmers-map"
+        :command "npm"
+        :args '("run" "dev")
+        :cwd "~/WebDev/Projects/farmers-truck-map"
+        :stop-signal 'sigkill
+        :kill-process-buffer-on-stop t
+        :tags '(dev))
+)
 
 (map! :leader
-         :prefix ("P" . "+prodigy")
+         :prefix ("r" . "+prodigy")
         (:prefix-map ("e" . "Event Temple")
                       "s" 'my/start-eventtemple-dev-environment
                       "x" 'my/stop-eventtemple-dev-environment
                       "r" 'my/restart-eventtemple-dev-environment)
-
+        (:prefix-map ("f" . "Farmers Truck Maps")
+                      "s" 'my/start-farmers-map-dev-environment
+                      "x" 'my/stop-farmers-map-dev-environment
+                      "r" 'my/restart-farmers-map-dev-environment)
         (:prefix-map ("p" . "Portfolio Website")
                       "s" 'my/start-portfolio-dev-environment
                       "x" 'my/stop-portfolio-dev-environment
                       "r" 'my/restart-portfolio-dev-environment))
-)
