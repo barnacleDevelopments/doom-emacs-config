@@ -704,87 +704,136 @@ Reference: https://leanpub.com/lit-config/read
         "m" #'mu4e-view-mark-for-move)
   )
 #+end_src
-** Dired
-#+begin_src elisp :tangle ./config.el
+** Dirvish
+Dirvish is a modern, enhanced file manager for Emacs that builds upon the built-in
+Dired mode. It provides a polished, visually appealing interface with batteries included,
+transforming the standard Dired file management experience while maintaining compatibility
+with existing Dired commands. Dirvish offers customizable quick-access bookmarks and
+keyboard-driven workflows for efficient file management.
 
+Reference: https://github.com/alexluigit/dirvish
+
+*** Configuration
+Configure quick-access entries for frequently used directories and set up keybindings
+for common file operations. The quick-access menu provides instant navigation to important
+locations in your filesystem.
+
+#+begin_src elisp :tangle ./config.el
 (after! dirvish
+  ;; Define quick-access bookmarks for frequently used directories
   (setq! dirvish-quick-access-entries
     `(("h" "~/"                        "Home")
-    ("e" ,user-emacs-directory         "Emacs user directory")
-    ("p" "~/WebDev/Projects"           "Projects")
-    ("f" "~/Documents"                 "Documents")
-    ("d" "~/Downloads/"                "Downloads")
-    ("m" "/mnt/"                       "Mounted drives")
-    ("t" "~/.local/share/Trash/files/" "Trash")))
-)
+      ("e" ,user-emacs-directory       "Emacs user directory")
+      ("p" "~/WebDev/Projects"         "Projects")
+      ("f" "~/Documents"               "Documents")
+      ("d" "~/Downloads/"              "Downloads")
+      ("m" "/mnt/"                     "Mounted drives")
+      ("t" "~/.local/share/Trash/files/" "Trash"))))
+#+end_src
 
+*** Keybindings
+
+Local leader keybindings for Dirvish mode operations and global leader binding
+for quick-access navigation.
+
+#+begin_src elisp :tangle ./config.el
+;; Dirvish mode-specific keybindings
 (map! :localleader
       :map dirvish-mode-map
-      "R" #'query-replace
-      "w" #'wdired-change-to-wdired-mode)
+      "R" #'query-replace              ; Replace in file names
+      "w" #'wdired-change-to-wdired-mode) ; Enter writable dired mode
 
+;; Global quick-access keybinding
 (map! :leader
-      ("d" #'dirvish-quick-access)
-)
+      "d" #'dirvish-quick-access)      ; Open quick-access menu
 #+end_src
-** Org Jira
 ** Claude Code
+Claude Code integrates Claude AI directly into Emacs, providing a seamless interface
+for AI-assisted coding without leaving your editor. It allows sending code, commands,
+and context to Claude while maintaining full Emacs workflow integration.
+
+Reference: https://github.com/stevemolitor/claude-code.el
+
+*** Configuration
+
+**** Basic Setup
+
+Configure the terminal backend and window display rules for Claude Code buffers.
+
 #+begin_src elisp :tangle ./config.el
 (use-package! claude-code
-    :config
-        (setq claude-code-terminal-backend 'vterm)
-)
+  :config
+  ;; Use vterm as the terminal backend for better compatibility
+  (setq claude-code-terminal-backend 'vterm))
 
 ;; Configure window display for Claude Code buffers using Doom's popup system
+;; Opens Claude sessions in a right-side window at 45% width
 (set-popup-rule! "^\\*claude:.+:.+\\*$"
   :side 'right
   :size 0.45
   :select t
   :quit nil
   :ttl nil)
-
 #+end_src
-*** Monet
-#+begin_src elisp :tangle ./config.el
-(use-package! claude-code
-  :config
-  (monet-mode 1)
-  (add-hook 'claude-code-process-environment-functions
-            #'monet-start-server-function)
-  (claude-code-mode)
-)
 
-#+end_src
-*** Shortcuts
+**** Keybindings
 #+begin_src elisp :tangle ./config.el
 ;; Global leader keybindings for Claude Code
 (map! :leader
       (:prefix ("l" . "++GPT")
         (:prefix-map ("c" . "claude-code")
-          "c" #'claude-code
-          "r" (lambda () (interactive)
+          "c" #'claude-code                    ; Start/switch to Claude session
+          "r" (lambda () (interactive)          ; Reset/interrupt Claude
                 (claude-code-send-escape)
                 (claude-code-send-escape))
-          "o" #'claude-code-toggle
-          "/" #'claude-code-slash-commands
-          "s" #'claude-code-send-command
-          "b" #'claude-code-send-buffer
-          "k" #'claude-code-kill
-          "K" #'claude-code-kill-all
-          "x" #'claude-code-clear
-          "RET" #'claude-code-send-return
-          "a" #'claude-code-add-context-file
-          "e" #'claude-code-send-escape
-          "l" #'claude-code-list-context)))
+          "o" #'claude-code-toggle              ; Toggle Claude window
+          "/" #'claude-code-slash-commands      ; Access slash commands
+          "s" #'claude-code-send-command        ; Send command to Claude
+          "b" #'claude-code-send-buffer         ; Send current buffer
+          "k" #'claude-code-kill                ; Kill current session
+          "K" #'claude-code-kill-all            ; Kill all sessions
+          "x" #'claude-code-clear               ; Clear conversation
+          "RET" #'claude-code-send-return       ; Send return/continue
+          "a" #'claude-code-add-context-file    ; Add file to context
+          "e" #'claude-code-send-escape         ; Send escape
+          "l" #'claude-code-list-context)))     ; List context files
+#+end_src
+** Monet
+Monet bridges Claude Code and Emacs through a WebSocket-based IDE protocol, enabling
+deep integration between Claude's AI capabilities and your Emacs development environment.
+It allows Claude to interact directly with Emacs, providing rich context and enabling
+collaborative editing workflows.
+
+Reference: https://github.com/stevemolitor/monet
+
+*** Configuration
+
+Enable Monet globally and integrate it with Claude Code's process lifecycle.
+The WebSocket server starts automatically when Claude Code sessions begin.
+
+#+begin_src elisp :tangle ./config.el
+(use-package! claude-code
+  :config
+  ;; Enable Monet mode globally
+  (monet-mode 1)
+
+  ;; Hook Monet server startup into Claude Code's process lifecycle
+  ;; This ensures the WebSocket server is available when Claude needs it
+  (add-hook 'claude-code-process-environment-functions
+            #'monet-start-server-function)
+
+  ;; Activate Claude Code mode
+  (claude-code-mode))
 #+end_src
 ** Prodigy
-
 Prodigy is a service manager for Emacs that allows you to manage external processes
 like web servers, background jobs, and other development services directly from
 within Emacs. This configuration sets up development environments for multiple
 projects with unified start/stop/restart commands.
 
-*** Core Service Management
+Reference: https://github.com/rejeep/prodigy.el
+*** Configuration
+**** Core Service Management
 
 These helper functions provide the foundation for managing Prodigy services. They
 handle service lookups and provide feedback when services aren't found.
@@ -821,7 +870,7 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
         (message "Service '%s' not found" service-name)))))
 #+end_src
 
-*** Project Environment Definitions
+**** Project Environment Definitions
 
 Each project has a defined set of services that need to run together. These
 constants centralize the service lists to avoid duplication and make updates easier.
@@ -840,12 +889,12 @@ constants centralize the service lists to avoid duplication and make updates eas
   "Services for Farmers Truck Map development.")
 #+end_src
 
-*** Environment Management Functions
+**** Environment Management Functions
 
 Interactive functions to control entire development environments with a single command.
 Each project gets start, stop, and restart functions that operate on all its services.
 
-**** EventTemple Environment
+***** EventTemple Environment
 
 #+begin_src elisp :tangle ./config.el
 (defun my/start-eventtemple-dev-environment ()
@@ -864,7 +913,7 @@ Each project gets start, stop, and restart functions that operate on all its ser
   (my/restart-services my/eventtemple-services))
 #+end_src
 
-**** Portfolio Environment
+***** Portfolio Environment
 
 #+begin_src elisp :tangle ./config.el
 (defun my/start-portfolio-dev-environment ()
@@ -883,7 +932,7 @@ Each project gets start, stop, and restart functions that operate on all its ser
   (my/restart-services my/portfolio-services))
 #+end_src
 
-**** Farmers Map Environment
+***** Farmers Map Environment
 
 #+begin_src elisp :tangle ./config.el
 (defun my/start-farmers-map-dev-environment ()
@@ -902,12 +951,12 @@ Each project gets start, stop, and restart functions that operate on all its ser
   (my/restart-services my/farmers-map-services))
 #+end_src
 
-*** Service Definitions
+**** Service Definitions
 
 Individual service configurations for each project component. Each service specifies
 its command, working directory, environment variables, and other runtime settings.
 
-**** EventTemple Services
+***** EventTemple Services
 
 #+begin_src elisp :tangle ./config.el
 (after! prodigy
@@ -955,7 +1004,7 @@ its command, working directory, environment variables, and other runtime setting
     :tags '(dev))
 #+end_src
 
-**** Portfolio Website Service
+***** Portfolio Website Service
 
 #+begin_src elisp :tangle ./config.el
   (prodigy-define-service
@@ -968,7 +1017,7 @@ its command, working directory, environment variables, and other runtime setting
     :tags '(dev))
 #+end_src
 
-**** Farmers Map Service
+***** Farmers Map Service
 
 #+begin_src elisp :tangle ./config.el
   (prodigy-define-service

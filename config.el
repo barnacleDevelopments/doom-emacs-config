@@ -598,31 +598,33 @@
   )
 
 (after! dirvish
+  ;; Define quick-access bookmarks for frequently used directories
   (setq! dirvish-quick-access-entries
     `(("h" "~/"                        "Home")
-    ("e" ,user-emacs-directory         "Emacs user directory")
-    ("p" "~/WebDev/Projects"           "Projects")
-    ("f" "~/Documents"                 "Documents")
-    ("d" "~/Downloads/"                "Downloads")
-    ("m" "/mnt/"                       "Mounted drives")
-    ("t" "~/.local/share/Trash/files/" "Trash")))
-)
+      ("e" ,user-emacs-directory       "Emacs user directory")
+      ("p" "~/WebDev/Projects"         "Projects")
+      ("f" "~/Documents"               "Documents")
+      ("d" "~/Downloads/"              "Downloads")
+      ("m" "/mnt/"                     "Mounted drives")
+      ("t" "~/.local/share/Trash/files/" "Trash"))))
 
+;; Dirvish mode-specific keybindings
 (map! :localleader
       :map dirvish-mode-map
-      "R" #'query-replace
-      "w" #'wdired-change-to-wdired-mode)
+      "R" #'query-replace              ; Replace in file names
+      "w" #'wdired-change-to-wdired-mode) ; Enter writable dired mode
 
+;; Global quick-access keybinding
 (map! :leader
-      ("d" #'dirvish-quick-access)
-)
+      "d" #'dirvish-quick-access)      ; Open quick-access menu
 
 (use-package! claude-code
-    :config
-        (setq claude-code-terminal-backend 'vterm)
-)
+  :config
+  ;; Use vterm as the terminal backend for better compatibility
+  (setq claude-code-terminal-backend 'vterm))
 
 ;; Configure window display for Claude Code buffers using Doom's popup system
+;; Opens Claude sessions in a right-side window at 45% width
 (set-popup-rule! "^\\*claude:.+:.+\\*$"
   :side 'right
   :size 0.45
@@ -630,33 +632,38 @@
   :quit nil
   :ttl nil)
 
-(use-package! claude-code
-  :config
-  (monet-mode 1)
-  (add-hook 'claude-code-process-environment-functions
-            #'monet-start-server-function)
-  (claude-code-mode)
-)
-
 ;; Global leader keybindings for Claude Code
 (map! :leader
       (:prefix ("l" . "++GPT")
         (:prefix-map ("c" . "claude-code")
-          "c" #'claude-code
-          "r" (lambda () (interactive)
+          "c" #'claude-code                    ; Start/switch to Claude session
+          "r" (lambda () (interactive)          ; Reset/interrupt Claude
                 (claude-code-send-escape)
                 (claude-code-send-escape))
-          "o" #'claude-code-toggle
-          "/" #'claude-code-slash-commands
-          "s" #'claude-code-send-command
-          "b" #'claude-code-send-buffer
-          "k" #'claude-code-kill
-          "K" #'claude-code-kill-all
-          "x" #'claude-code-clear
-          "RET" #'claude-code-send-return
-          "a" #'claude-code-add-context-file
-          "e" #'claude-code-send-escape
-          "l" #'claude-code-list-context)))
+          "o" #'claude-code-toggle              ; Toggle Claude window
+          "/" #'claude-code-slash-commands      ; Access slash commands
+          "s" #'claude-code-send-command        ; Send command to Claude
+          "b" #'claude-code-send-buffer         ; Send current buffer
+          "k" #'claude-code-kill                ; Kill current session
+          "K" #'claude-code-kill-all            ; Kill all sessions
+          "x" #'claude-code-clear               ; Clear conversation
+          "RET" #'claude-code-send-return       ; Send return/continue
+          "a" #'claude-code-add-context-file    ; Add file to context
+          "e" #'claude-code-send-escape         ; Send escape
+          "l" #'claude-code-list-context)))     ; List context files
+
+(use-package! claude-code
+  :config
+  ;; Enable Monet mode globally
+  (monet-mode 1)
+
+  ;; Hook Monet server startup into Claude Code's process lifecycle
+  ;; This ensures the WebSocket server is available when Claude needs it
+  (add-hook 'claude-code-process-environment-functions
+            #'monet-start-server-function)
+
+  ;; Activate Claude Code mode
+  (claude-code-mode))
 
 (defun my/start-services (services)
   "Start multiple Prodigy SERVICES by name.
