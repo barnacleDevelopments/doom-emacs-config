@@ -7,6 +7,10 @@
 (setq display-line-numbers-type 'relative)
 (global-display-line-numbers-mode +1)
 
+;; Disable line numbers in specific modes
+(dolist (mode '(pdf-view-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode -1))))
+
 (after! flycheck
   ;; Use eslint checker for typescript
   (flycheck-add-mode 'javascript-eslint 'tsx-ts-mode)
@@ -52,7 +56,7 @@
                     "C" #'uncomment-region))
 
 (setq! doom-themes-treemacs-theme "doom-colors")
-(setq! treemacs-width 45)
+(setq! treemacs-width 60)
 
 (setq! default-abbrev-mode t)
 (setq! abbrev-file-name "./abbrev.el")
@@ -828,3 +832,51 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
         "s" #'my/start-portfolio-dev-environment
         "x" #'my/stop-portfolio-dev-environment
         "r" #'my/restart-portfolio-dev-environment))
+
+(after! pdf
+  (setq-default pdf-view-display-size 'fit-page)
+
+  ;; PDF view mode keybindings
+  (map! :map pdf-view-mode-map
+        :n "j" #'pdf-view-next-line-or-next-page
+        :n "k" #'pdf-view-previous-line-or-previous-page
+        :n "J" #'pdf-view-next-page
+        :n "K" #'pdf-view-previous-page
+        :n "h" #'image-backward-hscroll
+        :n "l" #'image-forward-hscroll
+        :n "gg" #'pdf-view-first-page
+        :n "G" #'pdf-view-last-page
+        :n "gt" #'pdf-view-goto-page
+        :n "d" #'pdf-view-scroll-up-or-next-page
+        :n "u" #'pdf-view-scroll-down-or-previous-page
+        :n "/" #'isearch-forward
+        :n "?" #'isearch-backward
+        :n "+" #'pdf-view-enlarge
+        :n "-" #'pdf-view-shrink
+        :n "0" #'pdf-view-scale-reset
+        :n "W" #'pdf-view-fit-width-to-window
+        :n "H" #'pdf-view-fit-height-to-window
+        :n "P" #'pdf-view-fit-page-to-window
+        :n "r" #'pdf-view-rotate
+        :n "m" #'pdf-view-midnight-minor-mode)
+
+  ;; Local leader keybindings for PDF operations
+  (map! :localleader
+        :map pdf-view-mode-map
+        (:prefix ("a" . "annotations")
+          "h" #'pdf-annot-add-highlight-markup-annotation
+          "u" #'pdf-annot-add-underline-markup-annotation
+          "s" #'pdf-annot-add-strikeout-markup-annotation
+          "q" #'pdf-annot-add-squiggly-markup-annotation
+          "t" #'pdf-annot-add-text-annotation
+          "d" #'pdf-annot-delete
+          "l" #'pdf-annot-list-annotations)
+        (:prefix ("o" . "outline")
+          "o" #'pdf-outline
+          "i" #'pdf-outline-imenu)
+        (:prefix ("s" . "search/slice")
+          "s" #'pdf-occur
+          "r" #'pdf-view-slice-to-region
+          "R" #'pdf-view-reset-slice)
+        "p" #'pdf-misc-print-document
+        "m" #'pdf-view-midnight-minor-mode))
