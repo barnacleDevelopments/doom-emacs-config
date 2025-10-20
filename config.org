@@ -455,13 +455,6 @@ Reference: https://leanpub.com/lit-config/read
 #+end_src
 ** Copilot
 #+begin_src elisp :tangle ./config.el
-(use-package! copilot
-  :hook (prog-mode . copilot-mode)
-  :bind (:map copilot-completion-map
-              ("<tab>" . 'copilot-accept-completion)
-              ("TAB" . 'copilot-accept-completion)
-              ("C-TAB" . 'copilot-accept-completion-by-word)
-              ("C-<tab>" . 'copilot-accept-completion-by-word)))
 #+end_src
 ** Elfeed
 :Elfeed-Docs:  https://github.com/skeeto/elfeed?tab=readme-ov-file
@@ -607,51 +600,32 @@ Reference: https://leanpub.com/lit-config/read
  )
 #+end_src
 ** Ledger
+Ledger is a powerful command-line accounting tool that uses plain text files for
+double-entry bookkeeping.
+
+Reference: 
+- https://launchpad.net/~mbudde/+archive/ubuntu/ledger
+- https://www.ledger-cli.org/
+
 *** Configuration
+
+**** File Paths and Reports
+
+Configure the default ledger files for the current year's transactions and
+scheduled/recurring entries. Add a custom budget report that compares actual
+expenses against budgeted amounts.
+
 #+begin_src elisp :tangle ./config.el
 (setq! current-year-ledger-file "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
 (setq! ledger-schedule-file "~/Documents/Personal/Finance/Banking/Ledger/schedule.ledger")
 (setq! ledger-default-journal "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
-(with-eval-after-load 'ledger-mode
-  (add-to-list 'ledger-reports
-               '("budget" "ledger bal --budget Expenses -f" current-year-ledger-file)))
-(defun ledger-analytic-start ()
-  "Start the 'ledger-analytics' server on port 3000."
-  (interactive)
-  (let ((buffer-name "*Ledger Analytics Server*"))
-    (if (get-buffer buffer-name)
-        (message "Ledger Analytics server is already running.")
-      (progn
-        (start-process "ledger-analytics-process" buffer-name
-                       "ledger-analytics" "-f" current-year-ledger-file)
-        (message "Ledger Analytics server started on port 3000.")))))
+#+end_src
 
+*** Keybindings
+#+begin_src elisp :tangle ./config.el
 (map! :localleader
       :map ledger-mode-map
       "s" #'evil-ledger-align)
-(after! ledger
-    :config
-    (setq! current-year-ledger-file "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
-    (setq! ledger-schedule-file "~/Documents/Personal/Finance/Banking/Ledger/schedule.ledger")
-    (setq! ledger-default-journal "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
-    (with-eval-after-load 'ledger-mode
-    (add-to-list 'ledger-reports
-                '("budget" "ledger bal --budget Expenses -f" current-year-ledger-file)))
-    (defun ledger-analytic-start ()
-    "Start the 'ledger-analytics' server on port 3000."
-    (interactive)
-    (let ((buffer-name "*Ledger Analytics Server*"))
-        (if (get-buffer buffer-name)
-            (message "Ledger Analytics server is already running.")
-        (progn
-            (start-process "ledger-analytics-process" buffer-name
-                        "ledger-analytics" "-f" current-year-ledger-file)
-            (message "Ledger Analytics server started on port 3000.")))))
-
-    (map! :localleader
-        :map ledger-mode-map
-        "s" #'evil-ledger-align)
-    )
 #+end_src
 ** Anzu
 *** Configuration
@@ -951,6 +925,25 @@ Each project gets start, stop, and restart functions that operate on all its ser
   (my/restart-services my/farmers-map-services))
 #+end_src
 
+***** Paisa Environment
+
+#+begin_src elisp :tangle ./config.el
+(defun my/start-paisa-dev-environment ()
+  "Start Paisa financial visualization server."
+  (interactive)
+  (my/start-services '("paisa")))
+
+(defun my/stop-paisa-dev-environment ()
+  "Stop Paisa financial visualization server."
+  (interactive)
+  (my/stop-services '("paisa")))
+
+(defun my/restart-paisa-dev-environment ()
+  "Restart Paisa financial visualization server."
+  (interactive)
+  (my/restart-services '("paisa")))
+#+end_src
+
 **** Service Definitions
 
 Individual service configurations for each project component. Each service specifies
@@ -1027,7 +1020,28 @@ its command, working directory, environment variables, and other runtime setting
     :cwd "~/WebDev/Projects/farmers-truck-map"
     :stop-signal 'sigkill
     :kill-process-buffer-on-stop t
-    :tags '(dev)))
+    :tags '(dev))
+#+end_src
+
+***** TODO BROKEN Paisa Service
+
+Paisa is a personal finance management and visualization tool. This service runs
+it in a Docker container with the local Ledger directory mounted.
+
+#+begin_src elisp :tangle ./config.el
+  ;; Paisa server for financial data visualization
+  (prodigy-define-service
+    :name "paisa"
+    :command "docker"
+    :args `("run" "--rm" "-p" "7500:7500"
+            "-v" ,(concat (expand-file-name "~/Documents/Personal/Finance/Banking/Ledger/") ":/root/Documents/paisa/")
+            "ananthakumaran/paisa:latest")
+    :url "http://localhost:7500"
+    :stop-signal 'sigterm
+    :kill-process-buffer-on-stop t
+    :tags '(finance))
+
+)
 #+end_src
 
 *** Keybindings
@@ -1049,6 +1063,11 @@ All commands are under =SPC r= (r for "run" or "services").
       (:prefix-map ("p" . "Portfolio Website")
         "s" #'my/start-portfolio-dev-environment
         "x" #'my/stop-portfolio-dev-environment
-        "r" #'my/restart-portfolio-dev-environment))
+        "r" #'my/restart-portfolio-dev-environment)
+      (:prefix-map ("$" . "Paisa")
+        "s" #'my/start-paisa-dev-environment
+        "x" #'my/stop-paisa-dev-environment
+        "r" #'my/restart-paisa-dev-environment)
+      )
 #+end_src
 

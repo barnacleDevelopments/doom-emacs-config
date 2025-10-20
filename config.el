@@ -372,13 +372,7 @@
        "x" #'my/gptel-context-remove-all
        "a" #'gptel--rewrite-accept))
 
-(use-package! copilot
-  :hook (prog-mode . copilot-mode)
-  :bind (:map copilot-completion-map
-              ("<tab>" . 'copilot-accept-completion)
-              ("TAB" . 'copilot-accept-completion)
-              ("C-TAB" . 'copilot-accept-completion-by-word)
-              ("C-<tab>" . 'copilot-accept-completion-by-word)))
+
 
 (use-package! elfeed-score
   :ensure t
@@ -514,46 +508,10 @@
 (setq! current-year-ledger-file "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
 (setq! ledger-schedule-file "~/Documents/Personal/Finance/Banking/Ledger/schedule.ledger")
 (setq! ledger-default-journal "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
-(with-eval-after-load 'ledger-mode
-  (add-to-list 'ledger-reports
-               '("budget" "ledger bal --budget Expenses -f" current-year-ledger-file)))
-(defun ledger-analytic-start ()
-  "Start the 'ledger-analytics' server on port 3000."
-  (interactive)
-  (let ((buffer-name "*Ledger Analytics Server*"))
-    (if (get-buffer buffer-name)
-        (message "Ledger Analytics server is already running.")
-      (progn
-        (start-process "ledger-analytics-process" buffer-name
-                       "ledger-analytics" "-f" current-year-ledger-file)
-        (message "Ledger Analytics server started on port 3000.")))))
 
 (map! :localleader
       :map ledger-mode-map
       "s" #'evil-ledger-align)
-(after! ledger
-    :config
-    (setq! current-year-ledger-file "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
-    (setq! ledger-schedule-file "~/Documents/Personal/Finance/Banking/Ledger/schedule.ledger")
-    (setq! ledger-default-journal "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
-    (with-eval-after-load 'ledger-mode
-    (add-to-list 'ledger-reports
-                '("budget" "ledger bal --budget Expenses -f" current-year-ledger-file)))
-    (defun ledger-analytic-start ()
-    "Start the 'ledger-analytics' server on port 3000."
-    (interactive)
-    (let ((buffer-name "*Ledger Analytics Server*"))
-        (if (get-buffer buffer-name)
-            (message "Ledger Analytics server is already running.")
-        (progn
-            (start-process "ledger-analytics-process" buffer-name
-                        "ledger-analytics" "-f" current-year-ledger-file)
-            (message "Ledger Analytics server started on port 3000.")))))
-
-    (map! :localleader
-        :map ledger-mode-map
-        "s" #'evil-ledger-align)
-    )
 
 (map! :leader
       :prefix "c"
@@ -752,6 +710,21 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
   (interactive)
   (my/restart-services my/farmers-map-services))
 
+(defun my/start-paisa-dev-environment ()
+  "Start Paisa financial visualization server."
+  (interactive)
+  (my/start-services '("paisa")))
+
+(defun my/stop-paisa-dev-environment ()
+  "Stop Paisa financial visualization server."
+  (interactive)
+  (my/stop-services '("paisa")))
+
+(defun my/restart-paisa-dev-environment ()
+  "Restart Paisa financial visualization server."
+  (interactive)
+  (my/restart-services '("paisa")))
+
 (after! prodigy
   :config
   (setq prodigy-view-buffer-maximum-size 10000
@@ -812,7 +785,21 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
   :cwd "~/WebDev/Projects/farmers-truck-map"
   :stop-signal 'sigkill
   :kill-process-buffer-on-stop t
-  :tags '(dev)))
+  :tags '(dev))
+
+;; Paisa server for financial data visualization
+  (prodigy-define-service
+    :name "paisa"
+    :command "docker"
+    :args `("run" "--rm" "-p" "7500:7500"
+            "-v" ,(concat (expand-file-name "~/Documents/Personal/Finance/Banking/Ledger/") ":/root/Documents/paisa/")
+            "ananthakumaran/paisa:latest")
+    :url "http://localhost:7500"
+    :stop-signal 'sigterm
+    :kill-process-buffer-on-stop t
+    :tags '(finance))
+
+)
 
 (map! :leader
       :prefix ("r" . "+prodigy")
@@ -827,4 +814,9 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
       (:prefix-map ("p" . "Portfolio Website")
         "s" #'my/start-portfolio-dev-environment
         "x" #'my/stop-portfolio-dev-environment
-        "r" #'my/restart-portfolio-dev-environment))
+        "r" #'my/restart-portfolio-dev-environment)
+      (:prefix-map ("$" . "Paisa")
+        "s" #'my/start-paisa-dev-environment
+        "x" #'my/stop-paisa-dev-environment
+        "r" #'my/restart-paisa-dev-environment)
+      )
