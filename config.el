@@ -268,6 +268,18 @@
   (lambda ()
     (flycheck-select-checker 'javascript-eslint)))
 
+(map! :leader
+      :prefix ("c" . "+code")
+      (:prefix-map ("x" . "errors")
+       :desc "List errors"            "l" #'flycheck-list-errors
+       :desc "Select Checker"         "s" #'flycheck-select-checker
+       :desc "Next error"             "n" #'flycheck-next-error
+       :desc "Previous error"         "p" #'flycheck-previous-error
+       :desc "Check buffer"           "c" #'flycheck-buffer
+       :desc "Clear errors"           "C" #'flycheck-clear
+       :desc "Explain error at point" "e" #'flycheck-explain-error-at-point
+       :desc "Verify setup"           "v" #'flycheck-verify-setup))
+
 (use-package! web-mode
   :mode ("\\.ejs\\'" . web-mode)
   :config
@@ -818,8 +830,12 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
       (:prefix-map ("p" . "Portfolio Website")
         "s" #'my/start-portfolio-dev-environment
         "x" #'my/stop-portfolio-dev-environment
-<<<<<<< HEAD
-        "r" #'my/restart-portfolio-dev-environment))
+        "r" #'my/restart-portfolio-dev-environment)
+      (:prefix-map ("$" . "Paisa")
+        "s" #'my/start-paisa-dev-environment
+        "x" #'my/stop-paisa-dev-environment
+        "r" #'my/restart-paisa-dev-environment)
+      )
 
 (after! pdf
   (setq-default pdf-view-display-size 'fit-page)
@@ -868,11 +884,3 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
           "R" #'pdf-view-reset-slice)
         "p" #'pdf-misc-print-document
         "m" #'pdf-view-midnight-minor-mode))
-=======
-        "r" #'my/restart-portfolio-dev-environment)
-      (:prefix-map ("$" . "Paisa")
-        "s" #'my/start-paisa-dev-environment
-        "x" #'my/stop-paisa-dev-environment
-        "r" #'my/restart-paisa-dev-environment)
-      )
->>>>>>> 40bbb72592d7ce8fc661412fef71dc72cb8b0098

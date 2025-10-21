@@ -311,11 +311,29 @@ Reference: https://leanpub.com/lit-config/read
 
 #+end_src
 ** FlyCheck
+FlyCheck provides on-the-fly syntax checking for various programming languages, displaying errors and warnings in real-time as you code. It integrates with linters like ESLint for JavaScript/TypeScript.
+
+*** Configuration
 #+begin_src elisp :tangle ./config.el
 (add-hook 'after-init-hook #'global-flycheck-mode)
 (add-hook! 'typescript-mode
   (lambda ()
     (flycheck-select-checker 'javascript-eslint)))
+#+end_src
+
+*** Keybindings
+#+begin_src elisp :tangle ./config.el
+(map! :leader
+      :prefix ("c" . "+code")
+      (:prefix-map ("x" . "errors")
+       :desc "List errors"            "l" #'flycheck-list-errors
+       :desc "Select Checker"         "s" #'flycheck-select-checker
+       :desc "Next error"             "n" #'flycheck-next-error
+       :desc "Previous error"         "p" #'flycheck-previous-error
+       :desc "Check buffer"           "c" #'flycheck-buffer
+       :desc "Clear errors"           "C" #'flycheck-clear
+       :desc "Explain error at point" "e" #'flycheck-explain-error-at-point
+       :desc "Verify setup"           "v" #'flycheck-verify-setup))
 #+end_src
 ** Web Mode
 *** Configuration
@@ -605,9 +623,10 @@ Reference: https://leanpub.com/lit-config/read
 #+end_src
 ** Ledger
 Ledger is a powerful command-line accounting tool that uses plain text files for
-double-entry bookkeeping.
+double-entry bookkeeping. It enables tracking expenses, income, and financial transactions
+with precision using a simple text format, supporting complex queries, reports, and budgeting.
 
-Reference: 
+Reference:
 - https://launchpad.net/~mbudde/+archive/ubuntu/ledger
 - https://www.ledger-cli.org/
 
@@ -629,7 +648,26 @@ expenses against budgeted amounts.
 #+begin_src elisp :tangle ./config.el
 (map! :localleader
       :map ledger-mode-map
-      "s" #'evil-ledger-align)
+      (:prefix ("r" . "reports")
+       :desc "Balance report"           "b" #'ledger-report
+       :desc "Register report"          "r" #'ledger-report
+       :desc "Account report"           "a" #'ledger-report-goto
+       :desc "Reconcile"                "c" #'ledger-reconcile)
+      (:prefix ("t" . "toggle/transaction")
+       :desc "Toggle pending"           "p" #'ledger-toggle-current-transaction
+       :desc "Toggle cleared"           "c" #'ledger-toggle-current-transaction
+       :desc "Delete transaction"       "d" #'ledger-delete-current-transaction
+       :desc "Copy transaction"         "y" #'ledger-copy-transaction-at-point)
+      (:prefix ("s" . "sort/schedule")
+       :desc "Sort region"              "r" #'ledger-sort-region
+       :desc "Sort buffer"              "b" #'ledger-sort-buffer
+       :desc "Align transaction"        "a" #'evil-ledger-align)
+      (:prefix ("i" . "insert")
+       :desc "Add transaction"          "t" #'ledger-add-transaction
+       :desc "Set effective date"       "d" #'ledger-set-effective-date)
+      "." #'ledger-occur
+      "n" #'ledger-navigate-next-xact-or-directive
+      "p" #'ledger-navigate-prev-xact-or-directive)
 #+end_src
 ** Anzu
 *** Configuration
