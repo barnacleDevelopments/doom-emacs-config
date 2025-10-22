@@ -527,7 +527,26 @@
 
 (map! :localleader
       :map ledger-mode-map
-      "s" #'evil-ledger-align)
+      (:prefix ("r" . "reports")
+       :desc "Balance report"           "b" #'ledger-report
+       :desc "Register report"          "r" #'ledger-report
+       :desc "Account report"           "a" #'ledger-report-goto
+       :desc "Reconcile"                "c" #'ledger-reconcile)
+      (:prefix ("t" . "toggle/transaction")
+       :desc "Toggle pending"           "p" #'ledger-toggle-current-transaction
+       :desc "Toggle cleared"           "c" #'ledger-toggle-current-transaction
+       :desc "Delete transaction"       "d" #'ledger-delete-current-transaction
+       :desc "Copy transaction"         "y" #'ledger-copy-transaction-at-point)
+      (:prefix ("s" . "sort/schedule")
+       :desc "Sort region"              "r" #'ledger-sort-region
+       :desc "Sort buffer"              "b" #'ledger-sort-buffer
+       :desc "Align transaction"        "a" #'evil-ledger-align)
+      (:prefix ("i" . "insert")
+       :desc "Add transaction"          "t" #'ledger-add-transaction
+       :desc "Set effective date"       "d" #'ledger-set-effective-date)
+      "." #'ledger-occur
+      "n" #'ledger-navigate-next-xact-or-directive
+      "p" #'ledger-navigate-prev-xact-or-directive)
 
 (map! :leader
       :prefix "c"
