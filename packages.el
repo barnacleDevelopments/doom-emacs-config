@@ -6,6 +6,7 @@
 ;; use 'M-x doom/reload'.
 (package! dashboard)
 (package! org-chef)
+(package! org-modern)
 (package! counsel-jq)
 (package! ob-restclient)
 (package! prettier)
@@ -36,6 +37,7 @@
 (package! claude-code :recipe (:host github :repo "stevemolitor/claude-code.el"))
 (package! monet :recipe (:host github :repo "stevemolitor/monet"))
 (package! prodigy :recipe (:host github :repo "rejeep/prodigy.el"))
+(package! rake :recipe (:host github :repo "asok/rake"))
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)

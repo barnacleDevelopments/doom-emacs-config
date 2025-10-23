@@ -34,6 +34,22 @@
 
 (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
 
+  (use-package! org-modern
+    :hook (org-mode . org-modern-mode)
+    :config
+    (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+          org-modern-table-vertical 1
+          org-modern-table-horizontal 0.2
+          org-modern-list '((43 . "➤")
+                            (45 . "–")
+                            (42 . "•"))
+          org-modern-block-fringe nil
+          org-modern-block-name '("" . "")
+          org-modern-keyword nil
+          org-modern-footnote (cons nil (cadr org-script-display))
+          org-modern-priority nil
+          org-modern-todo nil))
+
 ; Mac Config
 (use-package! exec-path-from-shell
   :if (memq window-system '(mac ns x))
@@ -891,26 +907,13 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
   :tags '(dev))
 
 (prodigy-define-service
-  :name "farmers-map"
-  :command "npm"
-  :args '("run" "dev")
-  :cwd "~/WebDev/Projects/farmers-truck-map"
-  :stop-signal 'sigkill
-  :kill-process-buffer-on-stop t
-  :tags '(dev))
-
-;; Paisa server for financial data visualization
-  (prodigy-define-service
-    :name "paisa"
-    :command "docker"
-    :args `("run" "--rm" "-p" "7500:7500"
-            "-v" ,(concat (expand-file-name "~/Documents/Personal/Finance/Banking/Ledger/") ":/root/Documents/paisa/")
-            "ananthakumaran/paisa:latest")
-    :url "http://localhost:7500"
-    :stop-signal 'sigterm
+    :name "farmers-map"
+    :command "npm"
+    :args '("run" "dev")
+    :cwd "~/WebDev/Projects/farmers-truck-map"
+    :stop-signal 'sigkill
     :kill-process-buffer-on-stop t
-    :tags '(finance))
-
+    :tags '(dev))
 )
 
 (map! :leader

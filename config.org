@@ -41,6 +41,21 @@ Reference: https://leanpub.com/lit-config/read
 
 (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
 
+  (use-package! org-modern
+    :hook (org-mode . org-modern-mode)
+    :config
+    (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+          org-modern-table-vertical 1
+          org-modern-table-horizontal 0.2
+          org-modern-list '((43 . "➤")
+                            (45 . "–")
+                            (42 . "•"))
+          org-modern-block-fringe nil
+          org-modern-block-name '("" . "")
+          org-modern-keyword nil
+          org-modern-footnote (cons nil (cadr org-script-display))
+          org-modern-priority nil
+          org-modern-todo nil))
 #+end_src
 ** Mac Config
 #+begin_src elisp :tangle ./config.el
@@ -1182,29 +1197,8 @@ its command, working directory, environment variables, and other runtime setting
     :stop-signal 'sigkill
     :kill-process-buffer-on-stop t
     :tags '(dev))
-#+end_src
-
-***** TODO BROKEN Paisa Service
-
-Paisa is a personal finance management and visualization tool. This service runs
-it in a Docker container with the local Ledger directory mounted.
-
-#+begin_src elisp :tangle ./config.el
-  ;; Paisa server for financial data visualization
-  (prodigy-define-service
-    :name "paisa"
-    :command "docker"
-    :args `("run" "--rm" "-p" "7500:7500"
-            "-v" ,(concat (expand-file-name "~/Documents/Personal/Finance/Banking/Ledger/") ":/root/Documents/paisa/")
-            "ananthakumaran/paisa:latest")
-    :url "http://localhost:7500"
-    :stop-signal 'sigterm
-    :kill-process-buffer-on-stop t
-    :tags '(finance))
-
 )
 #+end_src
-
 *** Keybindings
 
 #+begin_src elisp :tangle ./config.el
