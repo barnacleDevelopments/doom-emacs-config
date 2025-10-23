@@ -1,9 +1,8 @@
 #+title: Doom Config
+#+OPTIONS: toc:2
 
 Reference: https://leanpub.com/lit-config/read
 
-* Docs
-[[https://emacsredux.com/blog/2023/04/11/looking-up-words-in-a-dictionary/][Emacs Dictionary]]
 * General Settings
 #+begin_src elisp :tangle ./config.el
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
