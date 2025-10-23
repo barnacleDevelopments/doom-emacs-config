@@ -306,10 +306,6 @@ Reference: https://leanpub.com/lit-config/read
             (kill-buffer exported-md))))))
 (add-hook 'after-save-hook 'my/org-to-md-on-save)
 #+end_src
-** MCP
-#+begin_src elisp :tangle ./config.el
-
-#+end_src
 ** FlyCheck
 FlyCheck provides on-the-fly syntax checking for various programming languages, displaying errors and warnings in real-time as you code. It integrates with linters like ESLint for JavaScript/TypeScript.
 
@@ -352,16 +348,93 @@ FlyCheck provides on-the-fly syntax checking for various programming languages, 
 (setq projectile-project-search-path '("~/WebDev/"))
 #+end_src
 ** Robe
+Robe is a code assistance tool for Ruby that provides intelligent code navigation,
+documentation lookup, and method completion. It connects to a running Ruby process
+to provide accurate, runtime-aware completion and documentation for your Ruby code,
+including Rails projects.
+
+Reference: https://github.com/dgutov/robe
+
+*** Configuration
+Enable Robe mode automatically for both traditional Ruby mode and the newer
+tree-sitter-based Ruby mode.
+
 #+begin_src elisp :tangle ./config.el
-(add-hook 'ruby-mode-hook 'robe-mode)
-(add-hook 'ruby-ts-mode-hook 'robe-mode)
+(use-package! robe
+  :hook ((ruby-mode . robe-mode)
+         (ruby-ts-mode . robe-mode)))
+#+END_SRC
+
+** RuboCop
+RuboCop is a Ruby static code analyzer and formatter that enforces the Ruby Style Guide.
+It can automatically fix many style violations and integrates seamlessly with Flycheck
+for real-time linting feedback.
+
+Reference: https://github.com/rubocop/rubocop-emacs
+
+*** Configuration
+
+Enable RuboCop for Ruby modes and integrate with Flycheck for on-the-fly syntax checking.
+
+#+begin_src elisp :tangle ./config.el
+(use-package! rubocop
+  :hook ((ruby-mode . rubocop-mode)
+         (ruby-ts-mode . rubocop-mode))
+  :config
+  ;; Enable auto-correction by default when running rubocop-autocorrect-current-file
+  (setq rubocop-autocorrect-on-save nil) ; Set to t if you want auto-fix on save
+
+  ;; Custom function to format and reload buffer
+  (defun my/rubocop-format-current-file ()
+    "Format current file with RuboCop and reload buffer."
+    (interactive)
+    (when buffer-file-name
+      (rubocop-format-current-file)
+      (revert-buffer t t t))))
+
+;; Configure Flycheck to use RuboCop for Ruby files
+(after! flycheck
+  (add-hook 'ruby-mode-hook
+            (lambda ()
+              (setq flycheck-checker 'ruby-rubocop)
+              (flycheck-mode 1)))
+  (add-hook 'ruby-ts-mode-hook
+            (lambda ()
+              (setq flycheck-checker 'ruby-rubocop)
+              (flycheck-mode 1))))
+#+end_src
+
+*** Keybindings
+
+Local leader keybindings for RuboCop operations in Ruby buffers.
+
+#+begin_src elisp :tangle ./config.el
+(map! :localleader
+      :map (ruby-mode-map ruby-ts-mode-map)
+      (:prefix ("r" . "rubocop")
+       :desc "Run RuboCop on project"           "p" #'rubocop-check-project
+       :desc "Run RuboCop on current file"      "f" #'rubocop-check-current-file
+       :desc "Run RuboCop on directory"         "d" #'rubocop-check-directory
+       :desc "Auto-correct current file"        "a" #'rubocop-autocorrect-current-file
+       :desc "Auto-correct project"             "A" #'rubocop-autocorrect-project
+       :desc "Format current file"              "F" #'my/rubocop-format-current-file))
+#+end_src
+
 ** Apheleia
 *** Configuration
 #+begin_src elisp :tangle ./config.el
 (use-package! apheleia
   :config
+  ;; TypeScript/TSX formatting with Prettier
   (setf (alist-get 'typescript-tsx-mode apheleia-mode-alist) 'prettier)
   (add-hook 'typescript-tsx-mode-hook #'apheleia-mode)
+
+  ;; Ruby formatting with RuboCop
+  (setf (alist-get 'ruby-mode apheleia-mode-alist) 'rubocop)
+  (setf (alist-get 'ruby-ts-mode apheleia-mode-alist) 'rubocop)
+  (add-hook 'ruby-mode-hook #'apheleia-mode)
+  (add-hook 'ruby-ts-mode-hook #'apheleia-mode)
+
   (setq apheleia-formatters-respect-indent-level nil)
 )
 #+END_SRC

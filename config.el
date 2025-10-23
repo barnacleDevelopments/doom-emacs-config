@@ -261,8 +261,6 @@
             (kill-buffer exported-md))))))
 (add-hook 'after-save-hook 'my/org-to-md-on-save)
 
-
-
 (add-hook 'after-init-hook #'global-flycheck-mode)
 (add-hook! 'typescript-mode
   (lambda ()
@@ -289,6 +287,61 @@
         '(("ejs" . "\\.ejs\\'"))))
 
 (setq projectile-project-search-path '("~/WebDev/"))
+
+(use-package! robe
+  :hook ((ruby-mode . robe-mode)
+         (ruby-ts-mode . robe-mode)))
+
+(use-package! rubocop
+  :hook ((ruby-mode . rubocop-mode)
+         (ruby-ts-mode . rubocop-mode))
+  :config
+  ;; Enable auto-correction by default when running rubocop-autocorrect-current-file
+  (setq rubocop-autocorrect-on-save nil) ; Set to t if you want auto-fix on save
+
+  ;; Custom function to format and reload buffer
+  (defun my/rubocop-format-current-file ()
+    "Format current file with RuboCop and reload buffer."
+    (interactive)
+    (when buffer-file-name
+      (rubocop-format-current-file)
+      (revert-buffer t t t))))
+
+;; Configure Flycheck to use RuboCop for Ruby files
+(after! flycheck
+  (add-hook 'ruby-mode-hook
+            (lambda ()
+              (setq flycheck-checker 'ruby-rubocop)
+              (flycheck-mode 1)))
+  (add-hook 'ruby-ts-mode-hook
+            (lambda ()
+              (setq flycheck-checker 'ruby-rubocop)
+              (flycheck-mode 1))))
+
+(map! :localleader
+      :map (ruby-mode-map ruby-ts-mode-map)
+      (:prefix ("r" . "rubocop")
+       :desc "Run RuboCop on project"           "p" #'rubocop-check-project
+       :desc "Run RuboCop on current file"      "f" #'rubocop-check-current-file
+       :desc "Run RuboCop on directory"         "d" #'rubocop-check-directory
+       :desc "Auto-correct current file"        "a" #'rubocop-autocorrect-current-file
+       :desc "Auto-correct project"             "A" #'rubocop-autocorrect-project
+       :desc "Format current file"              "F" #'my/rubocop-format-current-file))
+
+(use-package! apheleia
+  :config
+  ;; TypeScript/TSX formatting with Prettier
+  (setf (alist-get 'typescript-tsx-mode apheleia-mode-alist) 'prettier)
+  (add-hook 'typescript-tsx-mode-hook #'apheleia-mode)
+
+  ;; Ruby formatting with RuboCop
+  (setf (alist-get 'ruby-mode apheleia-mode-alist) 'rubocop)
+  (setf (alist-get 'ruby-ts-mode apheleia-mode-alist) 'rubocop)
+  (add-hook 'ruby-mode-hook #'apheleia-mode)
+  (add-hook 'ruby-ts-mode-hook #'apheleia-mode)
+
+  (setq apheleia-formatters-respect-indent-level nil)
+)
 
 (after! lsp-mode
   (setq lsp-enable-on-type-formatting nil)  ;; Disable on-type formatting
