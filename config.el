@@ -328,6 +328,30 @@
        :desc "Auto-correct project"             "A" #'rubocop-autocorrect-project
        :desc "Format current file"              "F" #'my/rubocop-format-current-file))
 
+(use-package! rspec-mode
+  :hook ((ruby-mode . rspec-mode)
+         (ruby-ts-mode . rspec-mode))
+  :config
+  ;; Use bundle exec for running RSpec
+  (setq rspec-use-bundler-when-possible t)
+
+  ;; Use rake for running specs (alternative to rspec command)
+  (setq rspec-use-rake-when-possible nil)
+
+  ;; Compilation mode settings for better output
+  (setq compilation-scroll-output t))
+
+(map! :localleader
+      :map (ruby-mode-map ruby-ts-mode-map)
+      (:prefix ("t" . "test/rspec")
+       :desc "Run all specs"                    "a" #'rspec-verify-all
+       :desc "Run current spec file"            "v" #'rspec-verify
+       :desc "Run spec at point"                "s" #'rspec-verify-single
+       :desc "Re-run last spec"                 "r" #'rspec-rerun
+       :desc "Toggle between code and spec"     "t" #'rspec-toggle-spec-and-target
+       :desc "Find spec file"                   "f" #'rspec-find-spec-file
+       :desc "Toggle example pending"           "p" #'rspec-toggle-example-pendingness))
+
 (use-package! apheleia
   :config
   ;; TypeScript/TSX formatting with Prettier

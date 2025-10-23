@@ -19,6 +19,7 @@
 (package! exec-path-from-shell)
 (package! robe)
 (package! rubocop)
+(package! rspec-mode)
 (package! copilot
   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el")))
 (package! org-jira)

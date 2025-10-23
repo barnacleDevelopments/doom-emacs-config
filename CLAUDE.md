@@ -89,7 +89,7 @@ the "why" before showing the "what".
 
 #### Key Requirements
 
-1. **Documentation First**: Always write explanatory prose before code blocks
+1. **Documentation First**: Always write explanatory prose before code blocks (except for Keybindings sections, which can go directly to the code)
 2. **Clear Structure**: Use level 2 heading (`##`) for package name, level 3 (`###`) for configuration sections
 3. **Reference Links**: Include `Reference:` link to official repository after introduction
 4. **Inline Comments**: Add comments for each setting, keybinding, and non-obvious code
@@ -186,6 +186,8 @@ See these package configurations as reference implementations:
 
 ### Development Tools
 - `robe` - Ruby code intelligence
+- `rubocop` - Ruby static code analyzer and formatter
+- `rspec-mode` - RSpec testing integration for Ruby
 - `web-mode` - EJS template support
 - `kubernetes` - Kubernetes management
 - `prodigy` - Service/process manager
@@ -247,6 +249,25 @@ See these package configurations as reference implementations:
 - `SPC o m` - Open mu4e (email)
 - `SPC d` - Dirvish quick access
 - `SPC c R` - Projectile replace
+
+### Ruby Mode Bindings (localleader: `SPC m`)
+
+#### RuboCop (`SPC m r`)
+- `SPC m r p` - Run RuboCop on project
+- `SPC m r f` - Run RuboCop on current file
+- `SPC m r d` - Run RuboCop on directory
+- `SPC m r a` - Auto-correct current file
+- `SPC m r A` - Auto-correct project
+- `SPC m r F` - Format current file (with buffer reload)
+
+#### RSpec Testing (`SPC m t`)
+- `SPC m t a` - Run all specs
+- `SPC m t v` - Run current spec file
+- `SPC m t s` - Run spec at point
+- `SPC m t r` - Re-run last spec
+- `SPC m t t` - Toggle between code and spec file
+- `SPC m t f` - Find spec file
+- `SPC m t p` - Toggle example pending status
 
 ## macOS-Specific Configuration
 - `exec-path-from-shell` integration

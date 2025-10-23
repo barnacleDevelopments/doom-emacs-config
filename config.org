@@ -347,7 +347,13 @@ FlyCheck provides on-the-fly syntax checking for various programming languages, 
 #+begin_src elisp :tangle ./config.el
 (setq projectile-project-search-path '("~/WebDev/"))
 #+end_src
-** Robe
+** Ruby Development
+
+This section contains all Ruby-related development tools and configurations including
+code intelligence, linting, formatting, and testing support.
+
+*** Robe
+
 Robe is a code assistance tool for Ruby that provides intelligent code navigation,
 documentation lookup, and method completion. It connects to a running Ruby process
 to provide accurate, runtime-aware completion and documentation for your Ruby code,
@@ -355,7 +361,8 @@ including Rails projects.
 
 Reference: https://github.com/dgutov/robe
 
-*** Configuration
+**** Configuration
+
 Enable Robe mode automatically for both traditional Ruby mode and the newer
 tree-sitter-based Ruby mode.
 
@@ -365,14 +372,15 @@ tree-sitter-based Ruby mode.
          (ruby-ts-mode . robe-mode)))
 #+END_SRC
 
-** RuboCop
+*** RuboCop
+
 RuboCop is a Ruby static code analyzer and formatter that enforces the Ruby Style Guide.
 It can automatically fix many style violations and integrates seamlessly with Flycheck
 for real-time linting feedback.
 
 Reference: https://github.com/rubocop/rubocop-emacs
 
-*** Configuration
+**** Configuration
 
 Enable RuboCop for Ruby modes and integrate with Flycheck for on-the-fly syntax checking.
 
@@ -404,9 +412,7 @@ Enable RuboCop for Ruby modes and integrate with Flycheck for on-the-fly syntax 
               (flycheck-mode 1))))
 #+end_src
 
-*** Keybindings
-
-Local leader keybindings for RuboCop operations in Ruby buffers.
+**** Keybindings
 
 #+begin_src elisp :tangle ./config.el
 (map! :localleader
@@ -418,6 +424,50 @@ Local leader keybindings for RuboCop operations in Ruby buffers.
        :desc "Auto-correct current file"        "a" #'rubocop-autocorrect-current-file
        :desc "Auto-correct project"             "A" #'rubocop-autocorrect-project
        :desc "Format current file"              "F" #'my/rubocop-format-current-file))
+#+end_src
+
+*** RSpec Mode
+
+RSpec Mode provides a comprehensive testing environment for RSpec in Emacs, offering
+keybindings to run specs, verify examples, toggle between code and spec files, and
+navigate test failures. It integrates seamlessly with compilation mode to display
+test results inline with your workflow.
+
+Reference: https://github.com/pezra/rspec-mode
+
+**** Configuration
+
+Enable RSpec mode automatically for Ruby files and configure it to use bundle exec
+for running tests. Compilation mode integration provides proper error navigation
+and output formatting.
+
+#+begin_src elisp :tangle ./config.el
+(use-package! rspec-mode
+  :hook ((ruby-mode . rspec-mode)
+         (ruby-ts-mode . rspec-mode))
+  :config
+  ;; Use bundle exec for running RSpec
+  (setq rspec-use-bundler-when-possible t)
+
+  ;; Use rake for running specs (alternative to rspec command)
+  (setq rspec-use-rake-when-possible nil)
+
+  ;; Compilation mode settings for better output
+  (setq compilation-scroll-output t))
+#+end_src
+
+**** Keybindings
+#+begin_src elisp :tangle ./config.el
+(map! :localleader
+      :map (ruby-mode-map ruby-ts-mode-map)
+      (:prefix ("t" . "test/rspec")
+       :desc "Run all specs"                    "a" #'rspec-verify-all
+       :desc "Run current spec file"            "v" #'rspec-verify
+       :desc "Run spec at point"                "s" #'rspec-verify-single
+       :desc "Re-run last spec"                 "r" #'rspec-rerun
+       :desc "Toggle between code and spec"     "t" #'rspec-toggle-spec-and-target
+       :desc "Find spec file"                   "f" #'rspec-find-spec-file
+       :desc "Toggle example pending"           "p" #'rspec-toggle-example-pendingness))
 #+end_src
 
 ** Apheleia
@@ -822,9 +872,6 @@ locations in your filesystem.
 
 *** Keybindings
 
-Local leader keybindings for Dirvish mode operations and global leader binding
-for quick-access navigation.
-
 #+begin_src elisp :tangle ./config.el
 ;; Dirvish mode-specific keybindings
 (map! :localleader
@@ -1160,9 +1207,6 @@ it in a Docker container with the local Ledger directory mounted.
 #+end_src
 
 *** Keybindings
-
-Doom Emacs leader key mappings for quick access to environment management functions.
-All commands are under =SPC r= (r for "run" or "services").
 
 #+begin_src elisp :tangle ./config.el
 (map! :leader
