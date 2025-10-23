@@ -91,7 +91,7 @@ Reference: https://leanpub.com/lit-config/read
 **** Configuration
 #+begin_src elisp :tangle ./config.el
 (setq org-directory "~/my-org-roam/")
-#+END_SRC
+#+end_src
 *** Agenda
 **** Configuration
 #+begin_src elisp :tangle ./config.el
@@ -121,7 +121,7 @@ Reference: https://leanpub.com/lit-config/read
       '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
          "%(org-chef-get-recipe-from-url)"
          :empty-lines 1)))
-#+END_SRC
+#+end_src
 *** Markdown Functions
 **** Configuration
 #+begin_src elisp :tangle ./config.el
@@ -281,7 +281,7 @@ Reference: https://leanpub.com/lit-config/read
 #+end_src
 *** Blog Post Writing
 **** Configuration
-#+begin_src emacs-lisp :tangle ./config.el
+#+begin_src elisp :tangle ./config.el
 (setq org-export-show-temporary-export-buffer nil)
 (defun my/org-to-md-on-save ()
   "Export Org file to Hugo-compatible Markdown cleanly, strip heading IDs, and copy it to the destination directory."
@@ -370,7 +370,7 @@ tree-sitter-based Ruby mode.
 (use-package! robe
   :hook ((ruby-mode . robe-mode)
          (ruby-ts-mode . robe-mode)))
-#+END_SRC
+#+end_src
 
 *** RuboCop
 
@@ -487,7 +487,7 @@ and output formatting.
 
   (setq apheleia-formatters-respect-indent-level nil)
 )
-#+END_SRC
+#+end_src
 ** LSP
 *** Configuration
 #+begin_src elisp :tangle ./config.el
@@ -512,7 +512,7 @@ and output formatting.
       (:prefix ("c" . "+code")
        (:prefix-map ("l" . "+lsp")
         "r" #'lsp-javascript-remove-unused-imports)))
-#+END_SRC
+#+end_src
 ** Compiler
 *** Configuration
 #+begin_src elisp :tangle ./config.el
@@ -520,7 +520,7 @@ and output formatting.
   (setq truncate-lines nil) ;; automatically becomes buffer local
   (set (make-local-variable 'truncate-partial-width-windows) nil))
 (add-hook! 'compilation-mode-hook 'my-compilation-mode-hook)
-#+END_SRC
+#+end_src
 ** GPTEL
 [[https://github.com/karthink/gptel?tab=readme-ov-file#chatgpt][GPTEL Docs]]
 *** Configuration
