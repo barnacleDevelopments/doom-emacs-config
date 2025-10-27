@@ -38,6 +38,7 @@
 (package! monet :recipe (:host github :repo "stevemolitor/monet"))
 (package! prodigy :recipe (:host github :repo "rejeep/prodigy.el"))
 (package! rake :recipe (:host github :repo "asok/rake"))
+(package! instapapier :recipe (:host github :repo "barnacleDevelopments/instapapier"))
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)

@@ -82,6 +82,13 @@
 (setq! doom-theme 'doom-palenight)
 
 (setq org-directory "~/my-org-roam/")
+(after! org
+    ;; Enable company in org-src blocks
+    (defun +org-src-company-setup ()
+        "Enable company-mode in org-src blocks."
+        (company-mode +1))
+
+    (add-hook! 'org-src-mode-hook #'+org-src-company-setup))
 
 (setq org-agenda-todo-ignore-scheduled 'future)
 (setq org-agenda-start-day "-1d")
@@ -722,19 +729,18 @@
 (map! :leader
       (:prefix ("l" . "++GPT")
         (:prefix-map ("c" . "claude-code")
-          "c" #'claude-code                    ; Start/switch to Claude session
+          "c" #'claude-code                     ; Start/switch to Claude session
           "r" (lambda () (interactive)          ; Reset/interrupt Claude
                 (claude-code-send-escape)
                 (claude-code-send-escape))
           "o" #'claude-code-toggle              ; Toggle Claude window
+          "u" #'claude-code-continue            ; Toggle Claude window
           "/" #'claude-code-slash-commands      ; Access slash commands
           "s" #'claude-code-send-command        ; Send command to Claude
           "b" #'claude-code-send-buffer         ; Send current buffer
           "k" #'claude-code-kill                ; Kill current session
           "K" #'claude-code-kill-all            ; Kill all sessions
-          "x" #'claude-code-clear               ; Clear conversation
           "RET" #'claude-code-send-return       ; Send return/continue
-          "a" #'claude-code-add-context-file    ; Add file to context
           "e" #'claude-code-send-escape         ; Send escape
           "l" #'claude-code-list-context)))     ; List context files
 
@@ -936,6 +942,14 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
         "r" #'my/restart-paisa-dev-environment)
       )
 
+(defun my/magit-prompt-tag-on-master-push ()
+  "Prompt to create a tag when pushing to the master branch."
+  (when (and (equal (magit-get-current-branch) "master")
+             (y-or-n-p "Pushing to master. Create a release tag? "))
+    (call-interactively #'magit-tag-create)))
+
+(add-hook 'magit-pre-push-hook #'my/magit-prompt-tag-on-master-push)
+
 (after! pdf
   (setq-default pdf-view-display-size 'fit-page)
 
@@ -983,3 +997,16 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
           "R" #'pdf-view-reset-slice)
         "p" #'pdf-misc-print-document
         "m" #'pdf-view-midnight-minor-mode))
+
+;; ~/.doom.d/config.el
+(use-package! instapapier
+  :defer t
+  :config
+  (map! :leader
+        :prefix ("v" . "instapaper")
+        :desc "Add URL at point" "a" #'instapapier-add-url-at-point
+        :desc "Add URL interactively" "u" #'instapapier-interactively-add-url)
+
+  ;; For elfeed integration
+  (map! :map elfeed-search-mode-map
+        :n "i" #'instapapier-add-elfeed-entry-at-point))
