@@ -368,6 +368,21 @@
        :desc "Find spec file"                   "f" #'rspec-find-spec-file
        :desc "Toggle example pending"           "p" #'rspec-toggle-example-pendingness))
 
+(use-package! rake
+  :hook ((ruby-mode . rake-mode)
+         (ruby-ts-mode . rake-mode))
+  :config
+  ;; Use compilation mode for better output handling
+  (setq rake-completion-system 'default))
+
+(map! :localleader
+      :map (ruby-mode-map ruby-ts-mode-map)
+      (:prefix ("k" . "rake")
+       :desc "Run rake task"                    "k" #'rake
+       :desc "Rerun last rake task"             "r" #'rake-rerun
+       :desc "Find and run rake task"           "f" #'rake-find-task
+       :desc "Regenerate task cache"            "c" #'rake-regenerate-cache))
+
 (use-package! apheleia
   :config
   ;; TypeScript/TSX formatting with Prettier

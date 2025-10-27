@@ -484,6 +484,41 @@ and output formatting.
        :desc "Toggle example pending"           "p" #'rspec-toggle-example-pendingness))
 #+end_src
 
+*** Rake
+
+Rake.el provides a convenient interface for running Rake tasks directly from Emacs.
+It caches available tasks for quick access, integrates with compilation mode for
+error navigation, and supports running tasks with arguments. This tool is essential
+for Ruby and Rails projects that use Rake for build automation and task management.
+
+Reference: https://github.com/asok/rake
+
+**** Configuration
+
+Enable Rake mode automatically for Ruby files. The package will detect Rakefiles
+in your project and cache available tasks for quick execution.
+
+#+begin_src elisp :tangle ./config.el
+(use-package! rake
+  :hook ((ruby-mode . rake-mode)
+         (ruby-ts-mode . rake-mode))
+  :config
+  ;; Use compilation mode for better output handling
+  (setq rake-completion-system 'default))
+#+end_src
+
+**** Keybindings
+
+#+begin_src elisp :tangle ./config.el
+(map! :localleader
+      :map (ruby-mode-map ruby-ts-mode-map)
+      (:prefix ("k" . "rake")
+       :desc "Run rake task"                    "k" #'rake
+       :desc "Rerun last rake task"             "r" #'rake-rerun
+       :desc "Find and run rake task"           "f" #'rake-find-task
+       :desc "Regenerate task cache"            "c" #'rake-regenerate-cache))
+#+end_src
+
 ** Apheleia
 *** Configuration
 #+begin_src elisp :tangle ./config.el
