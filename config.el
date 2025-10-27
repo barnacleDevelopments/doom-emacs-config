@@ -57,7 +57,6 @@
   (exec-path-from-shell-initialize)
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
-(setq lsp-disabled-clients '(rubocop-ls))
 
 (map! :leader
       :desc "Comment Region"
@@ -311,45 +310,21 @@
 
 (setq projectile-project-search-path '("~/WebDev/"))
 
-(use-package! robe
-  :hook ((ruby-mode . robe-mode)
-         (ruby-ts-mode . robe-mode)))
+(after! lsp-mode
+  ;; Disable rubocop-ls
+  (setq lsp-disabled-clients '(rubocop-ls))
+  
+  ;; Register ruby-lsp (Shopify's language server)
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection "ruby-lsp")
+    :activation-fn (lsp-activate-on "ruby")
+    :priority 1
+    :server-id 'ruby-lsp-ls
+    :download-server-fn nil)))
 
-(use-package! rubocop
-  :hook ((ruby-mode . rubocop-mode)
-         (ruby-ts-mode . rubocop-mode))
-  :config
-  ;; Enable auto-correction by default when running rubocop-autocorrect-current-file
-  (setq rubocop-autocorrect-on-save nil) ; Set to t if you want auto-fix on save
-
-  ;; Custom function to format and reload buffer
-  (defun my/rubocop-format-current-file ()
-    "Format current file with RuboCop and reload buffer."
-    (interactive)
-    (when buffer-file-name
-      (rubocop-format-current-file)
-      (revert-buffer t t t))))
-
-;; Configure Flycheck to use RuboCop for Ruby files
-(after! flycheck
-  (add-hook 'ruby-mode-hook
-            (lambda ()
-              (setq flycheck-checker 'ruby-rubocop)
-              (flycheck-mode 1)))
-  (add-hook 'ruby-ts-mode-hook
-            (lambda ()
-              (setq flycheck-checker 'ruby-rubocop)
-              (flycheck-mode 1))))
-
-(map! :localleader
-      :map (ruby-mode-map ruby-ts-mode-map)
-      (:prefix ("r" . "rubocop")
-       :desc "Run RuboCop on project"           "p" #'rubocop-check-project
-       :desc "Run RuboCop on current file"      "f" #'rubocop-check-current-file
-       :desc "Run RuboCop on directory"         "d" #'rubocop-check-directory
-       :desc "Auto-correct current file"        "a" #'rubocop-autocorrect-current-file
-       :desc "Auto-correct project"             "A" #'rubocop-autocorrect-project
-       :desc "Format current file"              "F" #'my/rubocop-format-current-file))
+;; Force LSP to start in Ruby modes (in case Doom's hooks aren't working)
+(add-hook! '(ruby-mode-hook ruby-ts-mode-hook) #'lsp!)
 
 (use-package! rspec-mode
   :hook ((ruby-mode . rspec-mode)
@@ -374,6 +349,20 @@
        :desc "Toggle between code and spec"     "t" #'rspec-toggle-spec-and-target
        :desc "Find spec file"                   "f" #'rspec-find-spec-file
        :desc "Toggle example pending"           "p" #'rspec-toggle-example-pendingness))
+
+(use-package! rake
+  :after ruby-mode
+  :config
+  ;; Use compilation mode for better output handling
+  (setq rake-completion-system 'default))
+
+(map! :localleader
+      :map (ruby-mode-map ruby-ts-mode-map)
+      (:prefix ("k" . "rake")
+       :desc "Run rake task"                    "k" #'rake
+       :desc "Rerun last rake task"             "r" #'rake-rerun
+       :desc "Find and run rake task"           "f" #'rake-find-task
+       :desc "Regenerate task cache"            "c" #'rake-regenerate-cache))
 
 (use-package! apheleia
   :config

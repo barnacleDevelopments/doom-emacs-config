@@ -188,6 +188,7 @@ See these package configurations as reference implementations:
 - `robe` - Ruby code intelligence
 - `rubocop` - Ruby static code analyzer and formatter
 - `rspec-mode` - RSpec testing integration for Ruby
+- `rake` - Rake task runner for Ruby projects
 - `web-mode` - EJS template support
 - `kubernetes` - Kubernetes management
 - `prodigy` - Service/process manager
@@ -268,6 +269,12 @@ See these package configurations as reference implementations:
 - `SPC m t t` - Toggle between code and spec file
 - `SPC m t f` - Find spec file
 - `SPC m t p` - Toggle example pending status
+
+#### Rake Tasks (`SPC m k`)
+- `SPC m k k` - Run rake task
+- `SPC m k r` - Rerun last rake task
+- `SPC m k f` - Find and run rake task
+- `SPC m k c` - Regenerate task cache
 
 ## macOS-Specific Configuration
 - `exec-path-from-shell` integration

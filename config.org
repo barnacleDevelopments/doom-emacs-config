@@ -66,7 +66,6 @@ Reference: https://leanpub.com/lit-config/read
   (exec-path-from-shell-initialize)
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
-(setq lsp-disabled-clients '(rubocop-ls))
 #+end_src
 ** Shortcuts
 #+begin_src elisp :tangle ./config.el
@@ -373,80 +372,24 @@ FlyCheck provides on-the-fly syntax checking for various programming languages, 
 This section contains all Ruby-related development tools and configurations including
 code intelligence, linting, formatting, and testing support.
 
-*** Robe
-
-Robe is a code assistance tool for Ruby that provides intelligent code navigation,
-documentation lookup, and method completion. It connects to a running Ruby process
-to provide accurate, runtime-aware completion and documentation for your Ruby code,
-including Rails projects.
-
-Reference: https://github.com/dgutov/robe
-
-**** Configuration
-
-Enable Robe mode automatically for both traditional Ruby mode and the newer
-tree-sitter-based Ruby mode.
-
+*** Configuration
 #+begin_src elisp :tangle ./config.el
-(use-package! robe
-  :hook ((ruby-mode . robe-mode)
-         (ruby-ts-mode . robe-mode)))
+(after! lsp-mode
+  ;; Disable rubocop-ls
+  (setq lsp-disabled-clients '(rubocop-ls))
+  
+  ;; Register ruby-lsp (Shopify's language server)
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection "ruby-lsp")
+    :activation-fn (lsp-activate-on "ruby")
+    :priority 1
+    :server-id 'ruby-lsp-ls
+    :download-server-fn nil)))
+
+;; Force LSP to start in Ruby modes (in case Doom's hooks aren't working)
+(add-hook! '(ruby-mode-hook ruby-ts-mode-hook) #'lsp!)
 #+end_src
-
-*** RuboCop
-
-RuboCop is a Ruby static code analyzer and formatter that enforces the Ruby Style Guide.
-It can automatically fix many style violations and integrates seamlessly with Flycheck
-for real-time linting feedback.
-
-Reference: https://github.com/rubocop/rubocop-emacs
-
-**** Configuration
-
-Enable RuboCop for Ruby modes and integrate with Flycheck for on-the-fly syntax checking.
-
-#+begin_src elisp :tangle ./config.el
-(use-package! rubocop
-  :hook ((ruby-mode . rubocop-mode)
-         (ruby-ts-mode . rubocop-mode))
-  :config
-  ;; Enable auto-correction by default when running rubocop-autocorrect-current-file
-  (setq rubocop-autocorrect-on-save nil) ; Set to t if you want auto-fix on save
-
-  ;; Custom function to format and reload buffer
-  (defun my/rubocop-format-current-file ()
-    "Format current file with RuboCop and reload buffer."
-    (interactive)
-    (when buffer-file-name
-      (rubocop-format-current-file)
-      (revert-buffer t t t))))
-
-;; Configure Flycheck to use RuboCop for Ruby files
-(after! flycheck
-  (add-hook 'ruby-mode-hook
-            (lambda ()
-              (setq flycheck-checker 'ruby-rubocop)
-              (flycheck-mode 1)))
-  (add-hook 'ruby-ts-mode-hook
-            (lambda ()
-              (setq flycheck-checker 'ruby-rubocop)
-              (flycheck-mode 1))))
-#+end_src
-
-**** Keybindings
-
-#+begin_src elisp :tangle ./config.el
-(map! :localleader
-      :map (ruby-mode-map ruby-ts-mode-map)
-      (:prefix ("r" . "rubocop")
-       :desc "Run RuboCop on project"           "p" #'rubocop-check-project
-       :desc "Run RuboCop on current file"      "f" #'rubocop-check-current-file
-       :desc "Run RuboCop on directory"         "d" #'rubocop-check-directory
-       :desc "Auto-correct current file"        "a" #'rubocop-autocorrect-current-file
-       :desc "Auto-correct project"             "A" #'rubocop-autocorrect-project
-       :desc "Format current file"              "F" #'my/rubocop-format-current-file))
-#+end_src
-
 *** RSpec Mode
 
 RSpec Mode provides a comprehensive testing environment for RSpec in Emacs, offering
@@ -489,6 +432,40 @@ and output formatting.
        :desc "Toggle between code and spec"     "t" #'rspec-toggle-spec-and-target
        :desc "Find spec file"                   "f" #'rspec-find-spec-file
        :desc "Toggle example pending"           "p" #'rspec-toggle-example-pendingness))
+#+end_src
+
+*** Rake
+
+Rake.el provides a convenient interface for running Rake tasks directly from Emacs.
+It caches available tasks for quick access, integrates with compilation mode for
+error navigation, and supports running tasks with arguments. This tool is essential
+for Ruby and Rails projects that use Rake for build automation and task management.
+
+Reference: https://github.com/asok/rake
+
+**** Configuration
+
+Enable Rake mode automatically for Ruby files. The package will detect Rakefiles
+in your project and cache available tasks for quick execution.
+
+#+begin_src elisp :tangle ./config.el
+(use-package! rake
+  :after ruby-mode
+  :config
+  ;; Use compilation mode for better output handling
+  (setq rake-completion-system 'default))
+#+end_src
+
+**** Keybindings
+
+#+begin_src elisp :tangle ./config.el
+(map! :localleader
+      :map (ruby-mode-map ruby-ts-mode-map)
+      (:prefix ("k" . "rake")
+       :desc "Run rake task"                    "k" #'rake
+       :desc "Rerun last rake task"             "r" #'rake-rerun
+       :desc "Find and run rake task"           "f" #'rake-find-task
+       :desc "Regenerate task cache"            "c" #'rake-regenerate-cache))
 #+end_src
 
 ** Apheleia
@@ -621,6 +598,7 @@ and output formatting.
 #+end_src
 ** Copilot
 #+begin_src elisp :tangle ./config.el
+
 #+end_src
 ** Elfeed
 :Elfeed-Docs:  https://github.com/skeeto/elfeed?tab=readme-ov-file
