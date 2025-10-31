@@ -80,6 +80,7 @@ Reference: https://leanpub.com/lit-config/read
       :prefix ("c" . "+code")
        (:prefix-map ("f" . "format")
                     "C" #'uncomment-region))
+
 #+end_src
 * Package-specific configurations
 ** Treemacs
