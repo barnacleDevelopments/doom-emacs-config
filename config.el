@@ -153,6 +153,7 @@
          "%?"
          :target (file+head "~/my-org-roam/work-org-roam/daily/%<%Y-%m-%d>-et.org"
                             ,(concat "#+title: %<%Y-%m-%d>\n\n"
+                                     "#+filetags: :event_temple:\n"
                                      "* Standup\n** Yesterday\n** Today\n** Blockers\n** Action Items"))
          :unnarrowed t
          )))
