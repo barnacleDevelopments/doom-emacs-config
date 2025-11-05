@@ -314,6 +314,8 @@
 (after! lsp-mode
   ;; Disable rubocop-ls
   (setq lsp-disabled-clients '(rubocop-ls))
+  (setq lsp-ruby-lsp-use-bundler t)
+  (setq lsp-ruby-lsp-formatter "auto")
   
   ;; Register ruby-lsp (Shopify's language server)
   (lsp-register-client
@@ -321,7 +323,7 @@
     :new-connection (lsp-stdio-connection "ruby-lsp")
     :activation-fn (lsp-activate-on "ruby")
     :priority 1
-    :server-id 'ruby-lsp-ls
+    :server-id 'ruby-lsp
     :download-server-fn nil)))
 
 ;; Force LSP to start in Ruby modes (in case Doom's hooks aren't working)
