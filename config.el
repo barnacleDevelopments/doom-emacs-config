@@ -89,6 +89,17 @@
 
     (add-hook! 'org-src-mode-hook #'+org-src-company-setup))
 
+(defun org-get-title ()
+  "Get the #+TITLE of the current buffer's file."
+  (or (cadr (assoc "TITLE" (org-collect-keywords '("TITLE"))))
+      (file-name-nondirectory (buffer-file-name))))
+
+(setq org-agenda-prefix-format
+      '((agenda . " %i %-12:c%?-12t% s")
+        (todo . " %i %-12(org-get-title)") 
+        (tags . " %i %-12:c")
+        (search . " %i %-12:c")))
+
 (setq org-agenda-todo-ignore-scheduled 'future)
 (setq org-agenda-start-day "-1d")
 (setq org-agenda-span 5)
@@ -991,11 +1002,5 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
 (use-package! instapapier
   :defer t
   :config
-  (map! :leader
-        :prefix ("v" . "instapaper")
-        :desc "Add URL at point" "a" #'instapapier-add-url-at-point
-        :desc "Add URL interactively" "u" #'instapapier-interactively-add-url)
-
-  ;; For elfeed integration
   (map! :map elfeed-search-mode-map
         :n "i" #'instapapier-add-elfeed-entry-at-point))
