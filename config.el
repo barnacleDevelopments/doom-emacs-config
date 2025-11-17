@@ -70,6 +70,17 @@
        (:prefix-map ("f" . "format")
                     "C" #'uncomment-region))
 
+;; Query replace commands
+(map! :leader
+      (:prefix ("s" . "search")
+       (:prefix-map ("r" . "replace")
+        :desc "Query replace"                    "r" #'query-replace
+        :desc "Query replace regexp"            "R" #'query-replace-regexp
+        :desc "Replace string"                   "s" #'replace-string
+        :desc "Replace regexp"                   "S" #'replace-regexp
+        :desc "Projectile replace"               "p" #'projectile-replace
+        :desc "Projectile replace regexp"        "P" #'projectile-replace-regexp)))
+
 (setq! doom-themes-treemacs-theme "doom-colors")
 (setq! treemacs-width 60)
 
