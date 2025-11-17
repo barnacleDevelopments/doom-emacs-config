@@ -70,6 +70,17 @@
        (:prefix-map ("f" . "format")
                     "C" #'uncomment-region))
 
+;; Query replace commands
+(map! :leader
+      (:prefix ("s" . "search")
+       (:prefix-map ("r" . "replace")
+        :desc "Query replace"                    "r" #'query-replace
+        :desc "Query replace regexp"            "R" #'query-replace-regexp
+        :desc "Replace string"                   "s" #'replace-string
+        :desc "Replace regexp"                   "S" #'replace-regexp
+        :desc "Projectile replace"               "p" #'projectile-replace
+        :desc "Projectile replace regexp"        "P" #'projectile-replace-regexp)))
+
 (setq! doom-themes-treemacs-theme "doom-colors")
 (setq! treemacs-width 60)
 
@@ -360,6 +371,8 @@
 (after! lsp-mode
   ;; Disable rubocop-ls
   (setq lsp-disabled-clients '(rubocop-ls))
+  (setq lsp-ruby-lsp-use-bundler t)
+  (setq lsp-ruby-lsp-formatter "auto")
   
   ;; Register ruby-lsp (Shopify's language server)
   (lsp-register-client
@@ -367,7 +380,7 @@
     :new-connection (lsp-stdio-connection "ruby-lsp")
     :activation-fn (lsp-activate-on "ruby")
     :priority 1
-    :server-id 'ruby-lsp-ls
+    :server-id 'ruby-lsp
     :download-server-fn nil)))
 
 ;; Force LSP to start in Ruby modes (in case Doom's hooks aren't working)
