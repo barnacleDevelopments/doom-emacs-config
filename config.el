@@ -100,6 +100,41 @@
         (tags . " %i %-12:c")
         (search . " %i %-12:c")))
 
+(setq org-clock-sound "~/my-org-roam/ding.wav")
+(defun my/org-insert-package-link ()
+  "Insert an org-mode link to package documentation with completion."
+  (interactive)
+  (let* ((packages (mapcar #'car package-alist))
+         (package (intern (completing-read "Package: " packages))))
+    (insert (format "[[elisp:(describe-package '%s)][%s]]" package package))))
+
+(defun my/org-insert-info-link ()
+  "Insert an org-mode link to open info documentation with completion."
+  (interactive)
+  (require 'info)
+  (let* ((topic (info-lookup-guess-default 'symbol 'emacs-lisp-mode))
+         (completions (progn
+                        (info-initialize)
+                        (let ((manuals '()))
+                          (dolist (dir Info-directory-list)
+                            (when (file-directory-p dir)
+                              (dolist (file (directory-files dir nil "\\.info\\(?:\\.gz\\|\\.bz2\\)?$"))
+                                (when (string-match "\\`\\([^.]+\\)" file)
+                                  (push (match-string 1 file) manuals)))))
+                          (delete-dups manuals))))
+         (manual (completing-read "Info manual: " completions nil nil nil nil topic))
+         (node (read-string "Node (optional): "))
+         (description (read-string "Description: " nil nil manual))
+         (command (if (string-empty-p node)
+                      (format "(info \"%s\")" manual)
+                    (format "(info \"(%s)%s\")" manual node))))
+    (insert (format "[[elisp:%s][%s]]" command description))))
+
+(map! :map org-mode-map
+      :localleader
+      (:prefix ("l" . "insert link")
+        "i" #'my/org-insert-info-link))
+
 (setq org-agenda-todo-ignore-scheduled 'future)
 (setq org-agenda-start-day "-1d")
 (setq org-agenda-span 5)
@@ -999,9 +1034,16 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
         "p" #'pdf-misc-print-document
         "m" #'pdf-view-midnight-minor-mode))
 
-;; ~/.doom.d/config.el
-(use-package! instapapier
-  :defer t
-  :config
-  (map! :map elfeed-search-mode-map
-        :n "i" #'instapapier-add-elfeed-entry-at-point))
+;; Add local development package to load-path
+(add-to-list 'load-path "/home/devindavis/WebDev/Projects/read-later")
+
+;; Autoload interactive functions
+(autoload 'read-later-test-auth "read-later" nil t)
+(autoload 'read-later-add-url-at-point "read-later" nil t)
+(autoload 'read-later-add-elfeed-entry-at-point "read-later" nil t)
+(autoload 'read-later-interactively-add-url "read-later" nil t)
+(autoload 'read-later-api-oauth-setup "read-later-api" nil t)
+(autoload 'read-later-view-bookmarks "read-later-api" nil t)
+
+(map! :map elfeed-search-mode-map
+      :n "i" #'read-later-add-elfeed-entry-at-point)

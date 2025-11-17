@@ -36,7 +36,8 @@
 (package! monet :recipe (:host github :repo "stevemolitor/monet"))
 (package! prodigy :recipe (:host github :repo "rejeep/prodigy.el"))
 (package! rake :recipe (:host github :repo "asok/rake"))
-(package! instapapier :recipe (:host github :repo "barnacleDevelopments/instapapier"))
+;; Local package under development - using load-path instead
+;; (package! read-later)
 (package! yasnippet-snippets)
 (package! react-snippets)
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
