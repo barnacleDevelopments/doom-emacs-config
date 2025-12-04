@@ -12,21 +12,53 @@
   (add-hook mode (lambda () (display-line-numbers-mode -1))))
 
 (after! flycheck
-  ;; Use eslint checker for typescript
+  ;; Use Biome checker for TypeScript/JavaScript
+  ;; Note: Biome integrates linting and formatting
   (flycheck-add-mode 'javascript-eslint 'tsx-ts-mode)
   (flycheck-add-mode 'javascript-eslint 'typescript-ts-mode)
 
-  (defun my/eslint-fix-file ()
-    "Fix current file with ESLint."
+  (defun my/biome-fix-file ()
+    "Fix and format current file with Biome."
     (interactive)
     (when buffer-file-name
-      (shell-command (format "npx eslint --fix %s"
-                            (shell-quote-argument buffer-file-name)))
-      (revert-buffer t t t)))
-  
-  (map! :map (tsx-ts-mode-map typescript-ts-mode-map)
+      (save-buffer)  ; Save buffer first to ensure file is up to date
+      (let* ((file (shell-quote-argument buffer-file-name))
+             (cmd (format "npx @biomejs/biome check --write --unsafe %s" file))
+             (result (shell-command cmd)))
+        (revert-buffer :ignore-auto :noconfirm :preserve-modes)
+        (message "Biome: Fixed %s" (file-name-nondirectory buffer-file-name)))))
+
+  (defun my/biome-check-file ()
+    "Check current file with Biome (no fixes applied)."
+    (interactive)
+    (when buffer-file-name
+      (compile (format "npx @biomejs/biome check %s"
+                      (shell-quote-argument buffer-file-name)))))
+
+  (defun my/biome-check-project ()
+    "Check entire project with Biome."
+    (interactive)
+    (if-let ((project-root (projectile-project-root)))
+        (let ((default-directory project-root))
+          (compile "npx @biomejs/biome check ."))
+      (message "Not in a projectile project")))
+
+  (defun my/biome-fix-project ()
+    "Fix and format entire project with Biome."
+    (interactive)
+    (if-let ((project-root (projectile-project-root)))
+        (when (y-or-n-p (format "Run Biome fix on entire project at %s? " project-root))
+          (let ((default-directory project-root))
+            (compile "npx @biomejs/biome check --write --unsafe .")))
+      (message "Not in a projectile project")))
+
+  (map! :map (tsx-ts-mode-map typescript-ts-mode-map js-ts-mode-map)
         :localleader
-        "e f" #'my/eslint-fix-file)
+        (:prefix ("b" . "biome")
+         "f" #'my/biome-fix-file
+         "c" #'my/biome-check-file
+         "F" #'my/biome-fix-project
+         "C" #'my/biome-check-project))
 
   )
 
@@ -342,6 +374,8 @@
 (add-hook 'after-save-hook 'my/org-to-md-on-save)
 
 (add-hook 'after-init-hook #'global-flycheck-mode)
+;; Note: Biome handles linting through Apheleia integration
+;; ESLint can still be used for projects that require it
 (add-hook! 'typescript-mode
   (lambda ()
     (flycheck-select-checker 'javascript-eslint)))
@@ -426,9 +460,20 @@
 
 (use-package! apheleia
   :config
-  ;; TypeScript/TSX formatting with Prettier
-  (setf (alist-get 'typescript-tsx-mode apheleia-mode-alist) 'prettier)
-  (add-hook 'typescript-tsx-mode-hook #'apheleia-mode)
+  ;; Biome formatter using stdin/stdout to avoid "file changed on disk" prompts
+  ;; Note: Uses 'format' subcommand (not 'check') and --stdin-file-path for config resolution
+  (setf (alist-get 'biome apheleia-formatters)
+        '("npx" "@biomejs/biome" "format" "--stdin-file-path" filepath))
+
+  ;; TypeScript/TSX formatting with Biome
+  (setf (alist-get 'typescript-mode apheleia-mode-alist) 'biome)
+  (setf (alist-get 'typescript-ts-mode apheleia-mode-alist) 'biome)
+  (setf (alist-get 'tsx-ts-mode apheleia-mode-alist) 'biome)
+  (setf (alist-get 'js-mode apheleia-mode-alist) 'biome)
+  (setf (alist-get 'js-ts-mode apheleia-mode-alist) 'biome)
+  (add-hook 'typescript-mode-hook #'apheleia-mode)
+  (add-hook 'typescript-ts-mode-hook #'apheleia-mode)
+  (add-hook 'tsx-ts-mode-hook #'apheleia-mode)
 
   ;; Ruby formatting with RuboCop
   (setf (alist-get 'ruby-mode apheleia-mode-alist) 'rubocop)
@@ -998,6 +1043,36 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
     (call-interactively #'magit-tag-create)))
 
 (add-hook 'magit-pre-push-hook #'my/magit-prompt-tag-on-master-push)
+
+;; Global leader keybindings for Forge operations
+(map! :leader
+      (:prefix ("g" . "git")
+        (:prefix-map ("f" . "forge")
+          :desc "Forge dispatch"              "f" #'forge-dispatch
+          :desc "Browse pull requests"        "p" #'forge-list-pullreqs
+          :desc "Browse issues"               "i" #'forge-list-issues
+          :desc "Browse topic"                "t" #'forge-browse-topic
+          :desc "Browse remote"               "r" #'forge-browse-remote
+          :desc "Browse commit"               "c" #'forge-browse-commit
+          :desc "Browse branch"               "b" #'forge-browse-branch
+          :desc "Browse issues & PRs"         "n" #'forge-list-notifications
+          :desc "Copy URL at point"           "y" #'forge-copy-url-at-point-as-kill)))
+
+;; Magit status buffer keybindings for Forge
+(map! :map magit-status-mode-map
+      :localleader
+      (:prefix ("f" . "forge")
+        :desc "Forge dispatch"                "f" #'forge-dispatch
+        :desc "Pull forge data"               "y" #'forge-pull
+        :desc "Create pull request"           "p" #'forge-create-pullreq
+        :desc "Create issue"                  "i" #'forge-create-issue
+        :desc "Checkout pull request"         "c" #'forge-checkout-pullreq
+        :desc "Visit topic"                   "v" #'forge-visit-topic
+        :desc "Browse topic"                  "b" #'forge-browse-topic
+        :desc "Copy URL at point"             "Y" #'forge-copy-url-at-point-as-kill
+        :desc "List pull requests"            "P" #'forge-list-pullreqs
+        :desc "List issues"                   "I" #'forge-list-issues
+        :desc "List notifications"            "n" #'forge-list-notifications))
 
 (after! pdf
   (setq-default pdf-view-display-size 'fit-page)
