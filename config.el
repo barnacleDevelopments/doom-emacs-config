@@ -146,6 +146,8 @@
       (:prefix ("l" . "insert link")
         "i" #'my/org-insert-info-link))
 
+(setq org-clock-idle-time 15)
+
 (setq org-agenda-todo-ignore-scheduled 'future)
 (setq org-agenda-start-day "-1d")
 (setq org-agenda-span 5)
@@ -1055,8 +1057,9 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
 (autoload 'read-later-add-url-at-point "read-later" nil t)
 (autoload 'read-later-add-elfeed-entry-at-point "read-later" nil t)
 (autoload 'read-later-interactively-add-url "read-later" nil t)
-(autoload 'read-later-api-oauth-setup "read-later-api" nil t)
-(autoload 'read-later-view-bookmarks "read-later-api" nil t)
+(autoload 'read-later-api-oauth-setup "read-later" nil t)
+(autoload 'read-later-view-bookmarks "read-later" nil t)
+(autoload 'read-later-refresh-bookmarks "read-later" nil t)
 
 (map! :map elfeed-search-mode-map
       :n "i" #'read-later-add-elfeed-entry-at-point)
