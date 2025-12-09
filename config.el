@@ -124,6 +124,7 @@
 (setq! doom-theme 'doom-palenight)
 
 (setq org-directory "~/my-org-roam/")
+
 (after! org
     ;; Enable company in org-src blocks
     (defun +org-src-company-setup ()
@@ -139,18 +140,25 @@
 
 (setq org-agenda-prefix-format
       '((agenda . " %i %-12:c%?-12t% s")
-        (todo . " %i %-12(org-get-title)") 
+        (todo . " %i %-12(org-get-title) ") 
         (tags . " %i %-12:c")
         (search . " %i %-12:c")))
 
 (setq org-clock-sound "~/my-org-roam/ding.wav")
+
+(map! :map org-mode-map
+      :localleader
+      (:prefix ("l" . "insert link")
+        "i" #'my/org-insert-info-link))
+
+(setq org-clock-idle-time 15)
+
 (defun my/org-insert-package-link ()
   "Insert an org-mode link to package documentation with completion."
   (interactive)
   (let* ((packages (mapcar #'car package-alist))
          (package (intern (completing-read "Package: " packages))))
     (insert (format "[[elisp:(describe-package '%s)][%s]]" package package))))
-
 (defun my/org-insert-info-link ()
   "Insert an org-mode link to open info documentation with completion."
   (interactive)
@@ -172,13 +180,6 @@
                       (format "(info \"%s\")" manual)
                     (format "(info \"(%s)%s\")" manual node))))
     (insert (format "[[elisp:%s][%s]]" command description))))
-
-(map! :map org-mode-map
-      :localleader
-      (:prefix ("l" . "insert link")
-        "i" #'my/org-insert-info-link))
-
-(setq org-clock-idle-time 15)
 
 (setq org-agenda-todo-ignore-scheduled 'future)
 (setq org-agenda-start-day "-1d")
@@ -1124,17 +1125,4 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
         "p" #'pdf-misc-print-document
         "m" #'pdf-view-midnight-minor-mode))
 
-;; Add local development package to load-path
-(add-to-list 'load-path "/home/devindavis/WebDev/Projects/read-later")
 
-;; Autoload interactive functions
-(autoload 'read-later-test-auth "read-later" nil t)
-(autoload 'read-later-add-url-at-point "read-later" nil t)
-(autoload 'read-later-add-elfeed-entry-at-point "read-later" nil t)
-(autoload 'read-later-interactively-add-url "read-later" nil t)
-(autoload 'read-later-api-oauth-setup "read-later" nil t)
-(autoload 'read-later-view-bookmarks "read-later" nil t)
-(autoload 'read-later-refresh-bookmarks "read-later" nil t)
-
-(map! :map elfeed-search-mode-map
-      :n "i" #'read-later-add-elfeed-entry-at-point)
