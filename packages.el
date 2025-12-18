@@ -37,9 +37,12 @@
 (package! prodigy :recipe (:host github :repo "rejeep/prodigy.el"))
 (package! rake :recipe (:host github :repo "asok/rake"))
 ;; Local package under development - using load-path instead
-(package! read-later :recipe (:host github :repo "barnacleDevelopments/read-later.el"))
+;; (package! read-later :recipe (:host github :repo "barnacleDevelopments/read-later.el"))
 (package! yasnippet-snippets)
 (package! react-snippets)
+(package! gptel-magit)
+(package! gptel-forge-prs
+  :recipe (:host github :repo "ArthurHeymans/gptel-forge-prs"))
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 

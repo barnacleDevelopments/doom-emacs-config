@@ -585,6 +585,12 @@
        "x" #'my/gptel-context-remove-all
        "a" #'gptel--rewrite-accept))
 
+(use-package! gptel-magit
+  :ensure t
+  :hook (magit-mode . gptel-magit-install))
+
+
+
 
 
 (use-package! elfeed-score
@@ -592,7 +598,11 @@
   :config
   (progn
     (elfeed-score-enable)
-    (define-key elfeed-search-mode-map "=" elfeed-score-map)))
+    (define-key elfeed-search-mode-map "=" elfeed-score-map))
+  (add-hook 'kill-emacs-hook #'elfeed-db-save)
+  (run-at-time nil (* 8 60 60) #'elfeed-db-save)
+
+  )
 (setq elfeed-search-print-entry-function #'elfeed-score-print-entry)
 (setq elfeed-score-serde-score-file "/home/devindavis/.doom.d/score.el")
 (map! :leader
@@ -754,38 +764,6 @@
          (format . "JSON")
          (levels . "level")
          (timestamp . "time"))))
-
-(after! mu4e
-  :config
-    (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
-
-    (set-email-account! "devin@devdeveloper.ca"
-    '((mu4e-sent-folder . "/Sent Items")
-        (mu4e-drafts-folder . "/Drafts")
-        (mu4e-trash-folder . "/Trash")
-        (mu4e-get-mail-command . "offlineimap -o")
-        (mu4e-update-interval . 60)
-        (smtpmail-smtp-user . "devin")
-        (smtpmail-smtp-server . "smtp.mailfence.com")
-        (smtpmail-smtp-service . 465)
-        (smtpmail-stream-type . ssl)
-        (auth-source-debug t)
-        (mail-host-address . "devdeveloper.ca")
-        (user-full-name . "Devin")
-        (user-mail-address . "devin@devdeveloper.ca"))
-    t)
-
-    (setq! message-send-mail-function 'smtpmail-send-it)
-
-    (map! :leader
-        :prefix ("o" . "open")
-        "m" #'mu4e)
-
-    (map! :localleader
-        :map mu4e-headers-mode-map
-        "c" #'mu4e-thread-fold-toggle
-        "m" #'mu4e-view-mark-for-move)
-  )
 
 (after! dirvish
   ;; Define quick-access bookmarks for frequently used directories
@@ -1125,4 +1103,45 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
         "p" #'pdf-misc-print-document
         "m" #'pdf-view-midnight-minor-mode))
 
+;; Add local development package to load-path
+  (add-to-list 'load-path "/home/devindavis/WebDev/Projects/read-later")
+  (require 'read-later)
 
+(after! notmuch
+  (setq notmuch-hello-auto-refresh nil)
+  
+  ;; Override the main entry point
+  (defun notmuch ()
+    "Launch notmuch directly to unread inbox."
+    (interactive)
+    (notmuch-search "tag:inbox and tag:unread -tag:spam -tag:deleted -tag:sent -tag:draft"))
+  
+  (setq notmuch-search-oldest-first nil
+        message-send-mail-function 'message-send-mail-with-sendmail
+        sendmail-program "msmtp"
+        message-kill-buffer-on-exit t)
+
+  (setq +notmuch-sync-backend 'mbsync)
+
+  (setq +notmuch-mail-folder "~/Mail/mymail")
+
+  (setq notmuch-saved-searches
+        '((:name "Inbox" :query "tag:inbox -tag:deleted" :key "i")
+          (:name "Unread" :query "tag:inbox and tag:unread -tag:deleted" :key "u")
+          (:name "All Mail" :query "*" :key "a")
+          (:name "Finances" :query "tag:finance and -tag:deleted" :key "f")
+          (:name "Deleted" :query "tag:deleted" :key "D")))
+  (setq user-full-name "Devin Davis"
+        user-mail-address "devin@devdeveloper.ca"))
+
+(map! :map notmuch-search-mode-map
+      :n "t" #'notmuch-search-add-tag
+      :n "T" #'notmuch-search-remove-tag
+      :n "J" #'notmuch-jump-search)
+
+(map! :map notmuch-hello-mode-map
+      :n "J" #'notmuch-jump-search)
+
+(map! :map notmuch-search-mode-map
+      :n "gr" #'notmuch-refresh-this-buffer
+      :n "gR" #'notmuch-poll-and-refresh-this-buffer)
