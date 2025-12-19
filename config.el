@@ -585,9 +585,9 @@
        "x" #'my/gptel-context-remove-all
        "a" #'gptel--rewrite-accept))
 
-(use-package! gptel-magit
-  :ensure t
-  :hook (magit-mode . gptel-magit-install))
+;; (use-package! gptel-magit
+;;   :ensure t
+;;   :hook (magit-mode . gptel-magit-install))
 
 
 
@@ -1104,33 +1104,36 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
         "m" #'pdf-view-midnight-minor-mode))
 
 ;; Add local development package to load-path
-  (add-to-list 'load-path "/home/devindavis/WebDev/Projects/read-later")
-  (require 'read-later)
+(let ((read-later-path "/home/devindavis/WebDev/Projects/read-later"))
+  (when (file-exists-p read-later-path)
+    (add-to-list 'load-path read-later-path)
+    (require 'read-later)))
 
 (after! notmuch
   (setq notmuch-hello-auto-refresh nil)
   
-  ;; Override the main entry point
   (defun notmuch ()
     "Launch notmuch directly to unread inbox."
     (interactive)
-    (notmuch-search "tag:inbox and tag:unread -tag:spam -tag:deleted -tag:sent -tag:draft"))
+    (notmuch-search "tag:inbox and tag:unread -tag:spam -tag:deleted -tag:sent -tag:draft -tag:sentry"))
   
   (setq notmuch-search-oldest-first nil
         message-send-mail-function 'message-send-mail-with-sendmail
         sendmail-program "msmtp"
         message-kill-buffer-on-exit t)
-
+  
   (setq +notmuch-sync-backend 'mbsync)
-
-  (setq +notmuch-mail-folder "~/Mail/mymail")
-
+  (setq +notmuch-mail-folder "~/Mail") 
+  
   (setq notmuch-saved-searches
         '((:name "Inbox" :query "tag:inbox -tag:deleted" :key "i")
-          (:name "Unread" :query "tag:inbox and tag:unread -tag:deleted" :key "u")
+          (:name "Unread" :query "tag:inbox and tag:unread -tag:deleted -tag:sentry" :key "u")
           (:name "All Mail" :query "*" :key "a")
           (:name "Finances" :query "tag:finance and -tag:deleted" :key "f")
+          (:name "MyMail" :query "folder:mymail/** -tag:deleted" :key "m")
+          (:name "Gmail" :query "folder:gmail/** -tag:deleted" :key "g")
           (:name "Deleted" :query "tag:deleted" :key "D")))
+  
   (setq user-full-name "Devin Davis"
         user-mail-address "devin@devdeveloper.ca"))
 
