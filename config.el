@@ -146,12 +146,13 @@
 
 (setq org-clock-sound "~/my-org-roam/ding.wav")
 
+
+(setq org-clock-idle-time 15)
+
 (map! :map org-mode-map
       :localleader
       (:prefix ("l" . "insert link")
         "i" #'my/org-insert-info-link))
-
-(setq org-clock-idle-time 15)
 
 (defun my/org-insert-package-link ()
   "Insert an org-mode link to package documentation with completion."
@@ -420,9 +421,6 @@
     :server-id 'ruby-lsp
     :download-server-fn nil)))
 
-;; Force LSP to start in Ruby modes (in case Doom's hooks aren't working)
-(add-hook! '(ruby-mode-hook ruby-ts-mode-hook) #'lsp!)
-
 (use-package! rspec-mode
   :hook ((ruby-mode . rspec-mode)
          (ruby-ts-mode . rspec-mode))
@@ -460,6 +458,10 @@
        :desc "Rerun last rake task"             "r" #'rake-rerun
        :desc "Find and run rake task"           "f" #'rake-find-task
        :desc "Regenerate task cache"            "c" #'rake-regenerate-cache))
+
+;; Enable projectile-rails-mode in tree-sitter Ruby buffers
+;; Add hook directly without after! to ensure it runs before buffers are opened
+(add-hook 'ruby-ts-mode-hook #'projectile-rails-mode)
 
 (use-package! apheleia
   :config

@@ -170,13 +170,16 @@ Reference: https://leanpub.com/lit-config/read
 
 (setq org-clock-sound "~/my-org-roam/ding.wav")
 
+
+(setq org-clock-idle-time 15)
+#+end_src
+**** Keybindings
+#+begin_src emacs-lisp
 (map! :map org-mode-map
       :localleader
       (:prefix ("l" . "insert link")
         "i" #'my/org-insert-info-link))
-
-(setq org-clock-idle-time 15)
-#+end_src
+#+end_src 
 *** Custom Functions
 #+begin_src elisp :tangle ./config.el
 (defun my/org-insert-package-link ()
@@ -486,9 +489,6 @@ code intelligence, linting, formatting, and testing support.
     :priority 1
     :server-id 'ruby-lsp
     :download-server-fn nil)))
-
-;; Force LSP to start in Ruby modes (in case Doom's hooks aren't working)
-(add-hook! '(ruby-mode-hook ruby-ts-mode-hook) #'lsp!)
 #+end_src
 *** RSpec Mode
 
@@ -566,6 +566,19 @@ in your project and cache available tasks for quick execution.
        :desc "Rerun last rake task"             "r" #'rake-rerun
        :desc "Find and run rake task"           "f" #'rake-find-task
        :desc "Regenerate task cache"            "c" #'rake-regenerate-cache))
+#+end_src
+*** Projectile Rails
+
+Enable projectile-rails-mode for tree-sitter Ruby mode. Doom's +rails module
+only hooks into ruby-mode by default, but with +tree-sitter enabled, we use
+ruby-ts-mode instead.
+
+**** Configuration
+
+#+begin_src elisp :tangle ./config.el
+;; Enable projectile-rails-mode in tree-sitter Ruby buffers
+;; Add hook directly without after! to ensure it runs before buffers are opened
+(add-hook 'ruby-ts-mode-hook #'projectile-rails-mode)
 #+end_src
 
 ** Apheleia
