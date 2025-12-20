@@ -789,7 +789,9 @@
 (use-package! claude-code
   :config
   ;; Use vterm as the terminal backend for better compatibility
-  (setq claude-code-terminal-backend 'vterm))
+  (setq claude-code-terminal-backend 'vterm)
+  (add-hook 'vterm-mode-hook (lambda () (display-line-numbers-mode 0))))
+
 
 ;; Configure window display for Claude Code buffers using Doom's popup system
 ;; Opens Claude sessions in a right-side window at 45% width
