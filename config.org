@@ -1432,7 +1432,7 @@ Reference: https://github.com/vedang/pdf-tools
 #+end_src
 ** Read Later
 #+begin_src elisp :tangle ./config.el
-;; Add local development package to load-path
+;;Add local development package to load-path
 (let ((read-later-path "/home/devindavis/WebDev/Projects/read-later"))
   (when (file-exists-p read-later-path)
     (add-to-list 'load-path read-later-path)

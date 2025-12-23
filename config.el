@@ -1107,7 +1107,7 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
         "p" #'pdf-misc-print-document
         "m" #'pdf-view-midnight-minor-mode))
 
-;; Add local development package to load-path
+;;Add local development package to load-path
 (let ((read-later-path "/home/devindavis/WebDev/Projects/read-later"))
   (when (file-exists-p read-later-path)
     (add-to-list 'load-path read-later-path)
