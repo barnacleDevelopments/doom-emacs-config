@@ -1,11 +1,5 @@
 ;;; Elfeed score file                                     -*- lisp -*-
 ;;; How much I give a shit points
-;;; Elfeed score file                                     -*- lisp -*-
-;;; How much I give a shit points
-;;; Elfeed score file                                     -*- lisp -*-
-;;; How much I give a shit points
-;;; Elfeed score file                                     -*- lisp -*-
-;;; How much I give a shit points
 ((version 10)
  ("title")
  ("content")
@@ -60,24 +54,6 @@
   (:text "computer use" :title-value 400 :content-value 400 :type W)
   (:text "ai regulation" :title-value 400 :content-value 400 :type W)
   
-  ;; HIGH PRIORITY - VR/AR Innovation
-  (:text "vision pro" :title-value 600 :content-value 600 :type W)
-  (:text "quest 3" :title-value 500 :content-value 500 :type W)
-  (:text "quest pro" :title-value 400 :content-value 400 :type W)
-  (:text "psvr2" :title-value 400 :content-value 400 :type W)
-  (:text "valve index" :title-value 400 :content-value 400 :type W)
-  (:text "mixed reality" :title-value 500 :content-value 500 :type W)
-  (:text "spatial computing" :title-value 500 :content-value 500 :type W)
-  (:text "passthrough" :title-value 300 :content-value 300 :type W)
-  (:text "eye tracking" :title-value 350 :content-value 350 :type W)
-  (:text "foveated rendering" :title-value 300 :content-value 300 :type W)
-  (:text "haptic feedback" :title-value 250 :content-value 250 :type W)
-  (:text "hand tracking" :title-value 300 :content-value 300 :type W)
-  (:text "standalone vr" :title-value 250 :content-value 250 :type W)
-  (:text "pancake lenses" :title-value 200 :content-value 200 :type W)
-  (:text "varifocal" :title-value 250 :content-value 250 :type W)
-  (:text "retinal projection" :title-value 300 :content-value 300 :type W)
-  
   ;; HIGH PRIORITY - Dev Tech
   (:text "local-first" :title-value 300 :content-value 300 :type W)
   (:text "wasm" :title-value 200 :content-value 200 :type W)
@@ -88,57 +64,15 @@
   (:text "self-sovereign" :title-value 200 :content-value 200 :type W)
   (:text "atproto" :title-value 200 :content-value 200 :type W)
   
-  ;; HIGH PRIORITY - React Development
-  (:text "react 19" :title-value 400 :content-value 400 :type W)
-  (:text "react server components" :title-value 400 :content-value 400 :type W)
-  (:text "server components" :title-value 350 :content-value 350 :type W)
-  (:text "next.js" :title-value 300 :content-value 300 :type W)
-  (:text "remix" :title-value 300 :content-value 300 :type W)
-  (:text "react compiler" :title-value 300 :content-value 300 :type W)
-  (:text "suspense" :title-value 250 :content-value 250 :type W)
-  (:text "concurrent react" :title-value 250 :content-value 250 :type W)
-  (:text "vite" :title-value 200 :content-value 200 :type W)
-  (:text "turbopack" :title-value 200 :content-value 200 :type W)
-  (:text "tailwind" :title-value 150 :content-value 150 :type W)
-  (:text "shadcn" :title-value 150 :content-value 150 :type W)
-  
-  ;; HIGH PRIORITY - Rails Development
-  (:text "rails 8" :title-value 400 :content-value 400 :type W)
-  (:text "rails 7" :title-value 300 :content-value 300 :type W)
-  (:text "hotwire" :title-value 300 :content-value 300 :type W)
-  (:text "turbo" :title-value 250 :content-value 250 :type W)
-  (:text "stimulus" :title-value 250 :content-value 250 :type W)
-  (:text "kamal" :title-value 250 :content-value 250 :type W)
-  (:text "solid queue" :title-value 200 :content-value 200 :type W)
-  (:text "solid cache" :title-value 200 :content-value 200 :type W)
-  (:text "propshaft" :title-value 150 :content-value 150 :type W)
-  (:text "importmap" :title-value 150 :content-value 150 :type W)
-  (:text "activerecord" :title-value 150 :content-value 150 :type W)
-  (:text "action cable" :title-value 150 :content-value 150 :type W)
-  
   ;; HIGH PRIORITY - Dev Tools (Emacs)
   (:text "magit release" :title-value 400 :content-value 400 :type W)
   (:text "emacs 30" :title-value 300 :content-value 300 :type W)
-  (:text "emacs 31" :title-value 300 :content-value 300 :type W)
   (:text "org-mode" :title-value 250 :content-value 250 :type W)
-  (:text "org-roam" :title-value 200 :content-value 200 :type W)
-  (:text "denote" :title-value 200 :content-value 200 :type W)
   (:text "lsp" :title-value 200 :content-value 200 :type W)
   (:text "language server" :title-value 200 :content-value 200 :type W)
-  (:text "eglot" :title-value 200 :content-value 200 :type W)
   (:text "tree-sitter" :title-value 200 :content-value 200 :type W)
-  (:text "native compilation" :title-value 200 :content-value 200 :type W)
   (:text "nixos" :title-value 150 :content-value 150 :type W)
   (:text "doom emacs" :title-value 150 :content-value 150 :type W)
-  (:text "spacemacs" :title-value 150 :content-value 150 :type W)
-  (:text "elpaca" :title-value 150 :content-value 150 :type W)
-  (:text "straight.el" :title-value 150 :content-value 150 :type W)
-  (:text "use-package" :title-value 150 :content-value 150 :type W)
-  (:text "corfu" :title-value 150 :content-value 150 :type W)
-  (:text "vertico" :title-value 150 :content-value 150 :type W)
-  (:text "consult" :title-value 150 :content-value 150 :type W)
-  (:text "embark" :title-value 150 :content-value 150 :type W)
-  (:text "pgtk" :title-value 150 :content-value 150 :type W)
   
   ;; MEDIUM PRIORITY - Local (Halifax/NS/Atlantic)
   (:text "halifax housing crisis" :title-value 400 :content-value 400 :type W)
@@ -193,41 +127,17 @@
   (:text "game-changer" :title-value -200 :content-value -200 :type W)
   (:text "twitter meltdown" :title-value -400 :content-value -400 :type W)
   (:text "goes viral" :title-value -300 :content-value -300 :type W)
-  
-  ;; FILTER OUT - Consumer electronics noise
-  (:text "iphone" :title-value -200 :content-value -200 :type W)
-  (:text "galaxy s" :title-value -200 :content-value -200 :type W)
-  (:text "pixel phone" :title-value -200 :content-value -200 :type W)
-  (:text "unboxing" :title-value -300 :content-value -300 :type W)
-  (:text "hands-on" :title-value -150 :content-value -150 :type W)
-  (:text "first impressions" :title-value -150 :content-value -150 :type W)
-  (:text "camera comparison" :title-value -200 :content-value -200 :type W)
-  (:text "battery life test" :title-value -200 :content-value -200 :type W)
-  (:text "benchmark" :title-value -150 :content-value -150 :type W)
-  (:text "spec sheet" :title-value -200 :content-value -200 :type W)
-  
-  ;; FILTER OUT - Crime/tabloid news
-  (:text "murder case" :title-value -400 :content-value -400 :type W)
-  (:text "mass shooting" :title-value -400 :content-value -400 :type W)
-  (:text "serial killer" :title-value -400 :content-value -400 :type W)
-  (:text "manhunt" :title-value -300 :content-value -300 :type W)
-  (:text "suspect arrested" :title-value -300 :content-value -300 :type W)
-  (:text "breaking:" :title-value -200 :content-value -200 :type W)
-  (:text "developing story" :title-value -200 :content-value -200 :type W)
-  (:text "celebrity" :title-value -300 :content-value -300 :type W)
-  (:text "scandal" :title-value -300 :content-value -300 :type W)
-  (:text "drama" :title-value -200 :content-value -200 :type W)
-  (:text "feud" :title-value -300 :content-value -300 :type W)
-  (:text "controversy" :title-value -200 :content-value -200 :type W)
-  (:text "accused of" :title-value -250 :content-value -250 :type W)
-  (:text "alleged" :title-value -200 :content-value -200 :type W)
   )
  ("tag")
  ("authors"
   (:text "Ken Levine" :value 2000 :type s)
   (:text "Warren Spector" :value 1500 :type s)
   (:text "Harvey Smith" :value 1500 :type s)
-  (:text "Hideo Kojima" :value 1000 :type s))
+  (:text "Hideo Kojima" :value 1000 :type s)
+  (:text "Adam Sinicki" :value 800 :type s)
+  (:text "Bioneer" :value 800 :type s)
+  (:text "thebioneer" :value 800 :type s)
+  (:text "The Bioneer" :value 800 :type s))
  ("feed"
   (:text "Hyperledger" :value 1 :type S :attr t)
   (:text "Nova Scotia News" :value 2 :type W :attr t)

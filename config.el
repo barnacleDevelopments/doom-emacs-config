@@ -520,19 +520,25 @@
   (set (make-local-variable 'truncate-partial-width-windows) nil))
 (add-hook! 'compilation-mode-hook 'my-compilation-mode-hook)
 
-(after! gptel
-  (setq gptel-backends nil)
-  (add-to-list 'gptel-backends (gptel-make-gh-copilot "Copilot"))
-  (gptel-make-ollama "Ollama"
-    :host "127.0.0.1:11434"
-    :stream t
-    :models '(mistral:latest deepseek-coder-v2:latest llama3.2:3b llama3.1:8b gpt-oss:20b))
+(setq gptel-backend (gptel-make-openai "Venice"
+                       :host "api.venice.ai"
+                       :endpoint "/api/v1/chat/completions"
+                       :stream t
+                       :key (lambda () (auth-source-pick-first-password :host "venice.ai"))
+                       :models '(
+                        claude-opus-45
+                        gpt-5.2
+                        gemini-3-pro-preview
+                        grok-4.1-fast
+                        kimi-k2
+                        deepseek-3.2
+                        qwen3-235b
+                        llama-3.3-70b
+                        venice-uncensored
+                        mistral-31-24b))
+                    gptel-model "llama-3.3-70b")
 
-  (gptel-make-gh-copilot "Copilot")
-    (setq! gptel-model 'claude-sonnet-4
-        gptel-backend (gptel-make-gh-copilot "Copilot"))
-    (add-hook 'gptel-post-response-functions 'gptel-end-of-response)
-)
+(setq gptel-default-backend "Venice")
 
 (defun my/gptel-context-add-folder (dir)
   "Add all files in DIR (recursively) to gptel context."
@@ -1111,7 +1117,21 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
         "p" #'pdf-misc-print-document
         "m" #'pdf-view-midnight-minor-mode))
 
-;; Add local development package to load-path
+(global-set-key (kbd "M-/") 'hippie-expand)
+
+(setq hippie-expand-try-functions-list
+      '(try-expand-dabbrev
+        try-expand-dabbrev-all-buffers
+        try-expand-dabbrev-from-kill
+        try-complete-file-name-partially
+        try-complete-file-name
+        try-expand-all-abbrevs
+        try-expand-list
+        try-expand-line
+        try-complete-lisp-symbol-partially
+        try-complete-lisp-symbol))
+
+;;Add local development package to load-path
 (let ((read-later-path "/home/devindavis/WebDev/Projects/read-later"))
   (when (file-exists-p read-later-path)
     (add-to-list 'load-path read-later-path)
@@ -1134,8 +1154,8 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
   (setq +notmuch-mail-folder "~/Mail") 
   
   (setq notmuch-saved-searches
-        '((:name "Inbox" :query "tag:inbox -tag:deleted" :key "i")
-          (:name "Unread" :query "tag:inbox and tag:unread -tag:deleted -tag:sentry" :key "u")
+        '((:name "Inbox" :query "tag:inbox -tag:deleted -tag:sentry -tag:sent" :key "i")
+          (:name "Unread" :query "tag:inbox and tag:unread -tag:deleted -tag:sentry -tag:sent" :key "u")
           (:name "All Mail" :query "*" :key "a")
           (:name "Finances" :query "tag:finance and -tag:deleted" :key "f")
           (:name "MyMail" :query "folder:mymail/** -tag:deleted" :key "m")
@@ -1146,13 +1166,7 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
         user-mail-address "devin@devdeveloper.ca"))
 
 (map! :map notmuch-search-mode-map
-      :n "t" #'notmuch-search-add-tag
-      :n "T" #'notmuch-search-remove-tag
-      :n "J" #'notmuch-jump-search)
-
-(map! :map notmuch-hello-mode-map
-      :n "J" #'notmuch-jump-search)
-
-(map! :map notmuch-search-mode-map
-      :n "gr" #'notmuch-refresh-this-buffer
-      :n "gR" #'notmuch-poll-and-refresh-this-buffer)
+      :n "a" #'notmuch-search-add-tag
+      :n "r" #'notmuch-search-remove-tag
+      :n "J" #'notmuch-jump-search
+      :n "gr" #'notmuch-refresh-this-buffer)
