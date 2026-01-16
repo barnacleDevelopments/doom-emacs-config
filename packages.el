@@ -43,6 +43,8 @@
 (package! gptel-magit)
 (package! gptel-forge-prs
   :recipe (:host github :repo "ArthurHeymans/gptel-forge-prs"))
+(package! rg)
+(package! ripgrep)
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 
