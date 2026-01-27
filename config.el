@@ -127,9 +127,10 @@
 
 (after! org
     ;; Enable company in org-src blocks
-    (defun +org-src-company-setup ()
-        "Enable company-mode in org-src blocks."
-        (company-mode +1))
+
+  (defun +org-src-company-setup ()
+    "Enable company-mode in org-src blocks."
+    (company-mode +1))
 
     (add-hook! 'org-src-mode-hook #'+org-src-company-setup))
 
@@ -404,6 +405,9 @@
         '(("ejs" . "\\.ejs\\'"))))
 
 (setq projectile-project-search-path '("~/WebDev/"))
+(use-package! ripgrep
+  :config
+  (setq ripgrep-arguments '("-C2")))  ;; -C2 is --context=2
 
 (after! lsp-mode
   ;; Disable rubocop-ls
