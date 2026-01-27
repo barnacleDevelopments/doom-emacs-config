@@ -66,22 +66,6 @@
 
 (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
 
-  (use-package! org-modern
-    :hook (org-mode . org-modern-mode)
-    :config
-    (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
-          org-modern-table-vertical 1
-          org-modern-table-horizontal 0.2
-          org-modern-list '((43 . "➤")
-                            (45 . "–")
-                            (42 . "•"))
-          org-modern-block-fringe nil
-          org-modern-block-name '("" . "")
-          org-modern-keyword nil
-          org-modern-footnote (cons nil (cadr org-script-display))
-          org-modern-priority nil
-          org-modern-todo nil))
-
 ; Mac Config
 (use-package! exec-path-from-shell
   :if (memq window-system '(mac ns x))
@@ -112,6 +96,14 @@
         :desc "Replace regexp"                   "S" #'replace-regexp
         :desc "Projectile replace"               "p" #'projectile-replace
         :desc "Projectile replace regexp"        "P" #'projectile-replace-regexp)))
+
+(setq sql-connection-alist
+      '((farmers-truck-db
+         (sql-product 'postgres)
+         (sql-server "127.0.0.1")
+         (sql-user "postgres")
+         (sql-database "postgres")
+         (sql-port 24464))))
 
 (setq! doom-themes-treemacs-theme "doom-colors")
 (setq! treemacs-width 60)
@@ -147,6 +139,22 @@
 
 (setq org-clock-sound "~/my-org-roam/ding.wav")
 (setq org-clock-idle-time 15)
+
+(use-package! org-modern
+    :hook (org-mode . org-modern-mode)
+    :config
+    (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+            org-modern-table-vertical 1
+            org-modern-table-horizontal 0.2
+            org-modern-list '((43 . "➤")
+                            (45 . "–")
+                            (42 . "•"))
+            org-modern-block-fringe nil
+            org-modern-block-name '("" . "")
+            org-modern-keyword nil
+            org-modern-footnote (cons nil (cadr org-script-display))
+            org-modern-priority nil
+            org-modern-todo nil))
 
 (map! :map org-mode-map
       :localleader

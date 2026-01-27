@@ -73,21 +73,6 @@ Reference: https://leanpub.com/lit-config/read
 
 (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
 
-  (use-package! org-modern
-    :hook (org-mode . org-modern-mode)
-    :config
-    (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
-          org-modern-table-vertical 1
-          org-modern-table-horizontal 0.2
-          org-modern-list '((43 . "➤")
-                            (45 . "–")
-                            (42 . "•"))
-          org-modern-block-fringe nil
-          org-modern-block-name '("" . "")
-          org-modern-keyword nil
-          org-modern-footnote (cons nil (cadr org-script-display))
-          org-modern-priority nil
-          org-modern-todo nil))
 
 #+end_src
 ** Mac Config
@@ -125,6 +110,17 @@ Reference: https://leanpub.com/lit-config/read
         :desc "Projectile replace"               "p" #'projectile-replace
         :desc "Projectile replace regexp"        "P" #'projectile-replace-regexp)))
 
+#+end_src
+* Project Configuration
+** SQL Connections
+#+begin_src emacs-lisp 
+(setq sql-connection-alist
+      '((farmers-truck-db
+         (sql-product 'postgres)
+         (sql-server "127.0.0.1")
+         (sql-user "postgres")
+         (sql-database "postgres")
+         (sql-port 24464))))
 #+end_src
 * Package-specific configurations
 ** Treemacs
@@ -172,6 +168,22 @@ Reference: https://leanpub.com/lit-config/read
 
 (setq org-clock-sound "~/my-org-roam/ding.wav")
 (setq org-clock-idle-time 15)
+
+(use-package! org-modern
+    :hook (org-mode . org-modern-mode)
+    :config
+    (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+            org-modern-table-vertical 1
+            org-modern-table-horizontal 0.2
+            org-modern-list '((43 . "➤")
+                            (45 . "–")
+                            (42 . "•"))
+            org-modern-block-fringe nil
+            org-modern-block-name '("" . "")
+            org-modern-keyword nil
+            org-modern-footnote (cons nil (cadr org-script-display))
+            org-modern-priority nil
+            org-modern-todo nil))
 #+end_src
 **** Keybindings
 #+begin_src emacs-lisp
