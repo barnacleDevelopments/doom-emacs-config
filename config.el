@@ -145,8 +145,6 @@
         (search . " %i %-12:c")))
 
 (setq org-clock-sound "~/my-org-roam/ding.wav")
-
-
 (setq org-clock-idle-time 15)
 
 (map! :map org-mode-map
@@ -186,6 +184,7 @@
 (setq org-agenda-start-day "-1d")
 (setq org-agenda-span 5)
 (setq org-agenda-files '(
+        "~/my-org-roam/mobile-notes"
         "~/my-org-roam/projects"
         "~/my-org-roam/daily"
         "~/my-org-roam/work-org-roam/daily"
@@ -490,31 +489,39 @@
 )
 
 (after! lsp-mode
-  (setq lsp-enable-on-type-formatting nil)  ;; Disable on-type formatting
-  (setq lsp-signature-auto-activate nil)    ;; Disable signature help
-  (setq lsp-modeline-code-actions-enable nil) ;; Disable code actions in modeline
-  (setq lsp-modeline-diagnostics-enable nil) ;; Disable diagnostics in modeline
-    (setq lsp-idle-delay 0.500)  ; Increase delay to half a second (default is 0.1)
-    (setq lsp-enable-on-type-formatting nil)  ; Disable auto-formatting on typing
-    (setq lsp-file-watch-ignored-directories
+  (setq lsp-enable-on-type-formatting nil)
+  (setq lsp-signature-auto-activate nil)
+  (setq lsp-modeline-code-actions-enable nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+  (setq lsp-idle-delay 0.500)
+  (setq lsp-file-watch-ignored-directories
         '("[/\\\\]\\.git$"
-            "[/\\\\]node_modules$"
-            "[/\\\\]build$"
-            "[/\\\\]dist$"))
-    (setq lsp-file-watch-threshold 1000)  ;; Increase threshold to 1000 files
-  (setq lsp-typescript-auto-import-completions nil) ;; Disable auto-imports
-   (setq lsp-diagnostics-provider :flycheck)
-        )
+          "[/\\\\]node_modules$"
+          "[/\\\\]build$"
+          "[/\\\\]dist$"))
+  (setq lsp-file-watch-threshold 1000)
+  (setq lsp-typescript-auto-import-completions nil)
+  (setq lsp-diagnostics-provider :flycheck)
+  (setq lsp-enable-suggest-server-download nil)
+  (delete 'sql-mode lsp-language-id-configuration))
 
-(map! :leader
-      (:prefix ("c" . "+code")
-       (:prefix-map ("l" . "+lsp")
-        "r" #'lsp-javascript-remove-unused-imports)))
+(use-package! lsp-sqls
+  :after lsp-mode
+  :config
+  (add-to-list 'lsp-language-id-configuration '(sql-mode . "sql"))
+  (setq lsp-sqls-server (expand-file-name "~/go/bin/sqls"))
+  (setq lsp-sqls-workspace-config-path "root"))  ; Use project .sqls/config.json
+
+(add-hook 'sql-mode-hook #'lsp!)
 
 (defun my-compilation-mode-hook ()
   (setq truncate-lines nil) ;; automatically becomes buffer local
   (set (make-local-variable 'truncate-partial-width-windows) nil))
 (add-hook! 'compilation-mode-hook 'my-compilation-mode-hook)
+
+(after! company
+  (setq company-idle-delay 0.2)  ; Show completions after 0.2s
+  (setq company-minimum-prefix-length 2))  ; Trigger after 2 characters
 
 (setq gptel-backend (gptel-make-openai "Venice"
                        :host "api.venice.ai"
