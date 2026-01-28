@@ -734,27 +734,6 @@
                      (display-buffer buf)))))))
   )
 
-;;Docs: https://kubernetes-el.github.io/kubernetes-el/
-(use-package! kubernetes
-  :ensure t
-  :commands (kubernetes-overview)
-  :config
-    (setq kubernetes-poll-frequency 3600
-        kubernetes-redraw-frequency 3600)
-    (map! :localleader
-        :map kubernetes-overview-mode-map
-        "s" #'kubernetes-display-service
-        "p" #'kubernetes-display-pod
-        "r" #'kubernetes-refresh
-        "l" #'kubernetes-logs
-        "e" #'kubernetes-edit
-        "d" #'kubernetes-describe
-        "n" #'kubernetes-set-namespace)
-    (map! :leader
-        :prefix "o"
-        "k" #'kubernetes-overview)
- )
-
 (setq! current-year-ledger-file "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")
 (setq! ledger-schedule-file "~/Documents/Personal/Finance/Banking/Ledger/schedule.ledger")
 (setq! ledger-default-journal "~/Documents/Personal/Finance/Banking/Ledger/2025.ledger")

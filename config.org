@@ -888,30 +888,6 @@ ruby-ts-mode instead.
                      (display-buffer buf)))))))
   )
 #+end_src
-** Kubernetes El
-*** Configuration
-#+begin_src elisp :tangle ./config.el
-;;Docs: https://kubernetes-el.github.io/kubernetes-el/
-(use-package! kubernetes
-  :ensure t
-  :commands (kubernetes-overview)
-  :config
-    (setq kubernetes-poll-frequency 3600
-        kubernetes-redraw-frequency 3600)
-    (map! :localleader
-        :map kubernetes-overview-mode-map
-        "s" #'kubernetes-display-service
-        "p" #'kubernetes-display-pod
-        "r" #'kubernetes-refresh
-        "l" #'kubernetes-logs
-        "e" #'kubernetes-edit
-        "d" #'kubernetes-describe
-        "n" #'kubernetes-set-namespace)
-    (map! :leader
-        :prefix "o"
-        "k" #'kubernetes-overview)
- )
-#+end_src
 ** Ledger
 Ledger is a powerful command-line accounting tool that uses plain text files for
 double-entry bookkeeping. It enables tracking expenses, income, and financial transactions
