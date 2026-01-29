@@ -689,7 +689,7 @@ ruby-ts-mode instead.
                         llama-3.3-70b
                         venice-uncensored
                         mistral-31-24b))
-                    gptel-model "llama-3.3-70b")
+                    gptel-model 'llama-3.3-70b)
 
 (setq gptel-default-backend "Venice")
 #+end_src
@@ -1491,6 +1491,56 @@ Reference: https://github.com/vedang/pdf-tools
 ** Not Much
 Not much is a email indexing service.
 
+*** mbsync for syncing mail config ()
+  #+begin_src
+IMAPAccount gmail
+Host imap.gmail.com
+User devin@example.com
+# mac
+PassCmd "security find-generic-password -s mbsync-gmail -w"
+TLSType IMAPS
+AuthMechs LOGIN
+
+IMAPStore gmail-remote
+Account gmail
+
+MaildirStore gmail-local
+Path ~/Mail/gmail/
+Inbox ~/Mail/gmail/Inbox
+SubFolders Verbatim
+
+Channel gmail
+Far :gmail-remote:
+Near :gmail-local:
+Patterns *
+Create Both
+Expunge Both
+SyncState *
+  #+end_src
+  
+*** [[https://wiki.archlinux.org/title/Msmtp#OAuth2_Setup][msmtp for sending email]] config
+#+begin_src
+# Set default values for all following accounts.
+defaults
+auth           on
+tls            on
+logfile        ~/.msmtp.log
+
+# Gmail
+account        gmail
+host           smtp.gmail.com
+port           465
+tls_starttls   off
+from           devinexample.com
+user           devin@example.com
+passwordeval       "security find-generic-password -s mbsync-gmail -w"
+
+# Set a default account
+account default: gmail
+#+end_src
+
+*** Configuration
+
 Reference: https://notmuch.readthedocs.io/en/latest/index.html
 
 #+begin_src elisp :tangle ./config.el
@@ -1512,7 +1562,7 @@ Reference: https://notmuch.readthedocs.io/en/latest/index.html
   
   (setq notmuch-saved-searches
         '((:name "Inbox" :query "tag:inbox -tag:deleted -tag:sentry -tag:sent" :key "i")
-          (:name "Unread" :query "tag:inbox and tag:unread -tag:deleted -tag:sentry -tag:sent" :key "u")
+          (:name "Unread" :query "tag:inbox and tag:unread -tag:deleted -tag:sentry -tag:sent -tag:atlassian -tag:slack -tag:pganalyze" :key "u")
           (:name "All Mail" :query "*" :key "a")
           (:name "Finances" :query "tag:finance and -tag:deleted" :key "f")
           (:name "MyMail" :query "folder:mymail/** -tag:deleted" :key "m")
