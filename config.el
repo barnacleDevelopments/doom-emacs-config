@@ -136,10 +136,9 @@
         (todo . " %i %-12(org-get-title) ") 
         (tags . " %i %-12:c")
         (search . " %i %-12:c")))
-
+(setq org-hide-emphasis-markers t)   
 (setq org-clock-sound "~/my-org-roam/ding.wav")
 (setq org-clock-idle-time 15)
-
 (use-package! org-modern
     :hook (org-mode . org-modern-mode)
     :config
@@ -160,6 +159,9 @@
       :localleader
       (:prefix ("l" . "insert link")
         "i" #'my/org-insert-info-link))
+
+(after! org
+  (require 'ox-confluence))
 
 (defun my/org-insert-package-link ()
   "Insert an org-mode link to package documentation with completion."

@@ -6,6 +6,7 @@
 ;; use 'M-x doom/reload'.
 (package! dashboard)
 (package! org-chef)
+(package! org-contrib)
 (package! org-modern)
 (package! counsel-jq)
 (package! ob-restclient)

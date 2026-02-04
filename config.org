@@ -165,10 +165,9 @@ Reference: https://leanpub.com/lit-config/read
         (todo . " %i %-12(org-get-title) ") 
         (tags . " %i %-12:c")
         (search . " %i %-12:c")))
-
+(setq org-hide-emphasis-markers t)   
 (setq org-clock-sound "~/my-org-roam/ding.wav")
 (setq org-clock-idle-time 15)
-
 (use-package! org-modern
     :hook (org-mode . org-modern-mode)
     :config
@@ -191,7 +190,12 @@ Reference: https://leanpub.com/lit-config/read
       :localleader
       (:prefix ("l" . "insert link")
         "i" #'my/org-insert-info-link))
-#+end_src 
+#+end_src
+*** Contrib
+#+begin_src emacs-lisp
+(after! org
+  (require 'ox-confluence))
+#+end_src
 *** Custom Functions
 #+begin_src elisp :tangle ./config.el
 (defun my/org-insert-package-link ()
