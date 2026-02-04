@@ -117,9 +117,16 @@
 
 (setq org-directory "~/my-org-roam/")
 
+(use-package! org-protocol
+  :after org)
 (after! org
     ;; Enable company in org-src blocks
-
+    (setq org-capture-templates
+        '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
+            "%(org-chef-get-recipe-from-url)"
+            :empty-lines 1)
+        ("p" "Protocol" entry (file+headline "~/my-org-roam/inbox.org" "Inbox") "* %?[[%:link][%:description]] \nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n")
+        ("L" "Protocol Link" entry (file+headline "~/my-org-roam/inbox.org" "Inbox") "* %? [[%:link][%:description]] \nCaptured On: %U")))
   (defun +org-src-company-setup ()
     "Enable company-mode in org-src blocks."
     (company-mode +1))
@@ -208,11 +215,6 @@
   (let (org-log-done org-todo-log-states)   ; turn off logging
     (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
 (add-hook 'org-after-todo-statistics-hook #'org-summary-todo)
-
-(setq org-capture-templates
-      '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
-         "%(org-chef-get-recipe-from-url)"
-         :empty-lines 1)))
 
 (defun my/org-md-filter-sub-to-underscore (text backend info)
   "Replace <sub>...</sub> with _... in GFM export."
@@ -385,6 +387,21 @@
             (kill-buffer exported-md))))))
 (add-hook 'after-save-hook 'my/org-to-md-on-save)
 
+(defcustom invoice-ninga-api-url "http://192.168.2.25:8090"
+  "Base URL for Invoice Ninja API (e.g., \"http://localhost:8012\")."
+  :type '(choice (const nil) string)
+  :group 'invoice-ninga)
+
+(defcustom invoice-ninga-api-token (auth-source-pick-first-password :host "invoice-ninga")
+  "API token for Invoice Ninja authentication."
+  :type '(choice (const nil) string)
+  :group 'invoice-ninga)
+
+(let ((invoice-ninga-path "/home/devindavis/WebDev/Projects/invoice-ninga"))
+  (when (file-exists-p invoice-ninga-path)
+    (add-to-list 'load-path invoice-ninga-path)
+    (require 'invoice-ninga)))
+
 (add-hook 'after-init-hook #'global-flycheck-mode)
 ;; Note: Biome handles linting through Apheleia integration
 ;; ESLint can still be used for projects that require it
@@ -555,53 +572,6 @@
 
 (setq gptel-default-backend "Venice")
 
-(defun my/gptel-context-add-folder (dir)
-  "Add all files in DIR (recursively) to gptel context."
-  (dolist (file (directory-files-recursively dir ".*" t))
-    (when (file-regular-p file)
-      (gptel-context-add-file file))))
-
-(defun my/gptel-context-remove-all ()
-  (let ((project-name (projectile-project-name))
-        (project-root (projectile-project-root)))
-    (gptel-context-remove-all)
-    (cond
-     ((string= project-name "eventtemple")
-      (message "Setting up eventtemple BE project environment")
-      (gptel-context-add-file (expand-file-name "ai-context.org" project-root))
-      (my/gptel-context-add-folder (expand-file-name ".github/instructions" project-root))
-      (find-file (expand-file-name "README.md" project-root)))
-
-     ((string= project-name "eventtemple-frontend")
-      (message "Setting up eventtemple FE project environment")
-      (gptel-context-add-file (expand-file-name "pnpm-workspace.yaml" project-root))
-      (gptel-context-add-file (expand-file-name "ai-context.org" project-root))
-      (my/gptel-context-add-folder (expand-file-name ".github/instructions" project-root))
-     )))
- )
-
-(defun my/projectile-switch-project-action ()
-  "Custom actions based on the project name or path."
-  (let ((project-name (projectile-project-name))
-        (project-root (projectile-project-root)))
-    (gptel-context-remove-all)
-    (cond
-     ((string= project-name "eventtemple")
-      (message "Setting up eventtemple BE project environment")
-      (gptel-context-add-file (expand-file-name "ai-context.org" project-root))
-      (my/gptel-context-add-folder (expand-file-name ".github/instructions" project-root))
-      (find-file (expand-file-name "README.md" project-root)))
-
-     ((string= project-name "eventtemple-frontend")
-      (message "Setting up eventtemple FE project environment")
-      (gptel-context-add-file (expand-file-name "pnpm-workspace.yaml" project-root))
-      (gptel-context-add-file (expand-file-name "ai-context.org" project-root))
-      (my/gptel-context-add-folder (expand-file-name ".github/instructions" project-root))
-     )))
-)
-
-(add-hook 'projectile-after-switch-project-hook #'my/projectile-switch-project-action)
-
 (map! :leader
       (:prefix ("o" . "open") "c" #'gptel)
       (:prefix ("l" . "GPT")
@@ -615,8 +585,6 @@
 ;; (use-package! gptel-magit
 ;;   :ensure t
 ;;   :hook (magit-mode . gptel-magit-install))
-
-
 
 
 
