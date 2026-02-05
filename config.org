@@ -236,7 +236,6 @@ Reference: https://leanpub.com/lit-config/read
 (setq org-agenda-start-day "-1d")
 (setq org-agenda-span 5)
 (setq org-agenda-files '(
-        "~/my-org-roam/mobile-notes"
         "~/my-org-roam/projects"
         "~/my-org-roam/daily"
         "~/my-org-roam/work-org-roam/daily"
@@ -443,21 +442,16 @@ Reference: https://leanpub.com/lit-config/read
 (add-hook 'after-save-hook 'my/org-to-md-on-save)
 #+end_src
 ** Invoice Ninga
-#+begin_src elisp
-(defcustom invoice-ninga-api-url "http://192.168.2.25:8090"
-  "Base URL for Invoice Ninja API (e.g., \"http://localhost:8012\")."
-  :type '(choice (const nil) string)
-  :group 'invoice-ninga)
-
-(defcustom invoice-ninga-api-token (auth-source-pick-first-password :host "invoice-ninga")
-  "API token for Invoice Ninja authentication."
-  :type '(choice (const nil) string)
-  :group 'invoice-ninga)
-
+#+begin_src elisp :tangle ./config.el
 (let ((invoice-ninga-path "/home/devindavis/WebDev/Projects/invoice-ninga"))
   (when (file-exists-p invoice-ninga-path)
     (add-to-list 'load-path invoice-ninga-path)
     (require 'invoice-ninga)))
+
+(after! invoice-ninga
+  (setq! invoice-ninga-api-url "http://192.168.2.25:8090")
+  (setq! invoice-ninga-api-token
+         (auth-source-pick-first-password :host "invoice-ninga")))
 #+end_src
 ** FlyCheck
 FlyCheck provides on-the-fly syntax checking for various programming languages, displaying errors and warnings in real-time as you code. It integrates with linters like Biome and ESLint for JavaScript/TypeScript.
