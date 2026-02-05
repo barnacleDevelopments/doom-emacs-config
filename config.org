@@ -172,10 +172,9 @@ Reference: https://leanpub.com/lit-config/read
         (todo . " %i %-12(org-get-title) ") 
         (tags . " %i %-12:c")
         (search . " %i %-12:c")))
-
+(setq org-hide-emphasis-markers t)   
 (setq org-clock-sound "~/my-org-roam/ding.wav")
 (setq org-clock-idle-time 15)
-
 (use-package! org-modern
     :hook (org-mode . org-modern-mode)
     :config
@@ -198,7 +197,12 @@ Reference: https://leanpub.com/lit-config/read
       :localleader
       (:prefix ("l" . "insert link")
         "i" #'my/org-insert-info-link))
-#+end_src 
+#+end_src
+*** Contrib
+#+begin_src emacs-lisp
+(after! org
+  (require 'ox-confluence))
+#+end_src
 *** Custom Functions
 #+begin_src elisp :tangle ./config.el
 (defun my/org-insert-package-link ()
@@ -704,7 +708,7 @@ ruby-ts-mode instead.
                         llama-3.3-70b
                         venice-uncensored
                         mistral-31-24b))
-                    gptel-model "llama-3.3-70b")
+                    gptel-model 'llama-3.3-70b)
 
 (setq gptel-default-backend "Venice")
 
@@ -1431,6 +1435,56 @@ Reference: https://github.com/vedang/pdf-tools
 ** Not Much
 Not much is a email indexing service.
 
+*** mbsync for syncing mail config ()
+  #+begin_src
+IMAPAccount gmail
+Host imap.gmail.com
+User devin@example.com
+# mac
+PassCmd "security find-generic-password -s mbsync-gmail -w"
+TLSType IMAPS
+AuthMechs LOGIN
+
+IMAPStore gmail-remote
+Account gmail
+
+MaildirStore gmail-local
+Path ~/Mail/gmail/
+Inbox ~/Mail/gmail/Inbox
+SubFolders Verbatim
+
+Channel gmail
+Far :gmail-remote:
+Near :gmail-local:
+Patterns *
+Create Both
+Expunge Both
+SyncState *
+  #+end_src
+  
+*** [[https://wiki.archlinux.org/title/Msmtp#OAuth2_Setup][msmtp for sending email]] config
+#+begin_src
+# Set default values for all following accounts.
+defaults
+auth           on
+tls            on
+logfile        ~/.msmtp.log
+
+# Gmail
+account        gmail
+host           smtp.gmail.com
+port           465
+tls_starttls   off
+from           devinexample.com
+user           devin@example.com
+passwordeval       "security find-generic-password -s mbsync-gmail -w"
+
+# Set a default account
+account default: gmail
+#+end_src
+
+*** Configuration
+
 Reference: https://notmuch.readthedocs.io/en/latest/index.html
 
 #+begin_src elisp :tangle ./config.el
@@ -1452,7 +1506,7 @@ Reference: https://notmuch.readthedocs.io/en/latest/index.html
   
   (setq notmuch-saved-searches
         '((:name "Inbox" :query "tag:inbox -tag:deleted -tag:sentry -tag:sent" :key "i")
-          (:name "Unread" :query "tag:inbox and tag:unread -tag:deleted -tag:sentry -tag:sent" :key "u")
+          (:name "Unread" :query "tag:inbox and tag:unread -tag:deleted -tag:sentry -tag:sent -tag:atlassian -tag:slack -tag:pganalyze" :key "u")
           (:name "All Mail" :query "*" :key "a")
           (:name "Finances" :query "tag:finance and -tag:deleted" :key "f")
           (:name "MyMail" :query "folder:mymail/** -tag:deleted" :key "m")

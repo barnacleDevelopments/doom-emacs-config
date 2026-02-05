@@ -143,10 +143,9 @@
         (todo . " %i %-12(org-get-title) ") 
         (tags . " %i %-12:c")
         (search . " %i %-12:c")))
-
+(setq org-hide-emphasis-markers t)   
 (setq org-clock-sound "~/my-org-roam/ding.wav")
 (setq org-clock-idle-time 15)
-
 (use-package! org-modern
     :hook (org-mode . org-modern-mode)
     :config
@@ -167,6 +166,9 @@
       :localleader
       (:prefix ("l" . "insert link")
         "i" #'my/org-insert-info-link))
+
+(after! org
+  (require 'ox-confluence))
 
 (defun my/org-insert-package-link ()
   "Insert an org-mode link to package documentation with completion."
@@ -563,7 +565,7 @@
                         llama-3.3-70b
                         venice-uncensored
                         mistral-31-24b))
-                    gptel-model "llama-3.3-70b")
+                    gptel-model 'llama-3.3-70b)
 
 (setq gptel-default-backend "Venice")
 
@@ -1112,7 +1114,7 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
   
   (setq notmuch-saved-searches
         '((:name "Inbox" :query "tag:inbox -tag:deleted -tag:sentry -tag:sent" :key "i")
-          (:name "Unread" :query "tag:inbox and tag:unread -tag:deleted -tag:sentry -tag:sent" :key "u")
+          (:name "Unread" :query "tag:inbox and tag:unread -tag:deleted -tag:sentry -tag:sent -tag:atlassian -tag:slack -tag:pganalyze" :key "u")
           (:name "All Mail" :query "*" :key "a")
           (:name "Finances" :query "tag:finance and -tag:deleted" :key "f")
           (:name "MyMail" :query "folder:mymail/** -tag:deleted" :key "m")
