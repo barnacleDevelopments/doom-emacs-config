@@ -202,7 +202,6 @@
 (setq org-agenda-start-day "-1d")
 (setq org-agenda-span 5)
 (setq org-agenda-files '(
-        "~/my-org-roam/mobile-notes"
         "~/my-org-roam/projects"
         "~/my-org-roam/daily"
         "~/my-org-roam/work-org-roam/daily"
@@ -389,15 +388,11 @@
             (kill-buffer exported-md))))))
 (add-hook 'after-save-hook 'my/org-to-md-on-save)
 
-(defcustom invoice-ninga-api-url "http://192.168.2.25:8090"
-  "Base URL for Invoice Ninja API (e.g., \"http://localhost:8012\")."
-  :type '(choice (const nil) string)
-  :group 'invoice-ninga)
-
-(defcustom invoice-ninga-api-token (auth-source-pick-first-password :host "invoice-ninga")
-  "API token for Invoice Ninja authentication."
-  :type '(choice (const nil) string)
-  :group 'invoice-ninga)
+(defun invoice-ninga-get-api-token ()
+  "Get the Invoice Ninja API token, fetching from auth-source if needed."
+  (or invoice-ninga-api-token
+      (setq invoice-ninga-api-token
+            (auth-source-pick-first-password :host "invoice-ninga"))))
 
 (let ((invoice-ninga-path "/home/devindavis/WebDev/Projects/invoice-ninga"))
   (when (file-exists-p invoice-ninga-path)
