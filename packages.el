@@ -39,6 +39,7 @@
 (package! json-mode)
 (package! rspec-mode)
 (package! markdown-mode)
+(package! ox-gfm)
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 
