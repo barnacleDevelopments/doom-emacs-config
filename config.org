@@ -325,7 +325,9 @@ Reference: https://leanpub.com/lit-config/read
                                      "#+filetags: :%^{tag}:\n"
                                      "* Description\n"
                                      "%^{Description}\n\n"
-                                     "- \n\n"
+                                     "- \n\n"))
+                                     
+         :unnarrowed t)
         ("t" "Ticket" plain
          "%?"
          :target (file+head "work-org-roam/tickets/%<%Y%m%d%H%M%S>-${slug}.org"
@@ -469,6 +471,13 @@ FlyCheck provides on-the-fly syntax checking for various programming languages, 
        :desc "Clear errors"           "C" #'flycheck-clear
        :desc "Explain error at point" "e" #'flycheck-explain-error-at-point
        :desc "Verify setup"           "v" #'flycheck-verify-setup))
+#+end_src
+** Winpulse
+#+begin_src elisp :tangle ./config.el
+(use-package! winpulse
+:config
+(winpulse-mode +1)
+  )
 #+end_src
 ** Web Mode
 *** Configuration
@@ -1646,9 +1655,7 @@ Reference: https://github.com/ahungry/org-jira
 *** Configuration
 
 *** Keybindings
-
 #+begin_src elisp :tangle ./config.el
-(auth-source-search :host "eventtemple.atlassian.net")
 (setq! jiralib-url "https://eventtemple.atlassian.net")
 (after! org-jira
   (map! :map org-jira-mode-map

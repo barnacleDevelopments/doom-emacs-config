@@ -271,7 +271,9 @@
                                      "#+filetags: :%^{tag}:\n"
                                      "* Description\n"
                                      "%^{Description}\n\n"
-                                     "- \n\n"
+                                     "- \n\n"))
+                                     
+         :unnarrowed t)
         ("t" "Ticket" plain
          "%?"
          :target (file+head "work-org-roam/tickets/%<%Y%m%d%H%M%S>-${slug}.org"
@@ -373,15 +375,16 @@
             (kill-buffer exported-md))))))
 (add-hook 'after-save-hook 'my/org-to-md-on-save)
 
+(defun invoice-ninga-get-api-token ()
+  "Get the Invoice Ninja API token, fetching from auth-source if needed."
+  (or invoice-ninga-api-token
+      (setq invoice-ninga-api-token
+            (auth-source-pick-first-password :host "invoice-ninga"))))
+
 (let ((invoice-ninga-path "/home/devindavis/WebDev/Projects/invoice-ninga"))
   (when (file-exists-p invoice-ninga-path)
     (add-to-list 'load-path invoice-ninga-path)
     (require 'invoice-ninga)))
-
-(after! invoice-ninga
-  (setq! invoice-ninga-api-url "http://192.168.2.25:8090")
-  (setq! invoice-ninga-api-token
-         (auth-source-pick-first-password :host "invoice-ninga")))
 
 (add-hook 'after-init-hook #'global-flycheck-mode)
 ;; Note: Biome handles linting through Apheleia integration
@@ -401,6 +404,11 @@
        :desc "Clear errors"           "C" #'flycheck-clear
        :desc "Explain error at point" "e" #'flycheck-explain-error-at-point
        :desc "Verify setup"           "v" #'flycheck-verify-setup))
+
+(use-package! winpulse
+:config
+(winpulse-mode +1)
+  )
 
 (use-package! web-mode
   :mode ("\\.ejs\\'" . web-mode)
@@ -1226,7 +1234,6 @@ Use this if you need to retry the smart merge workflow."
       :n "J" #'notmuch-jump-search
       :n "gr" #'notmuch-refresh-this-buffer)
 
-(auth-source-search :host "eventtemple.atlassian.net")
 (setq! jiralib-url "https://eventtemple.atlassian.net")
 (after! org-jira
   (map! :map org-jira-mode-map

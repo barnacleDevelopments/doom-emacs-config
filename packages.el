@@ -40,6 +40,7 @@
 (package! rspec-mode)
 (package! markdown-mode)
 (package! ox-gfm)
+(package! winpulse :recipe (:host github :repo "xenodium/winpulse"))
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 
