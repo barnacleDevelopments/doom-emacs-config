@@ -1012,6 +1012,118 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
         :desc "List issues"                   "I" #'forge-list-issues
         :desc "List notifications"            "n" #'forge-list-notifications))
 
+;; Track PRs that are currently waiting for CI tests
+(defvar my/forge-prs-awaiting-tests (make-hash-table :test 'equal)
+  "Hash table tracking PR numbers that are awaiting CI test completion.")
+
+(defun my/forge-get-base-branch ()
+  "Determine the base branch (main or master) for the current repository."
+  (or (magit-rev-verify "origin/main") "main"
+      (magit-rev-verify "origin/master") "master"))
+
+(defun my/forge-pr-awaiting-tests-p (pr-number)
+  "Check if PR-NUMBER is currently awaiting CI tests."
+  (gethash pr-number my/forge-prs-awaiting-tests))
+
+(defun my/forge-mark-pr-awaiting-tests (pr-number)
+  "Mark PR-NUMBER as awaiting CI tests."
+  (puthash pr-number t my/forge-prs-awaiting-tests))
+
+(defun my/forge-clear-pr-awaiting-tests (pr-number)
+  "Clear the awaiting tests flag for PR-NUMBER."
+  (remhash pr-number my/forge-prs-awaiting-tests))
+
+(defun my/forge-get-pr-at-point ()
+  "Get the pull request at point in forge buffers."
+  (or (forge-pullreq-at-point)
+      (forge-current-topic)))
+
+(defun my/forge-pr-approved-p (owner name pr-number)
+  "Check if PR PR-NUMBER in OWNER/NAME repository has been approved."
+  (let* ((gh-command (format "gh api repos/%s/%s/pulls/%d/reviews --jq '[.[] | select(.state == \"APPROVED\")] | length'"
+                             owner name pr-number))
+         (result (string-trim (shell-command-to-string gh-command))))
+    (and (string-match-p "^[0-9]+$" result)
+         (> (string-to-number result) 0))))
+
+(defun my/forge-smart-merge ()
+  "Smart merge workflow: update PR branch with base, then notify about CI tests.
+
+This function:
+1. Checks if the PR has been approved
+2. Merges main/master into the PR branch via GitHub API
+3. Displays a notification that CI tests are running
+4. Blocks re-merge attempts while tests are pending"
+  (interactive)
+  (if-let* ((pr (my/forge-get-pr-at-point))
+            (pr-number (oref pr number))
+            (repo (forge-get-repository pr))
+            (owner (oref repo owner))
+            (name (oref repo name))
+            (head-ref (oref pr head-ref)))
+      (cond
+       ;; Check if PR is awaiting tests
+       ((my/forge-pr-awaiting-tests-p pr-number)
+        (message "PR #%d: CI tests are still running after base branch merge. Please wait for tests to complete before merging." pr-number))
+       ;; Check if PR has been approved
+       ((not (my/forge-pr-approved-p owner name pr-number))
+        (message "PR #%d: This pull request has not been approved. Please obtain approval before merging." pr-number))
+       ;; Proceed with update and merge workflow
+       (t
+        (let* ((base-branch (oref pr base-ref))
+               (gh-command (format "gh api repos/%s/%s/merges -f base=%s -f head=%s -f commit_message='Merge %s into %s to update PR'"
+                                   owner name head-ref base-branch base-branch head-ref)))
+          (message "PR #%d: Merging %s into %s..." pr-number base-branch head-ref)
+          (let ((result (shell-command-to-string gh-command)))
+            (if (string-match-p "\\(sha\\|message\\)" result)
+                (progn
+                  (my/forge-mark-pr-awaiting-tests pr-number)
+                  (message "PR #%d: Base branch merged. CI tests are now running. Run this command again once tests pass to complete the merge." pr-number))
+              (if (string-match-p "merge conflict\\|cannot be merged" result)
+                  (message "PR #%d: Merge conflict detected. Please resolve conflicts manually." pr-number)
+                (message "PR #%d: Failed to merge base branch. Error: %s" pr-number result)))))))
+    (message "No pull request found at point.")))
+
+(defun my/forge-complete-merge ()
+  "Complete the merge after CI tests have passed.
+
+Use this after my/forge-smart-merge has updated the PR and tests have completed."
+  (interactive)
+  (if-let* ((pr (my/forge-get-pr-at-point))
+            (pr-number (oref pr number)))
+      (progn
+        (my/forge-clear-pr-awaiting-tests pr-number)
+        (forge-merge pr)
+        (message "PR #%d: Merge initiated." pr-number))
+    (message "No pull request found at point.")))
+
+(defun my/forge-reset-pr-status ()
+  "Reset the awaiting tests status for a PR.
+
+Use this if you need to retry the smart merge workflow."
+  (interactive)
+  (if-let* ((pr (my/forge-get-pr-at-point))
+            (pr-number (oref pr number)))
+      (progn
+        (my/forge-clear-pr-awaiting-tests pr-number)
+        (message "PR #%d: Status reset. You can now run smart-merge again." pr-number))
+    (message "No pull request found at point.")))
+
+;; Add smart merge keybindings to forge topic mode (PR view)
+(map! :after forge
+      :map forge-topic-mode-map
+      :localleader
+      (:prefix ("m" . "merge")
+        :desc "Smart merge (update + wait for CI)" "m" #'my/forge-smart-merge
+        :desc "Complete merge (after CI passes)"   "c" #'my/forge-complete-merge
+        :desc "Reset PR merge status"              "r" #'my/forge-reset-pr-status))
+
+;; Add to global forge prefix as well
+(map! :leader
+      (:prefix ("g" . "git")
+        (:prefix ("f" . "forge")
+          :desc "Smart merge PR"     "m" #'my/forge-smart-merge)))
+
 (after! pdf
   (setq-default pdf-view-display-size 'fit-page)
 
@@ -1098,7 +1210,7 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
   
   (setq notmuch-saved-searches
         '((:name "Inbox" :query "tag:inbox -tag:deleted -tag:sentry -tag:sent" :key "i")
-          (:name "Unread" :query "tag:inbox and tag:unread -tag:deleted -tag:sentry -tag:sent -tag:atlassian -tag:slack -tag:pganalyze" :key "u")
+          (:name "Unread" :query "tag:inbox and tag:unread -tag:deleted -tag:sentry -tag:github -tag:sent -tag:atlassian -tag:slack -tag:pganalyze" :key "u")
           (:name "All Mail" :query "*" :key "a")
           (:name "Finances" :query "tag:finance and -tag:deleted" :key "f")
           (:name "MyMail" :query "folder:mymail/** -tag:deleted" :key "m")
@@ -1113,3 +1225,42 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
       :n "r" #'notmuch-search-remove-tag
       :n "J" #'notmuch-jump-search
       :n "gr" #'notmuch-refresh-this-buffer)
+
+(auth-source-search :host "eventtemple.atlassian.net")
+(setq! jiralib-url "https://eventtemple.atlassian.net")
+(after! org-jira
+  (map! :map org-jira-mode-map
+        :localleader
+        (:prefix ("j" . "jira")
+         ;; Projects
+         (:prefix ("p" . "projects")
+          :desc "Get projects"                    "g" #'org-jira-get-projects)
+         ;; Issues
+         (:prefix ("i" . "issues")
+          :desc "Browse issue"                    "b" #'org-jira-browse-issue
+          :desc "Get issues"                      "g" #'org-jira-get-issues
+          :desc "Get issues from JQL"             "j" #'org-jira-get-issues-from-custom-jql
+          :desc "Get issues (head only)"          "h" #'org-jira-get-issues-headonly
+          :desc "Get issues by fix version"       "f" #'org-jira-get-issues-by-fixversion
+          :desc "Update issue labels"             "l" #'org-jira-update-issue-labels
+          :desc "Update issue"                    "u" #'org-jira-update-issue
+          :desc "Progress issue"                  "w" #'org-jira-progress-issue
+          :desc "Progress issue next"             "n" #'org-jira-progress-issue-next
+          :desc "Assign issue"                    "a" #'org-jira-assign-issue
+          :desc "Refresh issue"                   "r" #'org-jira-refresh-issue
+          :desc "Refresh issues in buffer"        "R" #'org-jira-refresh-issues-in-buffer
+          :desc "Create issue"                    "c" #'org-jira-create-issue
+          :desc "Copy issue key"                  "k" #'org-jira-copy-current-issue-key)
+         ;; Subtasks
+         (:prefix ("s" . "subtasks")
+          :desc "Create subtask"                  "c" #'org-jira-create-subtask
+          :desc "Get subtasks"                    "g" #'org-jira-get-subtasks)
+         ;; Comments
+         (:prefix ("c" . "comments")
+          :desc "Add comment"                     "c" #'org-jira-add-comment
+          :desc "Update comment"                  "u" #'org-jira-update-comment)
+         ;; Worklogs
+         (:prefix ("w" . "worklogs")
+          :desc "Update worklogs from clocks"     "u" #'org-jira-update-worklogs-from-org-clocks)
+         ;; Todo sync
+         :desc "Sync todo to Jira"                "t" #'org-jira-todo-to-jira)))

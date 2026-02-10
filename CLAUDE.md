@@ -251,6 +251,17 @@ See these package configurations as reference implementations:
 - `SPC d` - Dirvish quick access
 - `SPC c R` - Projectile replace
 
+### Forge Bindings (`SPC g f`)
+- `SPC g f f` - Forge dispatch
+- `SPC g f p` - Browse pull requests
+- `SPC g f i` - Browse issues
+- `SPC g f m` - Smart merge PR (update branch + wait for CI)
+
+#### Forge Topic Mode (PR view, localleader: `SPC m`)
+- `SPC m m m` - Smart merge (update branch + wait for CI)
+- `SPC m m c` - Complete merge (after CI passes)
+- `SPC m m r` - Reset PR merge status
+
 ### Ruby Mode Bindings (localleader: `SPC m`)
 
 #### RuboCop (`SPC m r`)
@@ -275,6 +286,41 @@ See these package configurations as reference implementations:
 - `SPC m k r` - Rerun last rake task
 - `SPC m k f` - Find and run rake task
 - `SPC m k c` - Regenerate task cache
+
+### Org-Jira Bindings (localleader: `SPC m j`)
+
+#### Projects (`SPC m j p`)
+- `SPC m j p g` - Get projects
+
+#### Issues (`SPC m j i`)
+- `SPC m j i b` - Browse issue
+- `SPC m j i g` - Get issues
+- `SPC m j i j` - Get issues from JQL
+- `SPC m j i h` - Get issues (head only)
+- `SPC m j i f` - Get issues by fix version
+- `SPC m j i l` - Update issue labels
+- `SPC m j i u` - Update issue
+- `SPC m j i w` - Progress issue
+- `SPC m j i n` - Progress issue next
+- `SPC m j i a` - Assign issue
+- `SPC m j i r` - Refresh issue
+- `SPC m j i R` - Refresh issues in buffer
+- `SPC m j i c` - Create issue
+- `SPC m j i k` - Copy issue key
+
+#### Subtasks (`SPC m j s`)
+- `SPC m j s c` - Create subtask
+- `SPC m j s g` - Get subtasks
+
+#### Comments (`SPC m j c`)
+- `SPC m j c c` - Add comment
+- `SPC m j c u` - Update comment
+
+#### Worklogs (`SPC m j w`)
+- `SPC m j w u` - Update worklogs from org clocks
+
+#### Todo Sync
+- `SPC m j t` - Sync todo to Jira
 
 ## macOS-Specific Configuration
 - `exec-path-from-shell` integration
