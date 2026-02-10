@@ -265,15 +265,13 @@
 (setq org-roam-capture-templates
       `(("g" "Generic" plain
          "%?"
-         :target (file+head "work-org-roam/%<%Y%m%d%H%M%S>-${slug}.org"
+         :target (file+head "my-org-roam/%<%Y%m%d%H%M%S>-${slug}.org"
                             ,(concat "#+title: ${title}\n"
                                      "#+created: %U\n"
                                      "#+filetags: :%^{tag}:\n"
                                      "* Description\n"
                                      "%^{Description}\n\n"
                                      "- \n\n"
-                                     "** TODO Review \n"))
-         :unnarrowed t)
         ("t" "Ticket" plain
          "%?"
          :target (file+head "work-org-roam/tickets/%<%Y%m%d%H%M%S>-${slug}.org"
@@ -307,14 +305,7 @@
                                      "#+filetags: :project:\n\n"
                                      "* Description\n"
                                      "%^{Description}\n\n"
-                                     "* Checklist\n"
-                                     "** TODO Complete [0/6]\n"
-                                     "*** [ ] Write tests\n"
-                                     "*** [ ] Create pull request\n"
-                                     "*** [ ] Apply feedback if any\n"
-                                     "*** [ ] Deploy to staging\n"
-                                     "*** [ ] Deploy to production\n"
-                                     "*** [ ] Create release note using template in Slack\n"))
+                                     "* Checklist\n"))
          :unnarrowed t)
         ("i" "Project" plain
          "%?"
@@ -323,10 +314,7 @@
                                      "#+created: %U\n"
                                      "#+filetags: :project:\n\n"
                                      "* Description\n"
-                                     "%^{Description}\n\n"
-                                     "* Checklist\n"
-                                     "** TODO Complete [0/6]\n"
-                                     ""))
+                                     "%^{Description}\n\n"))
          :unnarrowed t)
         ("b" "Post" plain
          "%?"
@@ -349,20 +337,17 @@
                                      "* Description\n"
                                      "%^{Description}\n\n"
                                      "* References\n"
-                                     "- \n"
-                                     ))
+                                     "- \n"))
          :unnarrowed t)
-("P" "Person" plain
+        ("P" "Person" plain
          "%?"
          :target (file+head "people/%<%Y%m%d%H%M%S>-${slug}.org"
                             ,(concat "#+title: ${title}\n"
                                      "#+created: %U\n"
                                      "#+filetags: :%^{tag}: :person:\n\n"
                                      "* Description\n\n"
-                                     "- \n"
-                                     ))
-         :unnarrowed t)
-        ))
+                                     "- \n"))
+         :unnarrowed t)))
 
 (setq org-export-show-temporary-export-buffer nil)
 (defun my/org-to-md-on-save ()
@@ -388,16 +373,15 @@
             (kill-buffer exported-md))))))
 (add-hook 'after-save-hook 'my/org-to-md-on-save)
 
-(defun invoice-ninga-get-api-token ()
-  "Get the Invoice Ninja API token, fetching from auth-source if needed."
-  (or invoice-ninga-api-token
-      (setq invoice-ninga-api-token
-            (auth-source-pick-first-password :host "invoice-ninga"))))
-
 (let ((invoice-ninga-path "/home/devindavis/WebDev/Projects/invoice-ninga"))
   (when (file-exists-p invoice-ninga-path)
     (add-to-list 'load-path invoice-ninga-path)
     (require 'invoice-ninga)))
+
+(after! invoice-ninga
+  (setq! invoice-ninga-api-url "http://192.168.2.25:8090")
+  (setq! invoice-ninga-api-token
+         (auth-source-pick-first-password :host "invoice-ninga")))
 
 (add-hook 'after-init-hook #'global-flycheck-mode)
 ;; Note: Biome handles linting through Apheleia integration

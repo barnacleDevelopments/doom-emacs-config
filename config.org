@@ -319,15 +319,13 @@ Reference: https://leanpub.com/lit-config/read
 (setq org-roam-capture-templates
       `(("g" "Generic" plain
          "%?"
-         :target (file+head "work-org-roam/%<%Y%m%d%H%M%S>-${slug}.org"
+         :target (file+head "my-org-roam/%<%Y%m%d%H%M%S>-${slug}.org"
                             ,(concat "#+title: ${title}\n"
                                      "#+created: %U\n"
                                      "#+filetags: :%^{tag}:\n"
                                      "* Description\n"
                                      "%^{Description}\n\n"
                                      "- \n\n"
-                                     "** TODO Review \n"))
-         :unnarrowed t)
         ("t" "Ticket" plain
          "%?"
          :target (file+head "work-org-roam/tickets/%<%Y%m%d%H%M%S>-${slug}.org"
@@ -361,14 +359,7 @@ Reference: https://leanpub.com/lit-config/read
                                      "#+filetags: :project:\n\n"
                                      "* Description\n"
                                      "%^{Description}\n\n"
-                                     "* Checklist\n"
-                                     "** TODO Complete [0/6]\n"
-                                     "*** [ ] Write tests\n"
-                                     "*** [ ] Create pull request\n"
-                                     "*** [ ] Apply feedback if any\n"
-                                     "*** [ ] Deploy to staging\n"
-                                     "*** [ ] Deploy to production\n"
-                                     "*** [ ] Create release note using template in Slack\n"))
+                                     "* Checklist\n"))
          :unnarrowed t)
         ("i" "Project" plain
          "%?"
@@ -377,10 +368,7 @@ Reference: https://leanpub.com/lit-config/read
                                      "#+created: %U\n"
                                      "#+filetags: :project:\n\n"
                                      "* Description\n"
-                                     "%^{Description}\n\n"
-                                     "* Checklist\n"
-                                     "** TODO Complete [0/6]\n"
-                                     ""))
+                                     "%^{Description}\n\n"))
          :unnarrowed t)
         ("b" "Post" plain
          "%?"
@@ -403,20 +391,17 @@ Reference: https://leanpub.com/lit-config/read
                                      "* Description\n"
                                      "%^{Description}\n\n"
                                      "* References\n"
-                                     "- \n"
-                                     ))
+                                     "- \n"))
          :unnarrowed t)
-("P" "Person" plain
+        ("P" "Person" plain
          "%?"
          :target (file+head "people/%<%Y%m%d%H%M%S>-${slug}.org"
                             ,(concat "#+title: ${title}\n"
                                      "#+created: %U\n"
                                      "#+filetags: :%^{tag}: :person:\n\n"
                                      "* Description\n\n"
-                                     "- \n"
-                                     ))
-         :unnarrowed t)
-        ))
+                                     "- \n"))
+         :unnarrowed t)))
 #+end_src
 *** Blog Post Writing
 **** Configuration
