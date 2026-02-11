@@ -113,7 +113,7 @@
 (quietly-read-abbrev-file)
 
 (setq! doom-font (font-spec :size 16))
-(setq! doom-theme 'doom-palenight)
+(setq! doom-theme 'doom-snazzy)
 
 (setq org-directory "~/my-org-roam/")
 

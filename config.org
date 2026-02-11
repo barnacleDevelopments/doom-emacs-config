@@ -138,7 +138,7 @@ Reference: https://leanpub.com/lit-config/read
 *** Configuration
 #+begin_src elisp :tangle ./config.el
 (setq! doom-font (font-spec :size 16))
-(setq! doom-theme 'doom-palenight)
+(setq! doom-theme 'doom-snazzy)
 #+end_src
 ** Org
 *** General
