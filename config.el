@@ -74,6 +74,21 @@
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 (setenv "GIT_SSH_COMMAND" "ssh -v")
 
+(when (eq system-type 'darwin)
+  ;; Org clock sound via macOS afplay
+  (setq org-clock-sound t)
+  (defvar dd/org-clock-sound-file (expand-file-name "ding.wav" doom-user-dir)
+    "Path to the sound file played when an org clock timer finishes.")
+  (defun dd/play-org-clock-sound ()
+    "Play the org clock sound using macOS afplay."
+    (when (file-exists-p dd/org-clock-sound-file)
+      (start-process "org-clock-sound" nil "afplay" dd/org-clock-sound-file)))
+  (add-hook 'org-clock-out-hook #'dd/play-org-clock-sound)
+  (add-hook 'org-timer-done-hook #'dd/play-org-clock-sound)
+
+  ;; Only show event_temple tasks in the global agenda todo list
+  (setq org-agenda-tag-filter-preset '("+event_temple")))
+
 (map! :leader
       :desc "Comment Region"
       :prefix ("c" . "+code")
@@ -114,6 +129,9 @@
 
 (setq! doom-font (font-spec :size 16))
 (setq! doom-theme 'doom-snazzy)
+(custom-set-faces!
+  '(line-number :foreground "#bbbbbb")
+  '(line-number-current-line :foreground "#ffffff"))
 
 (setq org-directory "~/my-org-roam/")
 
@@ -143,8 +161,7 @@
         (todo . " %i %-12(org-get-title) ") 
         (tags . " %i %-12:c")
         (search . " %i %-12:c")))
-(setq org-hide-emphasis-markers t)   
-(setq org-clock-sound "~/my-org-roam/ding.wav")
+(setq org-hide-emphasis-markers t)
 (setq org-clock-idle-time 15)
 (use-package! org-modern
     :hook (org-mode . org-modern-mode)
@@ -279,7 +296,7 @@
          :target (file+head "work-org-roam/tickets/%<%Y%m%d%H%M%S>-${slug}.org"
                             ,(concat "#+title: ${title}\n"
                                      "#+created: %U\n"
-                                     "#+filetags: :ticket:\n"
+                                     "#+filetags: :ticket:event_temple\n"
                                      "#+jira_ticket_url: %^{JiraTicketURL}\n"
                                      "#+figma_url: %^{FigmaDesignURL}\n"
                                      "#+pull_request_url: \n"
@@ -290,21 +307,14 @@
                                      "** How to test\n\n"
                                      "* Code\n"
                                      "- \n\n"
-                                     "* Checklist\n"
-                                     "** TODO Complete [0/6]\n"
-                                     "*** [ ] Write tests\n"
-                                     "*** [ ] Create pull request\n"
-                                     "*** [ ] Apply feedback if any\n"
-                                     "*** [ ] Deploy to staging\n"
-                                     "*** [ ] Deploy to production\n"
-                                     "*** [ ] Create release note using template in Slack\n"))
+                                     "* Checklist\n"))
          :unnarrowed t)
         ("p" "ET Project" plain
          "%?"
          :target (file+head "work-org-roam/projects/%<%Y%m%d%H%M%S>-${slug}.org"
                             ,(concat "#+title: ${title}\n"
                                      "#+created: %U\n"
-                                     "#+filetags: :project:\n\n"
+                                     "#+filetags: :project:event_temple:\n\n"
                                      "* Description\n"
                                      "%^{Description}\n\n"
                                      "* Checklist\n"))

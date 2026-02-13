@@ -209,6 +209,7 @@ See these package configurations as reference implementations:
 
 ### Org-mode
 - **Agenda files**: Pulls from multiple org-roam directories
+- **Tag filter**: On macOS, agenda is pre-filtered to show only `event_temple` tagged tasks; other systems show all tasks
 - **Capture templates**:
   - `c` - Cookbook recipe (via org-chef)
   - `g` - Generic note
@@ -323,9 +324,14 @@ See these package configurations as reference implementations:
 - `SPC m j t` - Sync todo to Jira
 
 ## macOS-Specific Configuration
+All macOS-specific settings are centralized under the `** Mac Config` section in `config.org`:
 - `exec-path-from-shell` integration
 - SSH_AUTH_SOCK environment variable forwarded
+- Org clock sound via `afplay`
+- Org agenda tag filter (only shows `event_temple` tasks)
 - Conditional loading based on window system
+
+**Convention**: Any new macOS-specific settings should be added to the `(when (eq system-type 'darwin) ...)` block in `** Mac Config`, not scattered throughout the file.
 
 ## Important Notes
 
