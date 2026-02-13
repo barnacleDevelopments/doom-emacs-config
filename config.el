@@ -1,15 +1,14 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
-(setq avy-all-windows t)
-(setq display-line-numbers-type 'relative)
-(setq display-line-numbers-type t)
+(setq! avy-all-windows t)
 
 ;; Relative Line Numbers
-(setq display-line-numbers-type 'relative)
-(global-display-line-numbers-mode +1)
+(setq! display-line-numbers-type 'relative)
 
 ;; Disable line numbers in specific modes
-(dolist (mode '(pdf-view-mode-hook))
-  (add-hook mode (lambda () (display-line-numbers-mode -1))))
+(defun my/disable-line-numbers ()
+  "Disable display-line-numbers-mode in the current buffer."
+  (display-line-numbers-mode -1))
+(add-hook! 'pdf-view-mode-hook #'my/disable-line-numbers)
 
 (after! flycheck
   ;; Use Biome checker for TypeScript/JavaScript
@@ -62,7 +61,7 @@
 
   )
 
-(setq auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
+(setq! auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
 
 (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
 
@@ -76,18 +75,18 @@
 
 (when (eq system-type 'darwin)
   ;; Org clock sound via macOS afplay
-  (setq org-clock-sound t)
+  (setq! org-clock-sound t)
   (defvar dd/org-clock-sound-file (expand-file-name "ding.wav" doom-user-dir)
     "Path to the sound file played when an org clock timer finishes.")
   (defun dd/play-org-clock-sound ()
     "Play the org clock sound using macOS afplay."
     (when (file-exists-p dd/org-clock-sound-file)
       (start-process "org-clock-sound" nil "afplay" dd/org-clock-sound-file)))
-  (add-hook 'org-clock-out-hook #'dd/play-org-clock-sound)
-  (add-hook 'org-timer-done-hook #'dd/play-org-clock-sound)
+  (add-hook! 'org-clock-out-hook #'dd/play-org-clock-sound)
+  (add-hook! 'org-timer-done-hook #'dd/play-org-clock-sound)
 
   ;; Only show event_temple tasks in the global agenda todo list
-  (setq org-agenda-tag-filter-preset '("+event_temple")))
+  (setq! org-agenda-tag-filter-preset '("+event_temple")))
 
 (map! :leader
       :desc "Comment Region"
@@ -133,13 +132,13 @@
   '(line-number :foreground "#bbbbbb")
   '(line-number-current-line :foreground "#ffffff"))
 
-(setq org-directory "~/my-org-roam/")
+(setq! org-directory "~/my-org-roam/")
 
 (use-package! org-protocol
   :after org)
 (after! org
     ;; Enable company in org-src blocks
-    (setq org-capture-templates
+    (setq! org-capture-templates
         '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
             "%(org-chef-get-recipe-from-url)"
             :empty-lines 1)
@@ -156,28 +155,28 @@
   (or (cadr (assoc "TITLE" (org-collect-keywords '("TITLE"))))
       (file-name-nondirectory (buffer-file-name))))
 
-(setq org-agenda-prefix-format
+(setq! org-agenda-prefix-format
       '((agenda . " %i %-12:c%?-12t% s")
         (todo . " %i %-12(org-get-title) ") 
         (tags . " %i %-12:c")
         (search . " %i %-12:c")))
-(setq org-hide-emphasis-markers t)
-(setq org-clock-idle-time 15)
+(setq! org-hide-emphasis-markers t)
+(setq! org-clock-idle-time 15)
 (use-package! org-modern
     :hook (org-mode . org-modern-mode)
     :config
-    (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
-            org-modern-table-vertical 1
-            org-modern-table-horizontal 0.2
-            org-modern-list '((43 . "➤")
-                            (45 . "–")
-                            (42 . "•"))
-            org-modern-block-fringe nil
-            org-modern-block-name '("" . "")
-            org-modern-keyword nil
-            org-modern-footnote (cons nil (cadr org-script-display))
-            org-modern-priority nil
-            org-modern-todo nil))
+    (setq! org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+           org-modern-table-vertical 1
+           org-modern-table-horizontal 0.2
+           org-modern-list '((43 . "➤")
+                           (45 . "–")
+                           (42 . "•"))
+           org-modern-block-fringe nil
+           org-modern-block-name '("" . "")
+           org-modern-keyword nil
+           org-modern-footnote (cons nil (cadr org-script-display))
+           org-modern-priority nil
+           org-modern-todo nil))
 
 (map! :map org-mode-map
       :localleader
@@ -215,10 +214,10 @@
                     (format "(info \"(%s)%s\")" manual node))))
     (insert (format "[[elisp:%s][%s]]" command description))))
 
-(setq org-agenda-todo-ignore-scheduled 'future)
-(setq org-agenda-start-day "-1d")
-(setq org-agenda-span 5)
-(setq org-agenda-files '(
+(setq! org-agenda-todo-ignore-scheduled 'future)
+(setq! org-agenda-start-day "-1d")
+(setq! org-agenda-span 5)
+(setq! org-agenda-files '(
         "~/my-org-roam/projects"
         "~/my-org-roam/daily"
         "~/my-org-roam/work-org-roam/daily"
@@ -232,7 +231,7 @@
   "Switch entry to DONE when all subentries are done, to TODO otherwise."
   (let (org-log-done org-todo-log-states)   ; turn off logging
     (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
-(add-hook 'org-after-todo-statistics-hook #'org-summary-todo)
+(add-hook! 'org-after-todo-statistics-hook #'org-summary-todo)
 
 (defun my/org-md-filter-sub-to-underscore (text backend info)
   "Replace <sub>...</sub> with _... in GFM export."
@@ -259,10 +258,10 @@
         (clipboard-kill-region (point-min) (point-max)))
       (message "Clean GFM Markdown copied to clipboard."))))
 
-(setq org-roam-directory "~/my-org-roam")
+(setq! org-roam-directory "~/my-org-roam")
 (org-roam-db-autosync-mode)
 
-(setq org-roam-dailies-capture-templates
+(setq! org-roam-dailies-capture-templates
       `(("d" "default" plain
          "%?"
          :target (file+head "%<%Y-%m-%d>.org"
@@ -279,7 +278,7 @@
          :unnarrowed t
          )))
 
-(setq org-roam-capture-templates
+(setq! org-roam-capture-templates
       `(("g" "Generic" plain
          "%?"
          :target (file+head "my-org-roam/%<%Y%m%d%H%M%S>-${slug}.org"
@@ -361,7 +360,7 @@
                                      "- \n"))
          :unnarrowed t)))
 
-(setq org-export-show-temporary-export-buffer nil)
+(setq! org-export-show-temporary-export-buffer nil)
 (defun my/org-to-md-on-save ()
   "Export Org file to Hugo-compatible Markdown cleanly, strip heading IDs, and copy it to the destination directory."
   (when (and (eq major-mode 'org-mode)
@@ -383,7 +382,7 @@
                   (replace-match "")))
               (write-region (point-min) (point-max) destination-file))
             (kill-buffer exported-md))))))
-(add-hook 'after-save-hook 'my/org-to-md-on-save)
+(add-hook! 'after-save-hook #'my/org-to-md-on-save)
 
 (defun invoice-ninga-get-api-token ()
   "Get the Invoice Ninja API token, fetching from auth-source if needed."
@@ -396,12 +395,13 @@
     (add-to-list 'load-path invoice-ninga-path)
     (require 'invoice-ninga)))
 
-(add-hook 'after-init-hook #'global-flycheck-mode)
+(add-hook! 'after-init-hook #'global-flycheck-mode)
 ;; Note: Biome handles linting through Apheleia integration
 ;; ESLint can still be used for projects that require it
-(add-hook! 'typescript-mode
-  (lambda ()
-    (flycheck-select-checker 'javascript-eslint)))
+(defun my/select-eslint-checker ()
+  "Select javascript-eslint as the Flycheck checker."
+  (flycheck-select-checker 'javascript-eslint))
+(add-hook! 'typescript-mode-hook #'my/select-eslint-checker)
 
 (map! :leader
       :prefix ("c" . "+code")
@@ -423,21 +423,21 @@
 (use-package! web-mode
   :mode ("\\.ejs\\'" . web-mode)
   :config
-  (setq web-mode-content-types-alist
-        '(("html" . "\\.ejs\\'")))
-  (setq web-mode-engines-alist
-        '(("ejs" . "\\.ejs\\'"))))
+  (setq! web-mode-content-types-alist
+         '(("html" . "\\.ejs\\'")))
+  (setq! web-mode-engines-alist
+         '(("ejs" . "\\.ejs\\'"))))
 
-(setq projectile-project-search-path '("~/WebDev/"))
+(setq! projectile-project-search-path '("~/WebDev/"))
 (use-package! ripgrep
   :config
-  (setq ripgrep-arguments '("-C2")))  ;; -C2 is --context=2
+  (setq! ripgrep-arguments '("-C2")))  ;; -C2 is --context=2
 
 (after! lsp-mode
   ;; Disable rubocop-ls
-  (setq lsp-disabled-clients '(rubocop-ls))
-  (setq lsp-ruby-lsp-use-bundler t)
-  (setq lsp-ruby-lsp-formatter "auto")
+  (setq! lsp-disabled-clients '(rubocop-ls))
+  (setq! lsp-ruby-lsp-use-bundler t)
+  (setq! lsp-ruby-lsp-formatter "auto")
   
   ;; Register ruby-lsp (Shopify's language server)
   (lsp-register-client
@@ -453,13 +453,13 @@
          (ruby-ts-mode . rspec-mode))
   :config
   ;; Use bundle exec for running RSpec
-  (setq rspec-use-bundler-when-possible t)
+  (setq! rspec-use-bundler-when-possible t)
 
   ;; Use rake for running specs (alternative to rspec command)
-  (setq rspec-use-rake-when-possible nil)
+  (setq! rspec-use-rake-when-possible nil)
 
   ;; Compilation mode settings for better output
-  (setq compilation-scroll-output t))
+  (setq! compilation-scroll-output t))
 
 (map! :localleader
       :map (ruby-mode-map ruby-ts-mode-map)
@@ -476,7 +476,7 @@
   :after ruby-mode
   :config
   ;; Use compilation mode for better output handling
-  (setq rake-completion-system 'default))
+  (setq! rake-completion-system 'default))
 
 (map! :localleader
       :map (ruby-mode-map ruby-ts-mode-map)
@@ -488,7 +488,7 @@
 
 ;; Enable projectile-rails-mode in tree-sitter Ruby buffers
 ;; Add hook directly without after! to ensure it runs before buffers are opened
-(add-hook 'ruby-ts-mode-hook #'projectile-rails-mode)
+(add-hook! 'ruby-ts-mode-hook #'projectile-rails-mode)
 
 (use-package! apheleia
   :config
@@ -503,55 +503,59 @@
   (setf (alist-get 'tsx-ts-mode apheleia-mode-alist) 'biome)
   (setf (alist-get 'js-mode apheleia-mode-alist) 'biome)
   (setf (alist-get 'js-ts-mode apheleia-mode-alist) 'biome)
-  (add-hook 'typescript-mode-hook #'apheleia-mode)
-  (add-hook 'typescript-ts-mode-hook #'apheleia-mode)
-  (add-hook 'tsx-ts-mode-hook #'apheleia-mode)
+  (add-hook! 'typescript-mode-hook #'apheleia-mode)
+  (add-hook! 'typescript-ts-mode-hook #'apheleia-mode)
+  (add-hook! 'tsx-ts-mode-hook #'apheleia-mode)
 
   ;; Ruby formatting with RuboCop
   (setf (alist-get 'ruby-mode apheleia-mode-alist) 'rubocop)
   (setf (alist-get 'ruby-ts-mode apheleia-mode-alist) 'rubocop)
-  (add-hook 'ruby-mode-hook #'apheleia-mode)
-  (add-hook 'ruby-ts-mode-hook #'apheleia-mode)
+  (add-hook! 'ruby-mode-hook #'apheleia-mode)
+  (add-hook! 'ruby-ts-mode-hook #'apheleia-mode)
 
-  (setq apheleia-formatters-respect-indent-level nil)
+  (setq! apheleia-formatters-respect-indent-level nil)
 )
 
 (after! lsp-mode
-  (setq lsp-enable-on-type-formatting nil)
-  (setq lsp-signature-auto-activate nil)
-  (setq lsp-modeline-code-actions-enable nil)
-  (setq lsp-modeline-diagnostics-enable nil)
-  (setq lsp-idle-delay 0.500)
-  (setq lsp-file-watch-ignored-directories
-        '("[/\\\\]\\.git$"
-          "[/\\\\]node_modules$"
-          "[/\\\\]build$"
-          "[/\\\\]dist$"))
-  (setq lsp-file-watch-threshold 1000)
-  (setq lsp-typescript-auto-import-completions nil)
-  (setq lsp-diagnostics-provider :flycheck)
-  (setq lsp-enable-suggest-server-download nil)
+  (setq! lsp-enable-on-type-formatting nil)
+  (setq! lsp-signature-auto-activate nil)
+  (setq! lsp-modeline-code-actions-enable nil)
+  (setq! lsp-modeline-diagnostics-enable nil)
+  (setq! lsp-idle-delay 0.500)
+  (setq! lsp-file-watch-ignored-directories
+         '("[/\\\\]\\.git$"
+           "[/\\\\]node_modules$"
+           "[/\\\\]build$"
+           "[/\\\\]dist$"))
+  (setq! lsp-file-watch-threshold 1000)
+  (setq! lsp-typescript-auto-import-completions nil)
+  (setq! lsp-diagnostics-provider :flycheck)
+  (setq! lsp-enable-suggest-server-download nil)
   (delete 'sql-mode lsp-language-id-configuration))
 
 (use-package! lsp-sqls
   :after lsp-mode
   :config
   (add-to-list 'lsp-language-id-configuration '(sql-mode . "sql"))
-  (setq lsp-sqls-server (expand-file-name "~/go/bin/sqls"))
-  (setq lsp-sqls-workspace-config-path "root"))  ; Use project .sqls/config.json
+  (setq! lsp-sqls-server (expand-file-name "~/go/bin/sqls"))
+  (setq! lsp-sqls-workspace-config-path "root"))  ; Use project .sqls/config.json
 
-(add-hook 'sql-mode-hook #'lsp!)
+(add-hook! 'sql-mode-hook #'lsp!)
 
 (defun my-compilation-mode-hook ()
   (setq truncate-lines nil) ;; automatically becomes buffer local
   (set (make-local-variable 'truncate-partial-width-windows) nil))
-(add-hook! 'compilation-mode-hook 'my-compilation-mode-hook)
+(add-hook! 'compilation-mode-hook #'my-compilation-mode-hook)
 
 (after! company
-  (setq company-idle-delay 0.2)  ; Show completions after 0.2s
-  (setq company-minimum-prefix-length 2))  ; Trigger after 2 characters
+  (setq! company-idle-delay 0.2)  ; Show completions after 0.2s
+  (setq! company-minimum-prefix-length 2)  ; Trigger after 2 characters
 
-(setq gptel-backend (gptel-make-openai "Venice"
+  ;; Add file path completions for prog-mode and org-mode
+  (set-company-backend! 'prog-mode 'company-capf 'company-files 'company-yasnippet)
+  (set-company-backend! 'org-mode 'company-capf 'company-files 'company-yasnippet))
+
+(setq! gptel-backend (gptel-make-openai "Venice"
                        :host "api.venice.ai"
                        :endpoint "/api/v1/chat/completions"
                        :stream t
@@ -569,7 +573,7 @@
                         mistral-31-24b))
                     gptel-model 'llama-3.3-70b)
 
-(setq gptel-default-backend "Venice")
+(setq! gptel-default-backend "Venice")
 
 (map! :leader
       (:prefix ("o" . "open") "c" #'gptel)
@@ -590,15 +594,14 @@
 (use-package! elfeed-score
   :ensure t
   :config
-  (progn
-    (elfeed-score-enable)
-    (define-key elfeed-search-mode-map "=" elfeed-score-map))
-  (add-hook 'kill-emacs-hook #'elfeed-db-save)
+  (elfeed-score-enable)
+  (map! :map elfeed-search-mode-map "=" elfeed-score-map)
+  (add-hook! 'kill-emacs-hook #'elfeed-db-save)
   (run-at-time nil (* 8 60 60) #'elfeed-db-save)
 
   )
-(setq elfeed-search-print-entry-function #'elfeed-score-print-entry)
-(setq elfeed-score-serde-score-file "/home/devindavis/.doom.d/score.el")
+(setq! elfeed-search-print-entry-function #'elfeed-score-print-entry)
+(setq! elfeed-score-serde-score-file "/home/devindavis/.doom.d/score.el")
 (map! :leader
       :prefix ("o" . "open")
       "r" #'elfeed)
@@ -732,7 +735,7 @@
       :prefix "c"
       "R" #'projectile-replace)
 
-(setq logview-additional-submodes
+(setq! logview-additional-submodes
       '(("Pino JSON Logs"
          (format . "JSON")
          (levels . "level")
@@ -762,8 +765,8 @@
 (use-package! claude-code
   :config
   ;; Use vterm as the terminal backend for better compatibility
-  (setq claude-code-terminal-backend 'vterm)
-  (add-hook 'vterm-mode-hook (lambda () (display-line-numbers-mode 0))))
+  (setq! claude-code-terminal-backend 'vterm)
+  (add-hook! 'vterm-mode-hook #'my/disable-line-numbers))
 
 
 ;; Configure window display for Claude Code buffers using Doom's popup system
@@ -801,7 +804,7 @@
 
   ;; Hook Monet server startup into Claude Code's process lifecycle
   ;; This ensures the WebSocket server is available when Claude needs it
-  (add-hook 'claude-code-process-environment-functions
+  (add-hook! 'claude-code-process-environment-functions
             #'monet-start-server-function)
 
   ;; Activate Claude Code mode
@@ -910,9 +913,8 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
   (my/restart-services '("paisa")))
 
 (after! prodigy
-  :config
-  (setq prodigy-view-buffer-maximum-size 10000
-        prodigy-view-truncate-by-default t)
+  (setq! prodigy-view-buffer-maximum-size 10000
+         prodigy-view-truncate-by-default t)
 
   ;; Rails backend server with debugging enabled
   (prodigy-define-service
@@ -998,7 +1000,7 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
              (y-or-n-p "Pushing to master. Create a release tag? "))
     (call-interactively #'magit-tag-create)))
 
-(add-hook 'magit-pre-push-hook #'my/magit-prompt-tag-on-master-push)
+(add-hook! 'magit-pre-push-hook #'my/magit-prompt-tag-on-master-push)
 
 ;; Global leader keybindings for Forge operations
 (map! :leader
@@ -1190,9 +1192,9 @@ Use this if you need to retry the smart merge workflow."
         "p" #'pdf-misc-print-document
         "m" #'pdf-view-midnight-minor-mode))
 
-(global-set-key (kbd "M-/") 'hippie-expand)
+(map! "M-/" #'hippie-expand)
 
-(setq hippie-expand-try-functions-list
+(setq! hippie-expand-try-functions-list
       '(try-expand-dabbrev
         try-expand-dabbrev-all-buffers
         try-expand-dabbrev-from-kill
@@ -1211,22 +1213,22 @@ Use this if you need to retry the smart merge workflow."
     (require 'read-later)))
 
 (after! notmuch
-  (setq notmuch-hello-auto-refresh nil)
+  (setq! notmuch-hello-auto-refresh nil)
   
   (defun notmuch ()
     "Launch notmuch directly to unread inbox."
     (interactive)
     (notmuch-search "tag:inbox and tag:unread -tag:spam -tag:deleted -tag:sent -tag:draft -tag:sentry"))
   
-  (setq notmuch-search-oldest-first nil
-        message-send-mail-function 'message-send-mail-with-sendmail
-        sendmail-program "msmtp"
-        message-kill-buffer-on-exit t)
+  (setq! notmuch-search-oldest-first nil
+         message-send-mail-function 'message-send-mail-with-sendmail
+         sendmail-program "msmtp"
+         message-kill-buffer-on-exit t)
   
-  (setq +notmuch-sync-backend 'mbsync)
-  (setq +notmuch-mail-folder "~/Mail") 
+  (setq! +notmuch-sync-backend 'mbsync)
+  (setq! +notmuch-mail-folder "~/Mail")
   
-  (setq notmuch-saved-searches
+  (setq! notmuch-saved-searches
         '((:name "Inbox" :query "tag:inbox -tag:deleted -tag:sentry -tag:sent" :key "i")
           (:name "Unread" :query "tag:inbox and tag:unread -tag:deleted -tag:sentry -tag:github -tag:sent -tag:atlassian -tag:slack -tag:pganalyze" :key "u")
           (:name "All Mail" :query "*" :key "a")
@@ -1235,8 +1237,8 @@ Use this if you need to retry the smart merge workflow."
           (:name "Gmail" :query "folder:gmail/** -tag:deleted" :key "g")
           (:name "Deleted" :query "tag:deleted" :key "D")))
   
-  (setq user-full-name "Devin Davis"
-        user-mail-address "devin@devdeveloper.ca"))
+  (setq! user-full-name "Devin Davis"
+         user-mail-address "devin@devdeveloper.ca"))
 
 (map! :map notmuch-search-mode-map
       :n "a" #'notmuch-search-add-tag
