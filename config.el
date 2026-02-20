@@ -132,6 +132,71 @@
   '(line-number :foreground "#bbbbbb")
   '(line-number-current-line :foreground "#ffffff"))
 
+(defvar-local my/branch-diff-stats-cache nil
+  "Cached branch diff stats string for the current buffer.")
+
+(defun my/git-default-branch ()
+  "Determine the default branch (main or master) for the current repository."
+  (cond
+   ((= 0 (call-process "git" nil nil nil "rev-parse" "--verify" "refs/heads/main"))
+    "main")
+   ((= 0 (call-process "git" nil nil nil "rev-parse" "--verify" "refs/heads/master"))
+    "master")
+   (t nil)))
+
+(defun my/git-branch-diff-stats ()
+  "Compute total lines added/removed on the current branch vs the default branch.
+Returns a formatted string like \"+42 -17\", or nil if not applicable."
+  (when-let* ((default-directory (or (doom-project-root) default-directory))
+              (default-branch (my/git-default-branch))
+              (current-branch (magit-get-current-branch)))
+    ;; Don't show stats when on the default branch itself
+    (unless (string= current-branch default-branch)
+      (let ((merge-base (string-trim
+                         (shell-command-to-string
+                          (format "git merge-base HEAD %s 2>/dev/null" default-branch)))))
+        (when (and merge-base (not (string-empty-p merge-base)))
+          (let ((numstat (shell-command-to-string
+                          (format "git diff --numstat %s 2>/dev/null" merge-base)))
+                (additions 0)
+                (deletions 0))
+            (dolist (line (split-string numstat "\n" t))
+              (when (string-match "^\\([0-9]+\\)\t\\([0-9]+\\)\t" line)
+                (setq additions (+ additions (string-to-number (match-string 1 line))))
+                (setq deletions (+ deletions (string-to-number (match-string 2 line))))))
+            (when (or (> additions 0) (> deletions 0))
+              (cons additions deletions))))))))
+
+(defun my/branch-diff-update-cache ()
+  "Update the branch diff stats cache for the current buffer."
+  (setq my/branch-diff-stats-cache (my/git-branch-diff-stats)))
+
+;; Refresh cache on save
+(add-hook! 'after-save-hook #'my/branch-diff-update-cache)
+;; Refresh cache on buffer switch
+(add-hook! 'doom-switch-buffer-hook #'my/branch-diff-update-cache)
+;; Refresh cache after magit operations
+(add-hook! 'magit-post-refresh-hook #'my/branch-diff-update-cache)
+
+(after! doom-modeline
+  ;; Define the branch-diff segment
+  (doom-modeline-def-segment branch-diff
+    "Display total lines added/removed on the current branch vs default branch."
+    (when-let ((stats my/branch-diff-stats-cache))
+      (let ((additions (car stats))
+            (deletions (cdr stats)))
+        (concat
+         " "
+         (propertize (format "+%d" additions) 'face 'success)
+         " "
+         (propertize (format "-%d" deletions) 'face 'error)
+         " "))))
+
+  ;; Redefine the main modeline to include branch-diff after vcs
+  (doom-modeline-def-modeline 'main
+    '(eldoc bar workspace-name window-number modals matches follow buffer-info remote-host buffer-position word-count parrot selection-info)
+    '(compilation objed-state misc-info persp-name battery grip irc mu4e gnus github debug repl lsp minor-modes input-method indent-info buffer-encoding major-mode process vcs branch-diff check time)))
+
 (setq! org-directory "~/my-org-roam/")
 
 (use-package! org-protocol
@@ -489,6 +554,14 @@
 ;; Enable projectile-rails-mode in tree-sitter Ruby buffers
 ;; Add hook directly without after! to ensure it runs before buffers are opened
 (add-hook! 'ruby-ts-mode-hook #'projectile-rails-mode)
+
+(after! projectile-rails
+  ;; Use compact Foo::Bar syntax instead of nested module declarations
+  (defadvice! +projectile-rails-compact-class-a (main-definition name)
+    "Use compact class syntax (Foo::Bar) instead of nested modules."
+    :override #'projectile-rails--snippet-for-module
+    (let ((class-name (s-join "::" (projectile-rails-classify name))))
+      (format (concat main-definition "$2\nend") class-name))))
 
 (use-package! apheleia
   :config
@@ -1066,42 +1139,76 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
     (and (string-match-p "^[0-9]+$" result)
          (> (string-to-number result) 0))))
 
-(defun my/forge-smart-merge ()
-  "Smart merge workflow: update PR branch with base, then notify about CI tests.
+(defun my/forge-smart-merge-by-data (owner name pr-number head-ref base-ref)
+  "Core smart merge logic for a PR specified by its data.
 
-This function:
-1. Checks if the PR has been approved
-2. Merges main/master into the PR branch via GitHub API
-3. Displays a notification that CI tests are running
-4. Blocks re-merge attempts while tests are pending"
+OWNER and NAME identify the repository. PR-NUMBER is the pull request number.
+HEAD-REF is the feature branch and BASE-REF is the target branch.
+
+Returns a symbol indicating the result: `awaiting', `not-approved', `merged',
+`conflict', or `error'."
+  (cond
+   ;; Check if PR is awaiting tests
+   ((my/forge-pr-awaiting-tests-p pr-number)
+    (message "PR #%d: CI tests are still running after base branch merge. Please wait for tests to complete before merging." pr-number)
+    'awaiting)
+   ;; Check if PR has been approved
+   ((not (my/forge-pr-approved-p owner name pr-number))
+    (message "PR #%d: This pull request has not been approved. Please obtain approval before merging." pr-number)
+    'not-approved)
+   ;; Proceed with update and merge workflow
+   (t
+    (let* ((gh-command (format "gh api repos/%s/%s/merges -f base=%s -f head=%s -f commit_message='Merge %s into %s to update PR' 2>&1"
+                               owner name head-ref base-ref base-ref head-ref)))
+      (message "PR #%d: Merging %s into %s..." pr-number base-ref head-ref)
+      (let ((result (string-trim (shell-command-to-string gh-command))))
+        (cond
+         ;; Successful merge - response contains commit sha
+         ((string-match-p "\"sha\"" result)
+          (my/forge-mark-pr-awaiting-tests pr-number)
+          (message "PR #%d: Base branch merged. CI tests are now running. Run this command again once tests pass to complete the merge." pr-number)
+          'merged)
+         ;; Empty response means branch is already up to date (204 No Content)
+         ;; No new merge commit means no CI triggered, so safe to merge directly
+         ;; Uses gh api graphql directly to get a fresh headRefOid and merge synchronously,
+         ;; since forge-merge is async and its cached head OID may be stale.
+         ((string-empty-p result)
+          (let* ((pr-json (json-read-from-string
+                           (string-trim (shell-command-to-string
+                                         (format "gh pr view %d --json id,headRefOid" pr-number)))))
+                 (node-id (alist-get 'id pr-json))
+                 (head-oid (alist-get 'headRefOid pr-json))
+                 (merge-query (format "mutation { mergePullRequest(input: {pullRequestId: \"%s\", mergeMethod: SQUASH, expectedHeadOid: \"%s\"}) { pullRequest { number state } } }" node-id head-oid))
+                 (merge-result (string-trim (shell-command-to-string
+                                             (format "gh api graphql -f query='%s' 2>&1" merge-query)))))
+            (if (string-match-p "MERGED" merge-result)
+                (progn
+                  (message "PR #%d: Already up to date with %s. Squash merged." pr-number base-ref)
+                  'merged)
+              (message "PR #%d: Already up to date but merge failed: %s" pr-number merge-result)
+              'error)))
+         ;; Merge conflict
+         ((string-match-p "merge conflict\\|cannot be merged\\|Merge conflict" result)
+          (message "PR #%d: Merge conflict detected. Please resolve conflicts manually." pr-number)
+          'conflict)
+         ;; Any other error
+         (t
+          (message "PR #%d: Failed to merge base branch. Error: %s" pr-number result)
+          'error)))))))
+
+(defun my/forge-smart-merge ()
+  "Smart merge the pull request at point.
+
+Delegates to `my/forge-smart-merge-by-data' using the PR at point in forge buffers."
   (interactive)
   (if-let* ((pr (my/forge-get-pr-at-point))
             (pr-number (oref pr number))
             (repo (forge-get-repository pr))
             (owner (oref repo owner))
             (name (oref repo name))
-            (head-ref (oref pr head-ref)))
-      (cond
-       ;; Check if PR is awaiting tests
-       ((my/forge-pr-awaiting-tests-p pr-number)
-        (message "PR #%d: CI tests are still running after base branch merge. Please wait for tests to complete before merging." pr-number))
-       ;; Check if PR has been approved
-       ((not (my/forge-pr-approved-p owner name pr-number))
-        (message "PR #%d: This pull request has not been approved. Please obtain approval before merging." pr-number))
-       ;; Proceed with update and merge workflow
-       (t
-        (let* ((base-branch (oref pr base-ref))
-               (gh-command (format "gh api repos/%s/%s/merges -f base=%s -f head=%s -f commit_message='Merge %s into %s to update PR'"
-                                   owner name head-ref base-branch base-branch head-ref)))
-          (message "PR #%d: Merging %s into %s..." pr-number base-branch head-ref)
-          (let ((result (shell-command-to-string gh-command)))
-            (if (string-match-p "\\(sha\\|message\\)" result)
-                (progn
-                  (my/forge-mark-pr-awaiting-tests pr-number)
-                  (message "PR #%d: Base branch merged. CI tests are now running. Run this command again once tests pass to complete the merge." pr-number))
-              (if (string-match-p "merge conflict\\|cannot be merged" result)
-                  (message "PR #%d: Merge conflict detected. Please resolve conflicts manually." pr-number)
-                (message "PR #%d: Failed to merge base branch. Error: %s" pr-number result)))))))
+            (head-ref (oref pr head-ref))
+            (base-ref (oref pr base-ref)))
+      (my/forge-smart-merge-by-data owner name pr-number head-ref base-ref)
     (message "No pull request found at point.")))
 
 (defun my/forge-complete-merge ()
@@ -1113,7 +1220,7 @@ Use this after my/forge-smart-merge has updated the PR and tests have completed.
             (pr-number (oref pr number)))
       (progn
         (my/forge-clear-pr-awaiting-tests pr-number)
-        (forge-merge pr)
+        (forge-merge pr 'squash)
         (message "PR #%d: Merge initiated." pr-number))
     (message "No pull request found at point.")))
 
@@ -1143,6 +1250,150 @@ Use this if you need to retry the smart merge workflow."
       (:prefix ("g" . "git")
         (:prefix ("f" . "forge")
           :desc "Smart merge PR"     "m" #'my/forge-smart-merge)))
+
+(defun my/forge-extract-jira-url (body)
+  "Extract the first Jira URL from PR BODY text, or nil if none found."
+  (when (and body (string-match "https://[^ \n]*atlassian\\.net/browse/[A-Z]+-[0-9]+" body))
+    (match-string 0 body)))
+
+(defun my/forge-format-pr (pr)
+  "Format a single PR alist into a Markdown deployment message.
+PR should contain `title', `number', `headRefName', `url', and `body' keys."
+  (let* ((title (alist-get 'title pr))
+         (number (alist-get 'number pr))
+         (branch (alist-get 'headRefName pr))
+         (url (alist-get 'url pr))
+         (jira-url (my/forge-extract-jira-url (alist-get 'body pr))))
+    (concat (format "*%s* (#%d)\n- Branch: `%s`\n- URL: %s"
+                    title number branch url)
+            (when jira-url (format "\n- Jira: %s" jira-url)))))
+
+(defun my/forge-copy-pr-urls ()
+  "Copy formatted PR details of active (open) pull requests to the kill ring.
+
+Lists open PRs by branch name and allows selecting one or all.
+Copies a Markdown-formatted message with title, number, branch, and URL.
+Requires the `gh` CLI to be installed and authenticated."
+  (interactive)
+  (let* ((json-output (string-trim
+                       (shell-command-to-string
+                        "gh pr list --state open --author @me --json url,headRefName,title,number,body")))
+         (prs (condition-case nil
+                  (json-read-from-string json-output)
+                (error nil))))
+    (if (or (null prs) (= (length prs) 0))
+        (message "No open pull requests found.")
+      (let* ((pr-alist (mapcar (lambda (pr)
+                                 (cons (alist-get 'headRefName pr) pr))
+                               prs))
+             ;; Build candidates: "All" option + individual branch names
+             (candidates (append '("All") (mapcar #'car pr-alist)))
+             (selection (completing-read "Copy PR URL: " candidates nil t)))
+        (if (string= selection "All")
+            (let ((formatted (string-join
+                              (mapcar (lambda (entry) (my/forge-format-pr (cdr entry)))
+                                      pr-alist)
+                              "\n\n")))
+              (kill-new formatted)
+              (message "Copied %d formatted PRs to kill ring." (length pr-alist)))
+          (let ((pr (cdr (assoc selection pr-alist))))
+            (kill-new (my/forge-format-pr pr))
+            (message "Copied formatted PR: %s" (alist-get 'title pr))))))))
+
+;; Add keybinding for copying PR URLs under the forge prefix
+(map! :leader
+      (:prefix ("g" . "git")
+        (:prefix ("f" . "forge")
+          :desc "Copy active PR URLs"  "u" #'my/forge-copy-pr-urls)))
+
+(defconst my/forge-review-request-greetings
+  '("Hey, could someone take a look at this when you get a chance?"
+    "Got a PR up for review."
+    "This one's ready for review whenever someone has time."
+    "PR ready for review, let me know if you have questions."
+    "Hey, this is up for review."
+    "Could use a review on this one when you're free."
+    "PR is ready to go, would appreciate a look."
+    "Hey, got one ready for review."
+    "This is good to go for review."
+    "Ready for review, happy to walk through anything if needed.")
+  "Pool of casual greetings for PR review request messages.")
+
+(defun my/forge-copy-pr-review-request ()
+  "Copy a friendly review request message with PR details to the kill ring.
+
+Selects a PR from the list of open PRs, formats it with a random greeting
+and PR metadata, and copies the result for pasting into a chat.
+Requires the `gh` CLI to be installed and authenticated."
+  (interactive)
+  (let* ((json-output (string-trim
+                       (shell-command-to-string
+                        "gh pr list --state open --author @me --json url,headRefName,title,number,body")))
+         (prs (condition-case nil
+                  (json-read-from-string json-output)
+                (error nil))))
+    (if (or (null prs) (= (length prs) 0))
+        (message "No open pull requests found.")
+      (let* ((pr-alist (mapcar (lambda (pr)
+                                 (cons (alist-get 'headRefName pr) pr))
+                               prs))
+             (candidates (mapcar #'car pr-alist))
+             (selection (completing-read "Review request for PR: " candidates nil t))
+             (pr (cdr (assoc selection pr-alist)))
+             (greeting (nth (random (length my/forge-review-request-greetings))
+                            my/forge-review-request-greetings))
+             (formatted (concat greeting "\n\n" (my/forge-format-pr pr))))
+        (kill-new formatted)
+        (message "Copied review request for: %s" (alist-get 'title pr))))))
+
+;; Add keybinding for copying PR review request under the forge prefix
+(map! :leader
+      (:prefix ("g" . "git")
+        (:prefix ("f" . "forge")
+          :desc "Copy PR review request" "R" #'my/forge-copy-pr-review-request)))
+
+(defun my/forge-select-and-merge-prs ()
+  "Select active PRs from a list and smart-merge them.
+
+Fetches open PRs via `gh', presents them by branch name, and runs the
+smart merge workflow on the selected PR or all of them."
+  (interactive)
+  (let* ((repo-json (condition-case nil
+                        (json-read-from-string
+                         (string-trim (shell-command-to-string
+                                       "gh repo view --json owner,name")))
+                      (error nil)))
+         (owner (when repo-json (alist-get 'login (alist-get 'owner repo-json))))
+         (name (when repo-json (alist-get 'name repo-json))))
+    (unless (and owner name)
+      (user-error "Could not determine repository owner/name. Are you in a GitHub repo?"))
+    (let* ((json-output (string-trim
+                         (shell-command-to-string
+                          "gh pr list --state open --author @me --json number,headRefName,baseRefName")))
+           (prs (condition-case nil
+                    (json-read-from-string json-output)
+                  (error nil))))
+      (if (or (null prs) (= (length prs) 0))
+          (message "No open pull requests found.")
+        (let* ((pr-alist (mapcar (lambda (pr)
+                                   (cons (alist-get 'headRefName pr) pr))
+                                 prs))
+               (candidates (append '("All") (mapcar #'car pr-alist)))
+               (selection (completing-read "Smart merge PR: " candidates nil t))
+               (selected-prs (if (string= selection "All")
+                                 (mapcar #'cdr pr-alist)
+                               (list (cdr (assoc selection pr-alist))))))
+          (dolist (pr selected-prs)
+            (let ((pr-number (alist-get 'number pr))
+                  (head-ref (alist-get 'headRefName pr))
+                  (base-ref (alist-get 'baseRefName pr)))
+              (my/forge-smart-merge-by-data owner name pr-number head-ref base-ref))))))))
+
+;; Add keybinding for select-and-merge under the forge prefix
+(map! :leader
+      (:prefix ("g" . "git")
+        (:prefix ("f" . "forge")
+          :desc "Select & smart merge PRs" "M" #'my/forge-select-and-merge-prs)))
 
 (after! pdf
   (setq-default pdf-view-display-size 'fit-page)
@@ -1218,7 +1469,8 @@ Use this if you need to retry the smart merge workflow."
   (defun notmuch ()
     "Launch notmuch directly to unread inbox."
     (interactive)
-    (notmuch-search "tag:inbox and tag:unread -tag:spam -tag:deleted -tag:sent -tag:draft -tag:sentry"))
+    (let ((saved-searches '((unread . "tag:inbox and tag:unread -tag:deleted -tag:sentry -tag:github -tag:sent -tag:atlassian -tag:slack -tag:pganalyze"))))
+      (notmuch-search (alist-get 'unread saved-searches))))
   
   (setq! notmuch-search-oldest-first nil
          message-send-mail-function 'message-send-mail-with-sendmail
@@ -1236,7 +1488,7 @@ Use this if you need to retry the smart merge workflow."
           (:name "MyMail" :query "folder:mymail/** -tag:deleted" :key "m")
           (:name "Gmail" :query "folder:gmail/** -tag:deleted" :key "g")
           (:name "Deleted" :query "tag:deleted" :key "D")))
-  
+
   (setq! user-full-name "Devin Davis"
          user-mail-address "devin@devdeveloper.ca"))
 

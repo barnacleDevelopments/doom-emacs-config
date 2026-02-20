@@ -24,6 +24,7 @@ AI assistants should proactively update this file when making configuration chan
 - `config.el` - Tangled output from config.org (auto-generated)
 - `init.el` - Doom module configuration
 - `packages.el` - Package declarations
+- `snippets/` - Custom yasnippet templates (overrides Doom defaults)
 - `.gitignore` - Git ignore rules
 - `.tool-versions` - Version management (asdf)
 
@@ -206,6 +207,7 @@ See these package configurations as reference implementations:
 - Theme: `doom-palenight`
 - Relative line numbers enabled
 - Treemacs width: 45 columns
+- Branch diff modeline segment: shows `+N -M` (green/red) for lines added/removed on the current branch vs `main`/`master`, cached and refreshed on save, buffer switch, and Magit operations
 
 ### Org-mode
 - **Agenda files**: Pulls from multiple org-roam directories
@@ -257,6 +259,9 @@ See these package configurations as reference implementations:
 - `SPC g f p` - Browse pull requests
 - `SPC g f i` - Browse issues
 - `SPC g f m` - Smart merge PR (update branch + wait for CI)
+- `SPC g f u` - Copy formatted PR details (Markdown with title, #number, branch, URL)
+- `SPC g f R` - Copy PR review request (friendly message + PR details)
+- `SPC g f M` - Select & smart merge PRs (pick from list or merge all)
 
 #### Forge Topic Mode (PR view, localleader: `SPC m`)
 - `SPC m m m` - Smart merge (update branch + wait for CI)
