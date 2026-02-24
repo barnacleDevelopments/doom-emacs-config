@@ -86,7 +86,44 @@
   (add-hook! 'org-timer-done-hook #'dd/play-org-clock-sound)
 
   ;; Only show event_temple tasks in the global agenda todo list
-  (setq! org-agenda-tag-filter-preset '("+event_temple")))
+  (setq! org-agenda-tag-filter-preset '("+event_temple"))
+
+  ;; Only register EventTemple Prodigy services on macOS
+  (after! prodigy
+    (prodigy-define-service
+      :name "core-web"
+      :command "bundle"
+      :args '("exec" "rails" "server")
+      :cwd "~/Projects/eventtemple"
+      :url "https://client.eventtempledev.com"
+      :env '(("RUBY_DEBUG_SESSION_NAME" "core-web")
+             ("RUBY_DEBUG_OPEN" "true"))
+      :tags '(dev rails))
+
+    (prodigy-define-service
+      :name "core-jobs"
+      :command "bundle"
+      :args '("exec" "sidekiq")
+      :cwd "~/Projects/eventtemple"
+      :env '(("RUBY_DEBUG_SESSION_NAME" "core-jobs")
+             ("RUBY_DEBUG_OPEN" "true"))
+      :tags '(dev rails))
+
+    (prodigy-define-service
+      :name "frontends"
+      :command "npm"
+      :args '("run" "dev")
+      :cwd "~/Projects/eventtemple-frontend"
+      :url "https://app.eventtempledev.com"
+      :env '(("NODE_OPTIONS" "--inspect"))
+      :tags '(dev node))
+
+    (prodigy-define-service
+      :name "caddy"
+      :command "caddy"
+      :args '("run")
+      :cwd "~/Projects/eventtemple"
+      :tags '(dev))))
 
 (map! :leader
       :desc "Comment Region"
@@ -989,62 +1026,25 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
   (setq! prodigy-view-buffer-maximum-size 10000
          prodigy-view-truncate-by-default t)
 
-  ;; Rails backend server with debugging enabled
+(unless (eq system-type 'darwin)
   (prodigy-define-service
-    :name "core-web"
-    :command "bundle"
-    :args '("exec" "rails" "server")
-    :cwd "~/Projects/eventtemple"
-    :url "https://client.eventtempledev.com"
-    :env '(("RUBY_DEBUG_SESSION_NAME" "core-web")
-           ("RUBY_DEBUG_OPEN" "true"))
-    :tags '(dev rails))
-
-  ;; Sidekiq background job processor
-  (prodigy-define-service
-    :name "core-jobs"
-    :command "bundle"
-    :args '("exec" "sidekiq")
-    :cwd "~/Projects/eventtemple"
-    :env '(("RUBY_DEBUG_SESSION_NAME" "core-jobs")
-           ("RUBY_DEBUG_OPEN" "true"))
-    :tags '(dev rails))
-
-  ;; Frontend development server with Node.js debugging
-  (prodigy-define-service
-    :name "frontends"
+    :name "portfolio-website"
     :command "npm"
-    :args '("run" "dev")
-    :cwd "~/Projects/eventtemple-frontend"
-    :url "https://app.eventtempledev.com"
-    :env '(("NODE_OPTIONS" "--inspect"))
-    :tags '(dev node))
-
-  ;; Caddy reverse proxy for local HTTPS
-  (prodigy-define-service
-    :name "caddy"
-    :command "caddy"
-    :args '("run")
-    :cwd "~/Projects/eventtemple"
-    :tags '(dev))
-
-(prodigy-define-service
-  :name "portfolio-website"
-  :command "npm"
-  :args '("run" "develop")
-  :cwd "~/WebDev/Projects/PersonalSite"
-  :stop-signal 'sigkill
-  :kill-process-buffer-on-stop t
-  :tags '(dev))
-
-(prodigy-define-service
-    :name "farmers-map"
-    :command "npm"
-    :args '("run" "dev")
-    :cwd "~/WebDev/Projects/farmers-truck-map"
+    :args '("run" "develop")
+    :cwd "~/WebDev/Projects/PersonalSite"
     :stop-signal 'sigkill
     :kill-process-buffer-on-stop t
-    :tags '(dev))
+    :tags '(dev)))
+
+(unless (eq system-type 'darwin)
+    (prodigy-define-service
+      :name "farmers-map"
+      :command "npm"
+      :args '("run" "dev")
+      :cwd "~/WebDev/Projects/farmers-truck-map"
+      :stop-signal 'sigkill
+      :kill-process-buffer-on-stop t
+      :tags '(dev)))
 )
 
 (map! :leader
@@ -1126,6 +1126,19 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
   "Clear the awaiting tests flag for PR-NUMBER."
   (remhash pr-number my/forge-prs-awaiting-tests))
 
+(defun my/forge-pr-ci-status (owner name head-ref)
+  "Check CI status for HEAD-REF in OWNER/NAME repository.
+Returns `success' if all checks passed, `pending' if still running,
+or `failure' if any check failed."
+  (let* ((gh-command (format "gh api repos/%s/%s/commits/%s/check-runs --jq '.check_runs | if length == 0 then \"none\" elif all(.conclusion == \"success\") then \"success\" elif any(.status == \"in_progress\" or .status == \"queued\") then \"pending\" elif any(.conclusion == \"failure\" or .conclusion == \"cancelled\") then \"failure\" else \"pending\" end'"
+                             owner name head-ref))
+         (result (string-trim (shell-command-to-string gh-command))))
+    (cond
+     ((string= result "success") 'success)
+     ((string= result "failure") 'failure)
+     ((string= result "none") 'success)  ; No checks configured, safe to merge
+     (t 'pending))))
+
 (defun my/forge-get-pr-at-point ()
   "Get the pull request at point in forge buffers."
   (or (forge-pullreq-at-point)
@@ -1148,10 +1161,34 @@ HEAD-REF is the feature branch and BASE-REF is the target branch.
 Returns a symbol indicating the result: `awaiting', `not-approved', `merged',
 `conflict', or `error'."
   (cond
-   ;; Check if PR is awaiting tests
+   ;; Check if PR is awaiting tests - query CI status and merge if ready
    ((my/forge-pr-awaiting-tests-p pr-number)
-    (message "PR #%d: CI tests are still running after base branch merge. Please wait for tests to complete before merging." pr-number)
-    'awaiting)
+    (let ((ci-status (my/forge-pr-ci-status owner name head-ref)))
+      (cond
+       ((eq ci-status 'success)
+        (my/forge-clear-pr-awaiting-tests pr-number)
+        (message "PR #%d: CI checks passed. Squash merging..." pr-number)
+        (let* ((pr-json (json-read-from-string
+                         (string-trim (shell-command-to-string
+                                       (format "gh pr view %d --json id,headRefOid" pr-number)))))
+               (node-id (alist-get 'id pr-json))
+               (head-oid (alist-get 'headRefOid pr-json))
+               (merge-query (format "mutation { mergePullRequest(input: {pullRequestId: \"%s\", mergeMethod: SQUASH, expectedHeadOid: \"%s\"}) { pullRequest { number state } } }" node-id head-oid))
+               (merge-result (string-trim (shell-command-to-string
+                                           (format "gh api graphql -f query='%s' 2>&1" merge-query)))))
+          (if (string-match-p "MERGED" merge-result)
+              (progn
+                (message "PR #%d: CI passed. Squash merged successfully." pr-number)
+                'merged)
+            (message "PR #%d: CI passed but merge failed: %s" pr-number merge-result)
+            'error)))
+       ((eq ci-status 'failure)
+        (my/forge-clear-pr-awaiting-tests pr-number)
+        (message "PR #%d: CI checks failed. Please fix the failures and try again." pr-number)
+        'failure)
+       (t
+        (message "PR #%d: CI tests are still running. Run this command again once they complete." pr-number)
+        'awaiting))))
    ;; Check if PR has been approved
    ((not (my/forge-pr-approved-p owner name pr-number))
     (message "PR #%d: This pull request has not been approved. Please obtain approval before merging." pr-number)
@@ -1319,11 +1356,77 @@ Requires the `gh` CLI to be installed and authenticated."
     "Ready for review, happy to walk through anything if needed.")
   "Pool of casual greetings for PR review request messages.")
 
-(defun my/forge-copy-pr-review-request ()
-  "Copy a friendly review request message with PR details to the kill ring.
+(defconst my/forge-risk-thresholds
+  '((low . 100) (medium . 500))
+  "Line-count thresholds for auto-computing PR risk level.
+PRs with total changes below `low' are Low risk, below `medium' are Medium,
+otherwise High.")
 
-Selects a PR from the list of open PRs, formats it with a random greeting
-and PR metadata, and copies the result for pasting into a chat.
+(defconst my/forge-test-file-patterns
+  '("test" "spec" "_test\\." "\\.test\\." "__tests__" "tests/")
+  "Patterns that identify test files in PR file lists.")
+
+(defun my/forge-extract-body-section (body heading)
+  "Extract content under a ## HEADING section from PR BODY.
+Returns trimmed text between the heading and the next ## heading or end of body.
+Returns nil if the section is not found or empty."
+  (when body
+    (let ((start-re (concat "^## " (regexp-quote heading) "[^\n]*\n")))
+      (when (string-match start-re body)
+        (let* ((content-start (match-end 0))
+               (content-end (if (string-match "^## " body content-start)
+                                (match-beginning 0)
+                              (length body)))
+               (content (string-trim (substring body content-start content-end))))
+          (unless (string-empty-p content) content))))))
+
+(defun my/forge-compute-pr-size (additions deletions changed-files)
+  "Format PR size as '+ADDITIONS/-DELETIONS lines across CHANGED-FILES files'."
+  (format "+%d/-%d lines across %d file%s"
+          additions deletions changed-files
+          (if (= changed-files 1) "" "s")))
+
+(defun my/forge-compute-risk-level (additions deletions)
+  "Compute a risk level string based on total line changes.
+Uses `my/forge-risk-thresholds' to determine Low/Medium/High."
+  (let ((total (+ additions deletions)))
+    (cond
+     ((< total (alist-get 'low my/forge-risk-thresholds)) "Low")
+     ((< total (alist-get 'medium my/forge-risk-thresholds)) "Medium")
+     (t "High"))))
+
+(defun my/forge-file-is-test-p (path)
+  "Return non-nil if PATH matches any pattern in `my/forge-test-file-patterns'."
+  (cl-some (lambda (pat) (string-match-p pat path))
+           my/forge-test-file-patterns))
+
+(defun my/forge-compute-focus-areas (files)
+  "Return a formatted string of top 3 non-test files by change count.
+FILES is a vector of alists with `path', `additions', and `deletions' keys.
+Returns nil if no non-test files are found."
+  (let* ((file-list (append files nil))
+         (non-test (cl-remove-if
+                    (lambda (f) (my/forge-file-is-test-p (alist-get 'path f)))
+                    file-list))
+         (sorted (sort non-test
+                       (lambda (a b)
+                         (> (+ (alist-get 'additions a) (alist-get 'deletions a))
+                            (+ (alist-get 'additions b) (alist-get 'deletions b))))))
+         (top (cl-subseq sorted 0 (min 3 (length sorted)))))
+    (when top
+      (mapconcat (lambda (f)
+                   (format "`%s` (+%d/-%d)"
+                           (file-name-nondirectory (alist-get 'path f))
+                           (alist-get 'additions f)
+                           (alist-get 'deletions f)))
+                 top ", "))))
+
+(defun my/forge-copy-pr-review-request ()
+  "Copy an enriched review request message with PR details to the kill ring.
+
+Selects a PR from the list of open PRs, fetches detailed metrics via `gh',
+auto-computes Size, Risk, and Focus areas, parses What/Testing from the PR
+body, and prompts for editable fields with auto-populated defaults.
 Requires the `gh` CLI to be installed and authenticated."
   (interactive)
   (let* ((json-output (string-trim
@@ -1340,11 +1443,47 @@ Requires the `gh` CLI to be installed and authenticated."
              (candidates (mapcar #'car pr-alist))
              (selection (completing-read "Review request for PR: " candidates nil t))
              (pr (cdr (assoc selection pr-alist)))
+             (pr-number (alist-get 'number pr))
+             ;; Fetch detailed metrics for the selected PR
+             (detail-json (string-trim
+                           (shell-command-to-string
+                            (format "gh pr view %d --json additions,deletions,changedFiles,files,body"
+                                    pr-number))))
+             (details (condition-case nil
+                          (json-read-from-string detail-json)
+                        (error nil)))
+             (additions (or (alist-get 'additions details) 0))
+             (deletions (or (alist-get 'deletions details) 0))
+             (changed-files (or (alist-get 'changedFiles details) 0))
+             (files (alist-get 'files details))
+             (detail-body (alist-get 'body details))
+             ;; Auto-compute fields
+             (size-str (my/forge-compute-pr-size additions deletions changed-files))
+             (risk-default (my/forge-compute-risk-level additions deletions))
+             (focus-str (my/forge-compute-focus-areas files))
+             (what-default (or (my/forge-extract-body-section detail-body "Description")
+                               (alist-get 'title pr)))
+             (testing-default (or (my/forge-extract-body-section detail-body "How to test") ""))
+             ;; Prompt user with auto-populated defaults
+             (what (read-string "What: " what-default))
+             (risk (read-string "Risk: " risk-default))
+             (testing (read-string "Testing: " testing-default))
+             (priority (completing-read "Priority: " '("Normal" "High" "Urgent") nil t))
+             ;; Build the enriched message
              (greeting (nth (random (length my/forge-review-request-greetings))
                             my/forge-review-request-greetings))
-             (formatted (concat greeting "\n\n" (my/forge-format-pr pr))))
-        (kill-new formatted)
-        (message "Copied review request for: %s" (alist-get 'title pr))))))
+             (base (my/forge-format-pr pr))
+             (enriched (concat greeting "\n\n" base
+                               (format "\n- What: %s" what)
+                               (format "\n- Size: %s" size-str)
+                               (format "\n- Risk: %s" risk)
+                               (when (not (string-empty-p testing))
+                                 (format "\n- Testing: %s" testing))
+                               (when focus-str
+                                 (format "\n- Focus areas: %s" focus-str))
+                               (format "\n- Priority: %s" priority))))
+        (kill-new enriched)
+        (message "Copied enriched review request for: %s" (alist-get 'title pr))))))
 
 ;; Add keybinding for copying PR review request under the forge prefix
 (map! :leader

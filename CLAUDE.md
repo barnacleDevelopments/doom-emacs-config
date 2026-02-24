@@ -260,7 +260,7 @@ See these package configurations as reference implementations:
 - `SPC g f i` - Browse issues
 - `SPC g f m` - Smart merge PR (update branch + wait for CI)
 - `SPC g f u` - Copy formatted PR details (Markdown with title, #number, branch, URL)
-- `SPC g f R` - Copy PR review request (friendly message + PR details)
+- `SPC g f R` - Copy enriched PR review request (auto-populates What, Size, Risk, Focus areas, Testing from GitHub; prompts with defaults for editable fields)
 - `SPC g f M` - Select & smart merge PRs (pick from list or merge all)
 
 #### Forge Topic Mode (PR view, localleader: `SPC m`)
