@@ -1458,7 +1458,7 @@ smart merge workflow on the selected PR or all of them."
         try-complete-lisp-symbol))
 
 ;;Add local development package to load-path
-(let ((read-later-path "/home/devindavis/WebDev/Projects/read-later"))
+(let ((read-later-path "/home/devindavis/WebDev/Projects/read-later.el"))
   (when (file-exists-p read-later-path)
     (add-to-list 'load-path read-later-path)
     (require 'read-later)))

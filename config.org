@@ -1870,7 +1870,7 @@ Reference: https://github.com/vedang/pdf-tools
 ** Read Later
 #+begin_src elisp :tangle ./config.el
 ;;Add local development package to load-path
-(let ((read-later-path "/home/devindavis/WebDev/Projects/read-later"))
+(let ((read-later-path "/home/devindavis/WebDev/Projects/read-later.el"))
   (when (file-exists-p read-later-path)
     (add-to-list 'load-path read-later-path)
     (require 'read-later)))
@@ -1920,7 +1920,7 @@ port           465
 tls_starttls   off
 from           devinexample.com
 user           devin@example.com
-passwordeval       "security find-generic-password -s mbsync-gmail -w"
+passwordeval   "security find-generic-password -s mbsync-gmail -w"
 
 # Set a default account
 account default: gmail
