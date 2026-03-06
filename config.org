@@ -76,7 +76,7 @@ Reference: https://leanpub.com/lit-config/read
 #+end_src
 ** Mac Config
 #+begin_src elisp :tangle ./config.el
-; Mac Config
+                                        ; Mac Config
 (use-package! exec-path-from-shell
   :if (memq window-system '(mac ns x))
   :config
@@ -141,25 +141,25 @@ Reference: https://leanpub.com/lit-config/read
 (map! :leader
       :desc "Comment Region"
       :prefix ("c" . "+code")
-       (:prefix-map ("f" . "format")
-                    "c" #'comment-region))
+      (:prefix-map ("f" . "format")
+                   "c" #'comment-region))
 
 (map! :leader
       :desc "Uncomment Region"
       :prefix ("c" . "+code")
-       (:prefix-map ("f" . "format")
-                    "C" #'uncomment-region))
+      (:prefix-map ("f" . "format")
+                   "C" #'uncomment-region))
 
 ;; Query replace commands
 (map! :leader
       (:prefix ("s" . "search")
-       (:prefix-map ("r" . "replace")
-        :desc "Query replace"                    "r" #'query-replace
-        :desc "Query replace regexp"            "R" #'query-replace-regexp
-        :desc "Replace string"                   "s" #'replace-string
-        :desc "Replace regexp"                   "S" #'replace-regexp
-        :desc "Projectile replace"               "p" #'projectile-replace
-        :desc "Projectile replace regexp"        "P" #'projectile-replace-regexp)))
+               (:prefix-map ("r" . "replace")
+                :desc "Query replace"                    "r" #'query-replace
+                :desc "Query replace regexp"            "R" #'query-replace-regexp
+                :desc "Replace string"                   "s" #'replace-string
+                :desc "Replace regexp"                   "S" #'replace-regexp
+                :desc "Projectile replace"               "p" #'projectile-replace
+                :desc "Projectile replace regexp"        "P" #'projectile-replace-regexp)))
 
 #+end_src
 * Project Configuration
@@ -285,18 +285,18 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
 (use-package! org-protocol
   :after org)
 (after! org
-    ;; Enable company in org-src blocks
-    (setq! org-capture-templates
-        '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
+  ;; Enable company in org-src blocks
+  (setq! org-capture-templates
+         '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
             "%(org-chef-get-recipe-from-url)"
             :empty-lines 1)
-        ("p" "Protocol" entry (file+headline "~/my-org-roam/inbox.org" "Inbox") "* %?[[%:link][%:description]] \nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n")
-        ("L" "Protocol Link" entry (file+headline "~/my-org-roam/inbox.org" "Inbox") "* %? [[%:link][%:description]] \nCaptured On: %U")))
+           ("p" "Protocol" entry (file+headline "~/my-org-roam/inbox.org" "Inbox") "* %?[[%:link][%:description]] \nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n")
+           ("L" "Protocol Link" entry (file+headline "~/my-org-roam/inbox.org" "Inbox") "* %? [[%:link][%:description]] \nCaptured On: %U")))
   (defun +org-src-company-setup ()
     "Enable company-mode in org-src blocks."
     (company-mode +1))
 
-    (add-hook! 'org-src-mode-hook #'+org-src-company-setup))
+  (add-hook! 'org-src-mode-hook #'+org-src-company-setup))
 
 (defun org-get-title ()
   "Get the #+TITLE of the current buffer's file."
@@ -304,34 +304,41 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
       (file-name-nondirectory (buffer-file-name))))
 
 (setq! org-agenda-prefix-format
-      '((agenda . " %i %-12:c%?-12t% s")
-        (todo . " %i %-12(org-get-title) ") 
-        (tags . " %i %-12:c")
-        (search . " %i %-12:c")))
+       '((agenda . " %i %-12:c%?-12t% s")
+         (todo . " %i %-12(org-get-title) ") 
+         (tags . " %i %-12:c")
+         (search . " %i %-12:c")))
 (setq! org-hide-emphasis-markers t)
 (setq! org-clock-idle-time 15)
 (use-package! org-modern
-    :hook (org-mode . org-modern-mode)
-    :config
-    (setq! org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
-           org-modern-table-vertical 1
-           org-modern-table-horizontal 0.2
-           org-modern-list '((43 . "➤")
+  :hook (org-mode . org-modern-mode)
+  :config
+  (setq! org-modern-star 'replace
+         org-modern-star-replace '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+         org-modern-table-vertical 1
+         org-modern-table-horizontal 0.2
+         org-modern-list '((43 . "➤")
                            (45 . "–")
                            (42 . "•"))
-           org-modern-block-fringe nil
-           org-modern-block-name '("" . "")
-           org-modern-keyword nil
-           org-modern-footnote (cons nil (cadr org-script-display))
-           org-modern-priority nil
-           org-modern-todo nil))
+         org-modern-block-fringe nil
+         org-modern-block-name '("" . "")
+         org-modern-keyword nil
+         org-modern-footnote (cons nil (cadr org-script-display))
+         org-modern-priority nil
+         org-modern-todo nil))
 #+end_src
 **** Keybindings
 #+begin_src emacs-lisp
 (map! :map org-mode-map
       :localleader
       (:prefix ("l" . "insert link")
-        "i" #'my/org-insert-info-link))
+               "i" #'my/org-insert-info-link))
+
+(map! :map org-mode-map
+      :localleader
+      (:prefix ("f" . "format")
+               "i" #'org-indent-block))
+
 #+end_src
 *** Contrib
 #+begin_src emacs-lisp
@@ -833,7 +840,11 @@ Reference: https://github.com/hlissner/doom-emacs/issues/4362
 
   ;; Add file path completions for prog-mode and org-mode
   (set-company-backend! 'prog-mode 'company-capf 'company-files 'company-yasnippet)
-  (set-company-backend! 'org-mode 'company-capf 'company-files 'company-yasnippet))
+  (set-company-backend! 'org-mode 'company-capf 'company-files 'company-yasnippet)
+
+(add-hook 'prog-mode-hook (lambda () (add-to-list 'company-backends 'company-files)))
+  )
+
 #+end_src 
 ** GPTEL
 [[https://github.com/karthink/gptel?tab=readme-ov-file#chatgpt][GPTEL Docs]]
@@ -1135,6 +1146,23 @@ Configure the terminal backend and window display rules for Claude Code buffers.
   :select t
   :quit nil
   :ttl nil)
+#+end_src
+
+**** Custom Slash Commands
+
+Extend the built-in slash commands transient menu with additional commands.
+
+#+begin_src elisp :tangle ./config.el
+;; Add custom slash commands to the Claude Code transient menu
+(after! claude-code
+  (transient-append-suffix 'claude-code-slash-commands '(-1 -1)
+    ["Custom Commands"
+     ("F" "Full-context" (lambda () (interactive)
+                           (let ((args (read-string "Full-context args: ")))
+                             (claude-code--do-send-command
+                              (if (string-empty-p args)
+                                  "/full-context"
+                                (concat "/full-context " args))))))]))
 #+end_src
 
 **** Keybindings
@@ -1460,7 +1488,8 @@ Additional context-aware bindings in Magit status buffers enable efficient PR an
         :desc "List notifications"            "n" #'forge-list-notifications))
 #+end_src
 
-**** Smart PR Merge Workflow
+**** Custom Functions 
+***** Smart PR Merge Workflow (ET)
 
 This custom workflow ensures pull requests are up-to-date with the base branch before merging.
 When triggered, it first merges main/master into the feature branch via GitHub API, triggering
@@ -1599,7 +1628,8 @@ Returns a symbol indicating the result: `awaiting', `not-approved', `merged',
 (defun my/forge-smart-merge ()
   "Smart merge the pull request at point.
 
-Delegates to `my/forge-smart-merge-by-data' using the PR at point in forge buffers."
+Copies formatted PR details to the clipboard for Slack, then delegates
+to `my/forge-smart-merge-by-data' using the PR at point in forge buffers."
   (interactive)
   (if-let* ((pr (my/forge-get-pr-at-point))
             (pr-number (oref pr number))
@@ -1608,7 +1638,16 @@ Delegates to `my/forge-smart-merge-by-data' using the PR at point in forge buffe
             (name (oref repo name))
             (head-ref (oref pr head-ref))
             (base-ref (oref pr base-ref)))
-      (my/forge-smart-merge-by-data owner name pr-number head-ref base-ref)
+      (progn
+        ;; Copy formatted PR details to clipboard for Slack
+        (let ((pr-alist `((title . ,(oref pr title))
+                          (number . ,pr-number)
+                          (headRefName . ,head-ref)
+                          (url . ,(format "https://github.com/%s/%s/pull/%d" owner name pr-number))
+                          (body . ,(oref pr body)))))
+          (kill-new (my/forge-format-pr pr-alist))
+          (message "Copied PR #%d to clipboard." pr-number))
+        (my/forge-smart-merge-by-data owner name pr-number head-ref base-ref))
     (message "No pull request found at point.")))
 
 (defun my/forge-complete-merge ()
@@ -1656,7 +1695,7 @@ Keybindings for the smart merge workflow are added to both the global leader and
           :desc "Smart merge PR"     "m" #'my/forge-smart-merge)))
 #+end_src
 
-**** Copy Active PR URLs
+***** Copy Active PR URLs
 
 Quickly copy formatted PR details to the kill ring for pasting into deployment chats.
 Uses the =gh= CLI to fetch open PRs for the current repository, presents them by branch
@@ -1722,7 +1761,7 @@ Requires the `gh` CLI to be installed and authenticated."
           :desc "Copy active PR URLs"  "u" #'my/forge-copy-pr-urls)))
 #+end_src
 
-**** Copy PR Review Request
+***** Copy PR Review Request
 
 Copy an enriched review request message with PR details to the kill ring. After
 selecting a PR, fetches detailed metrics (additions, deletions, changed files, file
@@ -1732,7 +1771,7 @@ sections. Prompts for editable fields with auto-populated defaults so you can ac
 or override each value. Randomly selects from a pool of greeting variations so repeated
 requests don't feel copy-pasted.
 
-***** Constants
+****** Constants
 
 Risk thresholds and test file patterns used by the helper functions below.
 
@@ -1761,7 +1800,7 @@ otherwise High.")
   "Patterns that identify test files in PR file lists.")
 #+end_src
 
-***** Helper Functions
+****** Helper Functions
 
 These helpers extract and compute fields for the enriched review request.
 
@@ -1835,7 +1874,7 @@ Returns nil if no non-test files are found."
                  top ", "))))
 #+end_src
 
-***** Configuration
+****** Configuration
 
 The main function selects a PR, fetches detailed metrics with a second =gh pr view=
 call, auto-computes fields, and prompts for editable values with defaults.
@@ -1914,7 +1953,7 @@ Requires the `gh` CLI to be installed and authenticated."
           :desc "Copy PR review request" "R" #'my/forge-copy-pr-review-request)))
 #+end_src
 
-**** Select and Smart Merge PRs
+***** Select and Smart Merge PRs
 
 Lists open pull requests by branch name and runs =my/forge-smart-merge-by-data= on the
 selected PR(s). Uses the =gh= CLI to fetch PR data independently of forge buffers, so it
@@ -2043,7 +2082,13 @@ Reference: https://github.com/vedang/pdf-tools
 ** Read Later
 #+begin_src elisp :tangle ./config.el
 ;;Add local development package to load-path
-(let ((read-later-path "/home/devindavis/WebDev/Projects/read-later"))
+(let ((read-later-path "/home/devindavis/WebDev/Projects/read-later.el"))
+  (when (file-exists-p read-later-path)
+    (add-to-list 'load-path read-later-path)
+    (require 'read-later)))
+
+
+(let ((read-later-path "/Users/devindavis/Projects/read-later.el"))
   (when (file-exists-p read-later-path)
     (add-to-list 'load-path read-later-path)
     (require 'read-later)))
@@ -2052,7 +2097,7 @@ Reference: https://github.com/vedang/pdf-tools
 Not much is a email indexing service.
 
 *** mbsync for syncing mail config ()
-  #+begin_src
+  #+begin_src conf :tangle no
 IMAPAccount gmail
 Host imap.gmail.com
 User devin@example.com
@@ -2079,7 +2124,7 @@ SyncState *
   #+end_src
   
 *** [[https://wiki.archlinux.org/title/Msmtp#OAuth2_Setup][msmtp for sending email]] config
-#+begin_src
+#+begin_src conf :tangle no
 # Set default values for all following accounts.
 defaults
 auth           on
