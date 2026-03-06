@@ -2138,7 +2138,7 @@ port           465
 tls_starttls   off
 from           devinexample.com
 user           devin@example.com
-passwordeval       "security find-generic-password -s mbsync-gmail -w"
+passwordeval   "security find-generic-password -s mbsync-gmail -w"
 
 # Set a default account
 account default: gmail
