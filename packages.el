@@ -41,6 +41,11 @@
 (package! markdown-mode)
 (package! ox-gfm)
 (package! winpulse :recipe (:host github :repo "xenodium/winpulse"))
+(package! pg :recipe (:host github :repo "emarsden/pg-el"))
+(package! pgmacs :recipe (:host github :repo "emarsden/pgmacs"))
+(package! emacs-pr-review :recipe (:host github :repo "blahgeek/emacs-pr-review"
+                                   :files ("*.el" "graphql")))
+
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 

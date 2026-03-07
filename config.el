@@ -128,25 +128,25 @@
 (map! :leader
       :desc "Comment Region"
       :prefix ("c" . "+code")
-       (:prefix-map ("f" . "format")
-                    "c" #'comment-region))
+      (:prefix-map ("f" . "format")
+                   "c" #'comment-region))
 
 (map! :leader
       :desc "Uncomment Region"
       :prefix ("c" . "+code")
-       (:prefix-map ("f" . "format")
-                    "C" #'uncomment-region))
+      (:prefix-map ("f" . "format")
+                   "C" #'uncomment-region))
 
 ;; Query replace commands
 (map! :leader
       (:prefix ("s" . "search")
-       (:prefix-map ("r" . "replace")
-        :desc "Query replace"                    "r" #'query-replace
-        :desc "Query replace regexp"            "R" #'query-replace-regexp
-        :desc "Replace string"                   "s" #'replace-string
-        :desc "Replace regexp"                   "S" #'replace-regexp
-        :desc "Projectile replace"               "p" #'projectile-replace
-        :desc "Projectile replace regexp"        "P" #'projectile-replace-regexp)))
+               (:prefix-map ("r" . "replace")
+                :desc "Query replace"                    "r" #'query-replace
+                :desc "Query replace regexp"            "R" #'query-replace-regexp
+                :desc "Replace string"                   "s" #'replace-string
+                :desc "Replace regexp"                   "S" #'replace-regexp
+                :desc "Projectile replace"               "p" #'projectile-replace
+                :desc "Projectile replace regexp"        "P" #'projectile-replace-regexp)))
 
 (setq sql-connection-alist
       '((farmers-truck-db
@@ -154,7 +154,13 @@
          (sql-server "127.0.0.1")
          (sql-user "postgres")
          (sql-database "postgres")
-         (sql-port 24464))))
+         (sql-port 24464))
+        (event-temple-db
+         (sql-product 'postgres)
+         (sql-server "127.0.0.1")
+         (sql-user "postgres")
+         (sql-database "postgres")
+         (sql-port 5432))))
 
 (setq! doom-themes-treemacs-theme "doom-colors")
 (setq! treemacs-width 60)
@@ -244,18 +250,18 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
 (use-package! org-protocol
   :after org)
 (after! org
-    ;; Enable company in org-src blocks
-    (setq! org-capture-templates
-        '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
+  ;; Enable company in org-src blocks
+  (setq! org-capture-templates
+         '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
             "%(org-chef-get-recipe-from-url)"
             :empty-lines 1)
-        ("p" "Protocol" entry (file+headline "~/my-org-roam/inbox.org" "Inbox") "* %?[[%:link][%:description]] \nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n")
-        ("L" "Protocol Link" entry (file+headline "~/my-org-roam/inbox.org" "Inbox") "* %? [[%:link][%:description]] \nCaptured On: %U")))
+           ("p" "Protocol" entry (file+headline "~/my-org-roam/inbox.org" "Inbox") "* %?[[%:link][%:description]] \nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n")
+           ("L" "Protocol Link" entry (file+headline "~/my-org-roam/inbox.org" "Inbox") "* %? [[%:link][%:description]] \nCaptured On: %U")))
   (defun +org-src-company-setup ()
     "Enable company-mode in org-src blocks."
     (company-mode +1))
 
-    (add-hook! 'org-src-mode-hook #'+org-src-company-setup))
+  (add-hook! 'org-src-mode-hook #'+org-src-company-setup))
 
 (defun org-get-title ()
   "Get the #+TITLE of the current buffer's file."
@@ -263,32 +269,38 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
       (file-name-nondirectory (buffer-file-name))))
 
 (setq! org-agenda-prefix-format
-      '((agenda . " %i %-12:c%?-12t% s")
-        (todo . " %i %-12(org-get-title) ") 
-        (tags . " %i %-12:c")
-        (search . " %i %-12:c")))
+       '((agenda . " %i %-12:c%?-12t% s")
+         (todo . " %i %-12(org-get-title) ") 
+         (tags . " %i %-12:c")
+         (search . " %i %-12:c")))
 (setq! org-hide-emphasis-markers t)
 (setq! org-clock-idle-time 15)
 (use-package! org-modern
-    :hook (org-mode . org-modern-mode)
-    :config
-    (setq! org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
-           org-modern-table-vertical 1
-           org-modern-table-horizontal 0.2
-           org-modern-list '((43 . "➤")
+  :hook (org-mode . org-modern-mode)
+  :config
+  (setq! org-modern-star 'replace
+         org-modern-star-replace '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+         org-modern-table-vertical 1
+         org-modern-table-horizontal 0.2
+         org-modern-list '((43 . "➤")
                            (45 . "–")
                            (42 . "•"))
-           org-modern-block-fringe nil
-           org-modern-block-name '("" . "")
-           org-modern-keyword nil
-           org-modern-footnote (cons nil (cadr org-script-display))
-           org-modern-priority nil
-           org-modern-todo nil))
+         org-modern-block-fringe nil
+         org-modern-block-name '("" . "")
+         org-modern-keyword nil
+         org-modern-footnote (cons nil (cadr org-script-display))
+         org-modern-priority nil
+         org-modern-todo nil))
 
 (map! :map org-mode-map
       :localleader
       (:prefix ("l" . "insert link")
-        "i" #'my/org-insert-info-link))
+               "i" #'my/org-insert-info-link))
+
+(map! :map org-mode-map
+      :localleader
+      (:prefix ("f" . "format")
+               "i" #'org-indent-block))
 
 (after! org
   (require 'ox-confluence))
@@ -668,7 +680,10 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
 
   ;; Add file path completions for prog-mode and org-mode
   (set-company-backend! 'prog-mode 'company-capf 'company-files 'company-yasnippet)
-  (set-company-backend! 'org-mode 'company-capf 'company-files 'company-yasnippet))
+  (set-company-backend! 'org-mode 'company-capf 'company-files 'company-yasnippet)
+
+(add-hook 'prog-mode-hook (lambda () (add-to-list 'company-backends 'company-files)))
+  )
 
 (setq! gptel-backend (gptel-make-openai "Venice"
                        :host "api.venice.ai"
@@ -892,6 +907,17 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
   :select t
   :quit nil
   :ttl nil)
+
+;; Add custom slash commands to the Claude Code transient menu
+(after! claude-code
+  (transient-append-suffix 'claude-code-slash-commands '(-1 -1)
+    ["Custom Commands"
+     ("F" "Full-context" (lambda () (interactive)
+                           (let ((args (read-string "Full-context args: ")))
+                             (claude-code--do-send-command
+                              (if (string-empty-p args)
+                                  "/full-context"
+                                (concat "/full-context " args))))))]))
 
 ;; Global leader keybindings for Claude Code
 (map! :leader
@@ -1241,7 +1267,8 @@ Returns a symbol indicating the result: `awaiting', `not-approved', `merged',
 (defun my/forge-smart-merge ()
   "Smart merge the pull request at point.
 
-Delegates to `my/forge-smart-merge-by-data' using the PR at point in forge buffers."
+Copies formatted PR details to the clipboard for Slack, then delegates
+to `my/forge-smart-merge-by-data' using the PR at point in forge buffers."
   (interactive)
   (if-let* ((pr (my/forge-get-pr-at-point))
             (pr-number (oref pr number))
@@ -1250,7 +1277,16 @@ Delegates to `my/forge-smart-merge-by-data' using the PR at point in forge buffe
             (name (oref repo name))
             (head-ref (oref pr head-ref))
             (base-ref (oref pr base-ref)))
-      (my/forge-smart-merge-by-data owner name pr-number head-ref base-ref)
+      (progn
+        ;; Copy formatted PR details to clipboard for Slack
+        (let ((pr-alist `((title . ,(oref pr title))
+                          (number . ,pr-number)
+                          (headRefName . ,head-ref)
+                          (url . ,(format "https://github.com/%s/%s/pull/%d" owner name pr-number))
+                          (body . ,(oref pr body)))))
+          (kill-new (my/forge-format-pr pr-alist))
+          (message "Copied PR #%d to clipboard." pr-number))
+        (my/forge-smart-merge-by-data owner name pr-number head-ref base-ref))
     (message "No pull request found at point.")))
 
 (defun my/forge-complete-merge ()
@@ -1603,6 +1639,12 @@ smart merge workflow on the selected PR or all of them."
 
 ;;Add local development package to load-path
 (let ((read-later-path "/home/devindavis/WebDev/Projects/read-later.el"))
+  (when (file-exists-p read-later-path)
+    (add-to-list 'load-path read-later-path)
+    (require 'read-later)))
+
+
+(let ((read-later-path "/Users/devindavis/Projects/read-later.el"))
   (when (file-exists-p read-later-path)
     (add-to-list 'load-path read-later-path)
     (require 'read-later)))
