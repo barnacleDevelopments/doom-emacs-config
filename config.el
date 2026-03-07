@@ -154,7 +154,13 @@
          (sql-server "127.0.0.1")
          (sql-user "postgres")
          (sql-database "postgres")
-         (sql-port 24464))))
+         (sql-port 24464))
+        (event-temple-db
+         (sql-product 'postgres)
+         (sql-server "127.0.0.1")
+         (sql-user "postgres")
+         (sql-database "postgres")
+         (sql-port 5432))))
 
 (setq! doom-themes-treemacs-theme "doom-colors")
 (setq! treemacs-width 60)
