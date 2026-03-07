@@ -165,6 +165,11 @@
 
 (setq! doom-font (font-spec :size 16))
 (setq! doom-theme 'doom-snazzy)
+
+(after! doom-themes
+  (setq! doom-themes-enable-bold t)
+  (setq! doom-themes-enable-italic t))
+
 (custom-set-faces!
   '(line-number :foreground "#bbbbbb")
   '(line-number-current-line :foreground "#ffffff"))

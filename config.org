@@ -190,12 +190,16 @@ Reference: https://leanpub.com/lit-config/read
 #+begin_src elisp :tangle ./config.el
 (setq! doom-font (font-spec :size 16))
 (setq! doom-theme 'doom-snazzy)
+
+(after! doom-themes
+  (setq! doom-themes-enable-bold t)
+  (setq! doom-themes-enable-italic t))
+
 (custom-set-faces!
   '(line-number :foreground "#bbbbbb")
   '(line-number-current-line :foreground "#ffffff"))
 #+end_src
 *** Modeline
-
 The doom-modeline is enhanced with a custom =branch-diff= segment that displays the
 total lines added and removed on the current branch compared to the default branch
 (=main= or =master=). This provides at-a-glance awareness of branch scope while working.
