@@ -61,8 +61,6 @@
 
   )
 
-(setq! auth-sources '("~/.authinfo.gpg" "~/.authinfo"))
-
 (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
 
 ; Mac Config
@@ -1637,13 +1635,16 @@ smart merge workflow on the selected PR or all of them."
         try-complete-lisp-symbol-partially
         try-complete-lisp-symbol))
 
-;;Add local development package to load-path
+;; Load from local development path (Linux)
 (let ((read-later-path "/home/devindavis/WebDev/Projects/read-later.el"))
   (when (file-exists-p read-later-path)
     (add-to-list 'load-path read-later-path)
     (require 'read-later)))
 
+(setq read-later-api-auth-backend '1password)
+(setq read-later-api-host "Instapaper")
 
+;; Load from local development path (macOS)
 (let ((read-later-path "/Users/devindavis/Projects/read-later.el"))
   (when (file-exists-p read-later-path)
     (add-to-list 'load-path read-later-path)
@@ -1721,3 +1722,12 @@ smart merge workflow on the selected PR or all of them."
           :desc "Update worklogs from clocks"     "u" #'org-jira-update-worklogs-from-org-clocks)
          ;; Todo sync
          :desc "Sync todo to Jira"                "t" #'org-jira-todo-to-jira)))
+
+(use-package! auth-source-1password
+  :config
+  (setq! auth-source-1password-vault "Private")
+  (auth-source-1password-enable)
+  (setq auth-sources (seq-remove #'stringp auth-sources)))
+
+(setq! elfeed-summary-settings
+'((tag-groups (:repeat-feeds t))))

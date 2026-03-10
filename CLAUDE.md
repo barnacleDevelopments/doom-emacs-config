@@ -160,7 +160,7 @@ See these package configurations as reference implementations:
 - `eval +overlay` - Code evaluation
 - `lookup` - Code navigation
 - `pdf` - PDF support
-- `pass +auth` - Password manager
+- `auth-source-1password` - 1Password integration (auth-source backend)
 
 ### Email
 - `mu4e +org +gmail +offlineimap` - Email client configured for devin@devdeveloper.ca

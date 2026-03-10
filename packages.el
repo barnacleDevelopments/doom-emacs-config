@@ -45,7 +45,9 @@
 (package! pgmacs :recipe (:host github :repo "emarsden/pgmacs"))
 (package! emacs-pr-review :recipe (:host github :repo "blahgeek/emacs-pr-review"
                                    :files ("*.el" "graphql")))
-
+(package! auth-source-1password
+  :recipe (:host github :repo "dlobraico/auth-source-1password"))
+(package! elfeed-summary :recipe (:host github :repo "SqrtMinusOne/elfeed-summary"))
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 
