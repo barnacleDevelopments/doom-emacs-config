@@ -1118,6 +1118,7 @@ Opens the Prodigy buffer and restarts each service in SERVICES list."
           :desc "Browse issues & PRs"         "n" #'forge-list-notifications
           :desc "Copy URL at point"           "y" #'forge-copy-url-at-point-as-kill)))
 
+
 ;; Magit status buffer keybindings for Forge
 (map! :map magit-status-mode-map
       :localleader
@@ -1723,11 +1724,10 @@ smart merge workflow on the selected PR or all of them."
          ;; Todo sync
          :desc "Sync todo to Jira"                "t" #'org-jira-todo-to-jira)))
 
-(use-package! auth-source-1password
-  :config
-  (setq! auth-source-1password-vault "Private")
-  (auth-source-1password-enable)
-  (setq auth-sources (seq-remove #'stringp auth-sources)))
+;; (use-package! auth-source-1password
+;;   :config
+;;   (setq! auth-source-1password-vault "Private")
+;;   (auth-source-1password-enable))
 
 (setq! elfeed-summary-settings
 '((tag-groups (:repeat-feeds t))))

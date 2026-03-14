@@ -1440,7 +1440,6 @@ Reference: https://magit.vc, https://wandersoncferreira.github.io/code-rev
 
 Prompt to create a tag before pushing to the master branch to ensure releases are properly versioned.
 
-
 #+begin_src elisp :tangle ./config.el
 (defun my/magit-prompt-tag-on-master-push ()
   "Prompt to create a tag when pushing to the master branch."
@@ -1478,6 +1477,7 @@ Additional context-aware bindings in Magit status buffers enable efficient PR an
           :desc "Browse branch"               "b" #'forge-browse-branch
           :desc "Browse issues & PRs"         "n" #'forge-list-notifications
           :desc "Copy URL at point"           "y" #'forge-copy-url-at-point-as-kill)))
+
 
 ;; Magit status buffer keybindings for Forge
 (map! :map magit-status-mode-map
@@ -2255,22 +2255,18 @@ Reference: https://github.com/ahungry/org-jira
          ;; Todo sync
          :desc "Sync todo to Jira"                "t" #'org-jira-todo-to-jira)))
 #+end_src
-** 1Password
-1Password is a password manager with a CLI tool (`op`) and an Emacs package that integrates with Emacs' `auth-source` system. Enabling the auth-source backend means all packages using `auth-source-pick-first-password` (like GPTel and Invoice Ninja) will automatically pull secrets from 1Password.
-
+** 1Password (disabled)
+1Password auth-source integration is currently disabled. Using ~/.authinfo for credentials instead.
 
 Reference: https://github.com/dlobraico/auth-source-1password
 
 *** Configuration
 
-Enabling `auth-source-1password-enable` registers 1Password as an auth-source backend via `op read`, which correctly reveals secret values. Items are looked up by their hostname field in 1Password.
-
 #+begin_src elisp :tangle ./config.el
-(use-package! auth-source-1password
-  :config
-  (setq! auth-source-1password-vault "Private")
-  (auth-source-1password-enable)
-  (setq auth-sources (seq-remove #'stringp auth-sources)))
+;; (use-package! auth-source-1password
+;;   :config
+;;   (setq! auth-source-1password-vault "Private")
+;;   (auth-source-1password-enable))
 #+end_src
 ** Elfeed-Summary
 #+begin_src emacs-lisp :tangle ./config.el
