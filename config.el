@@ -247,32 +247,31 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
 
 (use-package! org-protocol
   :after org)
+
 (after! org
-  ;; Enable company in org-src blocks
-  (setq! org-capture-templates
-         '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
-            "%(org-chef-get-recipe-from-url)"
-            :empty-lines 1)
-           ("p" "Protocol" entry (file+headline "~/my-org-roam/inbox.org" "Inbox") "* %?[[%:link][%:description]] \nCaptured On: %U\n#+BEGIN_QUOTE\n%i\n#+END_QUOTE\n\n")
-           ("L" "Protocol Link" entry (file+headline "~/my-org-roam/inbox.org" "Inbox") "* %? [[%:link][%:description]] \nCaptured On: %U")))
   (defun +org-src-company-setup ()
     "Enable company-mode in org-src blocks."
     (company-mode +1))
+  (add-hook! 'org-src-mode-hook #'+org-src-company-setup)
 
-  (add-hook! 'org-src-mode-hook #'+org-src-company-setup))
 
-(defun org-get-title ()
-  "Get the #+TITLE of the current buffer's file."
-  (or (cadr (assoc "TITLE" (org-collect-keywords '("TITLE"))))
-      (file-name-nondirectory (buffer-file-name))))
+  (defun org-summary-todo (n-done n-not-done)
+    "Switch entry to DONE when all subentries are done, to TODO otherwise."
+    (let (org-log-done org-todo-log-states)   ; turn off logging
+      (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
+  (add-hook! 'org-after-todo-statistics-hook #'org-summary-todo)
+  )
 
-(setq! org-agenda-prefix-format
-       '((agenda . " %i %-12:c%?-12t% s")
-         (todo . " %i %-12(org-get-title) ") 
-         (tags . " %i %-12:c")
-         (search . " %i %-12:c")))
-(setq! org-hide-emphasis-markers t)
-(setq! org-clock-idle-time 15)
+(map! :map org-mode-map
+      :localleader
+      (:prefix ("l" . "insert link")
+               "i" #'my/org-insert-info-link))
+
+(map! :map org-mode-map
+      :localleader
+      (:prefix ("f" . "format")
+               "i" #'org-indent-block))
+
 (use-package! org-modern
   :hook (org-mode . org-modern-mode)
   :config
@@ -289,16 +288,6 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
          org-modern-footnote (cons nil (cadr org-script-display))
          org-modern-priority nil
          org-modern-todo nil))
-
-(map! :map org-mode-map
-      :localleader
-      (:prefix ("l" . "insert link")
-               "i" #'my/org-insert-info-link))
-
-(map! :map org-mode-map
-      :localleader
-      (:prefix ("f" . "format")
-               "i" #'org-indent-block))
 
 (after! org
   (require 'ox-confluence))
@@ -331,24 +320,33 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
                     (format "(info \"(%s)%s\")" manual node))))
     (insert (format "[[elisp:%s][%s]]" command description))))
 
-(setq! org-agenda-todo-ignore-scheduled 'future)
-(setq! org-agenda-start-day "-1d")
-(setq! org-agenda-span 5)
-(setq! org-agenda-files '(
-        "~/my-org-roam/projects"
-        "~/my-org-roam/daily"
-        "~/my-org-roam/work-org-roam/daily"
-        "~/my-org-roam/work-org-roam/tickets"
-        "~/my-org-roam/sources"
-        "~/my-org-roam/mobile-notes"
-        "~/doom/config.org"
-))
+(after! org
+  (setq! org-agenda-todo-ignore-scheduled 'future)
+  (setq! org-agenda-start-day "-1d")
+  (setq! org-agenda-span 5)
+  (setq! org-agenda-files '(
+                            "~/my-org-roam/projects"
+                            "~/my-org-roam/daily"
+                            "~/my-org-roam/work-org-roam/daily"
+                            "~/my-org-roam/work-org-roam/tickets"
+                            "~/my-org-roam/sources"
+                            "~/my-org-roam/mobile-notes"
+                            "~/doom/config.org"
+                            ))
 
-(defun org-summary-todo (n-done n-not-done)
-  "Switch entry to DONE when all subentries are done, to TODO otherwise."
-  (let (org-log-done org-todo-log-states)   ; turn off logging
-    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
-(add-hook! 'org-after-todo-statistics-hook #'org-summary-todo)
+  (defun org-get-title ()
+    "Get the #+TITLE of the current buffer's file."
+    (or (cadr (assoc "TITLE" (org-collect-keywords '("TITLE"))))
+        (file-name-nondirectory (buffer-file-name))))
+
+  (setq! org-agenda-prefix-format
+         '((agenda . " %i %-12:c%?-12t% s")
+           (todo . " %i %-12(org-get-title) ") 
+           (tags . " %i %-12:c")
+           (search . " %i %-12:c")))
+
+  (setq! org-hide-emphasis-markers t)
+  )
 
 (defun my/org-md-filter-sub-to-underscore (text backend info)
   "Replace <sub>...</sub> with _... in GFM export."
@@ -375,8 +373,9 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
         (clipboard-kill-region (point-min) (point-max)))
       (message "Clean GFM Markdown copied to clipboard."))))
 
-(setq! org-roam-directory "~/my-org-roam")
-(org-roam-db-autosync-mode)
+(after! org
+  (setq! org-roam-directory "~/my-org-roam")
+  (org-roam-db-autosync-mode))
 
 (setq! org-roam-dailies-capture-templates
       `(("d" "default" plain
@@ -545,10 +544,33 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
   (setq! web-mode-engines-alist
          '(("ejs" . "\\.ejs\\'"))))
 
-(setq! projectile-project-search-path '("~/WebDev/"))
 (use-package! ripgrep
   :config
-  (setq! ripgrep-arguments '("-C2")))  ;; -C2 is --context=2
+  (setq! ripgrep-arguments '("-C2")))
+
+(after! projectile
+  (setq! projectile-project-search-path '("~/WebDev/"))
+  (setq projectile-mode-line "Projectile")
+  (setq projectile-ignored-project-function #'file-remote-p)
+  (setq projectile-switch-project-action #'projectile-dired)
+  (setq projectile-create-missing-test-or-implementation #'ignore)
+  (setq projectile-dynamic-mode-line nil)
+
+  (defun projectile-no-known-project (file)
+    "Only prompt for local files."
+    (unless (file-remote-p file)
+      (projectile-ask-user-to-import-project file))))
+
+(after! lsp-mode
+  (setq lsp-warn-no-matched-clients nil)
+  ;; Prevent LSP from starting on remote buffers
+  (advice-add 'lsp :before-while
+    (lambda (&rest _) (not (file-remote-p default-directory))))
+  ;; Disconnect if LSP somehow starts on a remote buffer
+  (add-hook 'lsp-after-open-hook
+    (lambda ()
+      (when (file-remote-p default-directory)
+        (lsp-disconnect)))))
 
 (after! lsp-mode
   ;; Disable rubocop-ls
@@ -656,7 +678,15 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
   (setq! lsp-typescript-auto-import-completions nil)
   (setq! lsp-diagnostics-provider :flycheck)
   (setq! lsp-enable-suggest-server-download nil)
-  (delete 'sql-mode lsp-language-id-configuration))
+  (delete 'sql-mode lsp-language-id-configuration)
+
+  )
+
+(after! lsp-mode
+  (add-hook 'lsp-before-open-hook
+    (lambda ()
+      (when (file-remote-p default-directory)
+        (setq-local lsp-disabled-clients t)))))
 
 (use-package! lsp-sqls
   :after lsp-mode
@@ -1724,10 +1754,12 @@ smart merge workflow on the selected PR or all of them."
          ;; Todo sync
          :desc "Sync todo to Jira"                "t" #'org-jira-todo-to-jira)))
 
-;; (use-package! auth-source-1password
-;;   :config
-;;   (setq! auth-source-1password-vault "Private")
-;;   (auth-source-1password-enable))
+(use-package! auth-source-1password
+  :config
+  (setq! auth-source-1password-vault "Private")
+  (auth-source-1password-enable))
 
 (setq! elfeed-summary-settings
 '((tag-groups (:repeat-feeds t))))
+
+
