@@ -397,7 +397,7 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
 (setq! org-roam-capture-templates
       `(("g" "Generic" plain
          "%?"
-         :target (file+head "my-org-roam/%<%Y%m%d%H%M%S>-${slug}.org"
+         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
                             ,(concat "#+title: ${title}\n"
                                      "#+created: %U\n"
                                      "#+filetags: :%^{tag}:\n"
@@ -713,22 +713,22 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
 (add-hook 'prog-mode-hook (lambda () (add-to-list 'company-backends 'company-files)))
   )
 
+(defun my-venice-api-key ()
+  "Get Venice API key from 1Password."
+  (auth-source-pick-first-password :host "venice.ai" :user "api_key"))
+
 (setq! gptel-backend (gptel-make-openai "Venice"
                        :host "api.venice.ai"
                        :endpoint "/api/v1/chat/completions"
                        :stream t
-                       :key (lambda () (auth-source-pick-first-password :host "venice.ai"))
+                       :key #'my-venice-api-key
                        :models '(
-                        claude-opus-45
-                        gpt-5.2
-                        gemini-3-pro-preview
-                        grok-4.1-fast
-                        kimi-k2
-                        deepseek-3.2
-                        qwen3-235b
                         llama-3.3-70b
-                        venice-uncensored
-                        mistral-31-24b))
+                        mistral-7b-instruct
+                        qwen-2.5-72b-instruct
+                        deepseek-r1
+                        claude-3-5-sonnet
+                        gpt-4o-mini))
                     gptel-model 'llama-3.3-70b)
 
 (setq! gptel-default-backend "Venice")
@@ -1755,8 +1755,10 @@ smart merge workflow on the selected PR or all of them."
          :desc "Sync todo to Jira"                "t" #'org-jira-todo-to-jira)))
 
 (use-package! auth-source-1password
+  :after auth-source
   :config
-  (setq! auth-source-1password-vault "Private")
+  (setq auth-source-1password-vault "Private"
+        auth-source-1password-field "password")  ; Add this line
   (auth-source-1password-enable))
 
 (setq! elfeed-summary-settings
