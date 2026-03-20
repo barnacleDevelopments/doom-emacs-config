@@ -734,18 +734,27 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
 (setq! gptel-default-backend "Venice")
 
 (map! :leader
-      (:prefix ("o" . "open") "c" #'gptel)
-      (:prefix ("l" . "GPT")
-       "a" #'gptel-add
-       "r" #'gptel-rewrite
-       "m" #'gptel-menu
-       "s" #'gptel-send
-       "x" #'my/gptel-context-remove-all
-       "a" #'gptel--rewrite-accept))
+      (:prefix ("l" . "++LLM")
+               (:prefix-map ("g" . "GPTEL")
+                            "c" #'gptel)))
 
 ;; (use-package! gptel-magit
 ;;   :ensure t
 ;;   :hook (magit-mode . gptel-magit-install))
+
+(require 'acp)
+(require 'agent-shell)
+
+(setq agent-shell-anthropic-authentication
+      (agent-shell-anthropic-make-authentication :login t))
+;; rest of config...
+
+;; Global leader keybindings for Claude Code
+(map! :leader
+      (:prefix ("l" . "++GPT")
+        (:prefix-map ("s" . "agent-shell")
+          "s" #'agent-shell
+          "c" #'agent-shell-anthropic-start-claude-code)))
 
 
 
@@ -920,64 +929,10 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
 (map! :leader
       "d" #'dirvish-quick-access)      ; Open quick-access menu
 
-(use-package! claude-code
-  :config
-  ;; Use vterm as the terminal backend for better compatibility
-  (setq! claude-code-terminal-backend 'vterm)
-  (add-hook! 'vterm-mode-hook #'my/disable-line-numbers))
-
-
-;; Configure window display for Claude Code buffers using Doom's popup system
-;; Opens Claude sessions in a right-side window at 45% width
-(set-popup-rule! "^\\*claude:.+:.+\\*$"
-  :side 'right
-  :size 0.45
-  :select t
-  :quit nil
-  :ttl nil)
-
-;; Add custom slash commands to the Claude Code transient menu
-(after! claude-code
-  (transient-append-suffix 'claude-code-slash-commands '(-1 -1)
-    ["Custom Commands"
-     ("F" "Full-context" (lambda () (interactive)
-                           (let ((args (read-string "Full-context args: ")))
-                             (claude-code--do-send-command
-                              (if (string-empty-p args)
-                                  "/full-context"
-                                (concat "/full-context " args))))))]))
-
-;; Global leader keybindings for Claude Code
-(map! :leader
-      (:prefix ("l" . "++GPT")
-        (:prefix-map ("c" . "claude-code")
-          "c" #'claude-code                     ; Start/switch to Claude session
-          "r" (lambda () (interactive)          ; Reset/interrupt Claude
-                (claude-code-send-escape)
-                (claude-code-send-escape))
-          "o" #'claude-code-toggle              ; Toggle Claude window
-          "u" #'claude-code-continue            ; Toggle Claude window
-          "/" #'claude-code-slash-commands      ; Access slash commands
-          "s" #'claude-code-send-command        ; Send command to Claude
-          "b" #'claude-code-send-buffer         ; Send current buffer
-          "k" #'claude-code-kill                ; Kill current session
-          "K" #'claude-code-kill-all            ; Kill all sessions
-          "RET" #'claude-code-send-return       ; Send return/continue
-          "e" #'claude-code-send-escape         ; Send escape
-          "l" #'claude-code-list-context)))     ; List context files
-
-(use-package! claude-code
-  :config
-  ;; Enable Monet mode globally
-  (monet-mode 1)
-
-  ;; Hook Monet server startup into Claude Code's process lifecycle
-  ;; This ensures the WebSocket server is available when Claude needs it
-  (add-hook! 'claude-code-process-environment-functions
-            #'monet-start-server-function)
-
-  ;; Activate Claude Code mode
-  (claude-code-mode))
+(defun my-pgmacs-eventtemple-dev ()
+  (interactive)
+  (pgmacs-open-string
+   "user=postgres password=postgres host=localhost port=5432 dbname=eventtemple_dev"))
 
 (defun my/start-services (services)
   "Start multiple Prodigy SERVICES by name.
@@ -1754,10 +1709,10 @@ smart merge workflow on the selected PR or all of them."
          ;; Todo sync
          :desc "Sync todo to Jira"                "t" #'org-jira-todo-to-jira)))
 
-(use-package! auth-source-1password
-  :config
-  (setq! auth-source-1password-vault "Private")
-  (auth-source-1password-enable))
+;; (use-package! auth-source-1password
+;;   :config
+;;   (setq! auth-source-1password-vault "Private")
+;;   (auth-source-1password-enable))
 
 (setq! elfeed-summary-settings
 '((tag-groups (:repeat-feeds t))))

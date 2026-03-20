@@ -22,8 +22,6 @@
 (package! transient)
 (package! nov)
 (package! flymake-eslint)
-(package! claude-code :recipe (:host github :repo "stevemolitor/claude-code.el"))
-(package! monet :recipe (:host github :repo "stevemolitor/monet"))
 (package! prodigy :recipe (:host github :repo "rejeep/prodigy.el"))
 (package! rake :recipe (:host github :repo "asok/rake"))
 ;;(package! read-later :recipe (:host github :repo "barnacleDevelopments/read-later.el"))
@@ -48,6 +46,10 @@
 (package! auth-source-1password
   :recipe (:host github :repo "dlobraico/auth-source-1password"))
 (package! elfeed-summary :recipe (:host github :repo "SqrtMinusOne/elfeed-summary"))
+(package! shell-maker)
+(package! acp)
+(package! agent-shell)
+
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 ;; (package! some-package)
 
