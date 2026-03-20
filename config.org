@@ -322,6 +322,20 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
                "i" #'org-indent-block))
 
 #+end_src
+*** Capture Templates
+#+begin_src emacs-lisp :tangle ./config.el
+(setq org-capture-templates
+      '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
+         "%(org-chef-get-recipe-from-url)"
+         :empty-lines 1)
+        ("z" "Protocol Cookbook" entry (file "~/my-org-roam/cookbook.org")
+         "%(org-chef-get-recipe-string-from-url \"%:link\")"
+         :empty-lines 1)
+        ("m" "Manual Cookbook" entry (file "~/my-org-roam/cookbook.org")
+         "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n  :END:\n** Ingredients\n   %?\n** Directions\n\n")
+        ("L" "Web capture" entry (file "~/my-org-roam/web_captures.org")
+         "* %^{title}\n ")))
+#+end_src
 *** Org Modern
 #+begin_src elisp :tangle ./config.el
 (use-package! org-modern
@@ -466,7 +480,7 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
 (setq! org-roam-capture-templates
       `(("g" "Generic" plain
          "%?"
-         :target (file+head "my-org-roam/%<%Y%m%d%H%M%S>-${slug}.org"
+         :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
                             ,(concat "#+title: ${title}\n"
                                      "#+created: %U\n"
                                      "#+filetags: :%^{tag}:\n"
@@ -886,22 +900,22 @@ Reference: https://github.com/hlissner/doom-emacs/issues/4362
 [[https://github.com/karthink/gptel?tab=readme-ov-file#chatgpt][GPTEL Docs]]
 *** Configuration
 #+begin_src elisp :tangle ./config.el
+(defun my-venice-api-key ()
+  "Get Venice API key from 1Password."
+  (auth-source-pick-first-password :host "venice.ai" :user "api_key"))
+
 (setq! gptel-backend (gptel-make-openai "Venice"
                        :host "api.venice.ai"
                        :endpoint "/api/v1/chat/completions"
                        :stream t
-                       :key (lambda () (auth-source-pick-first-password :host "venice.ai"))
+                       :key #'my-venice-api-key
                        :models '(
-                        claude-opus-45
-                        gpt-5.2
-                        gemini-3-pro-preview
-                        grok-4.1-fast
-                        kimi-k2
-                        deepseek-3.2
-                        qwen3-235b
                         llama-3.3-70b
-                        venice-uncensored
-                        mistral-31-24b))
+                        mistral-7b-instruct
+                        qwen-2.5-72b-instruct
+                        deepseek-r1
+                        claude-3-5-sonnet
+                        gpt-4o-mini))
                     gptel-model 'llama-3.3-70b)
 
 (setq! gptel-default-backend "Venice")
@@ -911,6 +925,10 @@ Reference: https://github.com/hlissner/doom-emacs/issues/4362
                (:prefix-map ("g" . "GPTEL")
                             "c" #'gptel)))
 #+end_src
+
+#+RESULTS:
+: gptel--rewrite-accept
+
 *** Gptel Magit
 #+begin_src elisp
 ;; (use-package! gptel-magit
@@ -2215,10 +2233,12 @@ Reference: https://github.com/dlobraico/auth-source-1password
 *** Configuration
 
 #+begin_src elisp :tangle ./config.el
-;; (use-package! auth-source-1password
-;;   :config
-;;   (setq! auth-source-1password-vault "Private")
-;;   (auth-source-1password-enable))
+(use-package! auth-source-1password
+  :after auth-source
+  :config
+  (setq auth-source-1password-vault "Private"
+        auth-source-1password-field "password")  ; Add this line
+  (auth-source-1password-enable))
 #+end_src
 ** Elfeed-Summary
 #+begin_src emacs-lisp :tangle ./config.el
