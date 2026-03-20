@@ -272,6 +272,18 @@ Returns a formatted string like \"+42 -17\", or nil if not applicable."
       (:prefix ("f" . "format")
                "i" #'org-indent-block))
 
+(setq org-capture-templates
+      '(("c" "Cookbook" entry (file "~/my-org-roam/cookbook.org")
+         "%(org-chef-get-recipe-from-url)"
+         :empty-lines 1)
+        ("z" "Protocol Cookbook" entry (file "~/my-org-roam/cookbook.org")
+         "%(org-chef-get-recipe-string-from-url \"%:link\")"
+         :empty-lines 1)
+        ("m" "Manual Cookbook" entry (file "~/my-org-roam/cookbook.org")
+         "* %^{Recipe title: }\n  :PROPERTIES:\n  :source-url:\n  :servings:\n  :prep-time:\n  :cook-time:\n  :ready-in:\n  :END:\n** Ingredients\n   %?\n** Directions\n\n")
+        ("L" "Web capture" entry (file "~/my-org-roam/web_captures.org")
+         "* %^{title}\n ")))
+
 (use-package! org-modern
   :hook (org-mode . org-modern-mode)
   :config
